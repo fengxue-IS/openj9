@@ -497,6 +497,15 @@ tryAgain:
 		cpClass = J9_CLASS_FROM_CP(ramCP);
 		lookupOptions |= J9_LOOK_CLCONSTRAINTS;
 	}
+
+	if (NULL != cpClass &&
+		J9CPTYPE_STATIC_METHOD != J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex)) {
+		j9object_t detailMessage;
+		detailMessage = vm->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
+		setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
+		goto done;
+	}
+
 	if (jitFlags) {
 		lookupOptions |= J9_LOOK_NO_THROW;
 	}
@@ -1038,7 +1047,7 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 			goto done;
 		}
 	}
-	
+
 	nameAndSig = J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef);
 	lookupOptions = J9_LOOK_INTERFACE;
 	if ((resolveFlags & J9_RESOLVE_FLAG_JCL_CONSTANT_POOL) == J9_RESOLVE_FLAG_JCL_CONSTANT_POOL) {
@@ -1047,6 +1056,15 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 		cpClass = J9_CLASS_FROM_CP(ramCP);
 		lookupOptions |= J9_LOOK_CLCONSTRAINTS;
 	}
+
+	if (NULL != cpClass &&
+		J9CPTYPE_INTERFACE_METHOD != J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex)) {
+		j9object_t detailMessage;
+		detailMessage = vm->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
+		setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
+		goto done;
+	}
+
 	if (jitFlags) {
 		lookupOptions |= J9_LOOK_NO_THROW;
 	}
