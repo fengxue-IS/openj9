@@ -517,12 +517,14 @@ tryAgain:
 	/* check resolved method type is consistent with constant pool entry */
 	if (NULL != cpClass) {
 		switch (cpType) {
+#if !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
 			case J9CPTYPE_SHARED_METHOD:
+#endif /* !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES) */
 			case J9CPTYPE_HANDLE_METHOD:
 			case J9CPTYPE_INSTANCE_METHOD:
 				break;
 			case J9CPTYPE_STATIC_METHOD:
-				if (J9_JAVA_STATIC != J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+				if (J9_JAVA_STATIC != (J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 					J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 					j9object_t detailMessage;
 					detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -531,7 +533,7 @@ tryAgain:
 				}
 				break;
 			case J9CPTYPE_INTERFACE_METHOD:
-				if (J9_JAVA_INTERFACE != J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+				if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 					J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 					j9object_t detailMessage;
 					detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -1092,12 +1094,14 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 	if (method != NULL) {
 		if (NULL != cpClass) {
 			switch (cpType) {
+#if !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
 				case J9CPTYPE_SHARED_METHOD:
+#endif /* !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES) */
 				case J9CPTYPE_HANDLE_METHOD:
 				case J9CPTYPE_INSTANCE_METHOD:
 					break;
 				case J9CPTYPE_STATIC_METHOD:
-					if (J9_JAVA_STATIC != J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+					if (J9_JAVA_STATIC != (J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 						J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -1106,7 +1110,7 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 					}
 					break;
 				case J9CPTYPE_INTERFACE_METHOD:
-					if (J9_JAVA_INTERFACE != J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+					if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 						J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -1231,12 +1235,14 @@ resolveSpecialMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 		if (NULL != cpClass) {
 			cpType = J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex);
 			switch (cpType) {
+#if !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
 				case J9CPTYPE_SHARED_METHOD:
+#endif /* !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES) */
 				case J9CPTYPE_HANDLE_METHOD:
 				case J9CPTYPE_INSTANCE_METHOD:
 					break;
 				case J9CPTYPE_STATIC_METHOD:
-					if (J9_JAVA_STATIC != J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+					if (J9_JAVA_STATIC != (J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 						J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -1245,7 +1251,7 @@ resolveSpecialMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 					}
 					break;
 				case J9CPTYPE_INTERFACE_METHOD:
-					if (J9_JAVA_INTERFACE != J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+					if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 						J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -1598,12 +1604,14 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 			/* check resolved method type is consistent with constant pool entry */
 			if (NULL != cpClass) {
 				switch (J9_CP_TYPE(cpShapeDescription, cpIndex)) {
+#if !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
 					case J9CPTYPE_SHARED_METHOD:
+#endif /* !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES) */
 					case J9CPTYPE_HANDLE_METHOD:
 					case J9CPTYPE_INSTANCE_METHOD:
 						break;
 					case J9CPTYPE_STATIC_METHOD:
-						if (J9_JAVA_STATIC != J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+						if (J9_JAVA_STATIC != (J9_JAVA_STATIC & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 							J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 							j9object_t detailMessage;
 							detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
@@ -1611,7 +1619,7 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 						}
 						break;
 					case J9CPTYPE_INTERFACE_METHOD:
-						if (J9_JAVA_INTERFACE != J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers) {
+						if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers)) {
 							J9UTF8 *className = J9ROMCLASS_CLASSNAME(cpClass->romClass);
 							j9object_t detailMessage;
 							detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
