@@ -1102,7 +1102,7 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
 						j9object_t errorString = methodToString(vmStruct, method);
-						printf("!!! resolveInterfaceMethodRefInto -> J9CPTYPE_STATIC_METHOD -> %s -> %s", (char *)detailMessage, (char *)errorString);
+						printf("!!! resolveInterfaceMethodRefInto -> J9CPTYPE_STATIC_METHOD -> %s -> %s -> interface class: %s", (char *)detailMessage, (char *)errorString, (char *)J9UTF8_DATA(J9ROMCLASS_CLASSNAME(interfaceClass->romClass)));
 
 						setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 						goto done;
