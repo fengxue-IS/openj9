@@ -524,20 +524,18 @@ tryAgain:
 			case J9CPTYPE_INSTANCE_METHOD:
 			case J9CPTYPE_STATIC_METHOD:
 				if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
-					J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
+					J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
 					j9object_t detailMessage;
 					detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-					j9object_t errorString = methodToString(vmStruct, method);
 					setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 					goto done;
 				}
 				break;
 			case J9CPTYPE_INTERFACE_METHOD:
 				if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
-					J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
+					J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
 					j9object_t detailMessage;
 					detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-					j9object_t errorString = methodToString(vmStruct, method);
 					setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 					goto done;
 				}
@@ -1105,7 +1103,6 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 						J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-						j9object_t errorString = methodToString(vmStruct, method);
 						setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 						goto done;
 					}
@@ -1115,7 +1112,6 @@ resolveInterfaceMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA
 						J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-						j9object_t errorString = methodToString(vmStruct, method);
 						setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 						goto done;
 					}
@@ -1244,20 +1240,18 @@ resolveSpecialMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 				case J9CPTYPE_INSTANCE_METHOD:
 				case J9CPTYPE_STATIC_METHOD:
 					if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
-						J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
+						J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-						j9object_t errorString = methodToString(vmStruct, method);
 						setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 						goto done;
 					}
 					break;
 				case J9CPTYPE_INTERFACE_METHOD:
 					if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
-						J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
+						J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
 						j9object_t detailMessage;
 						detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-						j9object_t errorString = methodToString(vmStruct, method);
 						setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 						goto done;
 					}
@@ -1614,20 +1608,18 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 					case J9CPTYPE_INSTANCE_METHOD:
 					case J9CPTYPE_STATIC_METHOD:
 						if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
-							J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
+							J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
 							j9object_t detailMessage;
 							detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-							j9object_t errorString = methodToString(vmStruct, method);
 							setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 							goto done;
 						}
 						break;
 					case J9CPTYPE_INTERFACE_METHOD:
 						if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
-							J9UTF8 *className = J9ROMCLASS_CLASSNAME(interfaceClass->romClass);
+							J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
 							j9object_t detailMessage;
 							detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
-							j9object_t errorString = methodToString(vmStruct, method);
 							setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
 							goto done;
 						}
