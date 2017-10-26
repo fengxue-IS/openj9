@@ -539,8 +539,8 @@ tryAgain:
 /* 		switch (cpType) {
 #if !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
 			case J9CPTYPE_SHARED_METHOD:
-#endif /* !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES) */
-/*			case J9CPTYPE_HANDLE_METHOD:
+#endif // !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
+			case J9CPTYPE_HANDLE_METHOD:
 			case J9CPTYPE_INSTANCE_METHOD:
 			case J9CPTYPE_STATIC_METHOD:
 				if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
