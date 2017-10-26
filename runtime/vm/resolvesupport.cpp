@@ -516,11 +516,31 @@ tryAgain:
 
 	/* check resolved method type is consistent with constant pool entry */
 	if (NULL != cpClass) {
-		switch (cpType) {
+		if (J9CPTYPE_INTERFACE_METHOD == cpType) {
+			if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
+				J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
+				printf("resolveStaticMethodRefInto:\nJ9CPTYPE_INTERFACE_METHOD\n%s\n", J9UTF8_DATA(J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef))));
+				j9object_t detailMessage;
+				detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
+				setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
+				goto done;
+			}
+		} else {
+			if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
+				J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
+				printf("resolveStaticMethodRefInto:\nJ9CPTYPE_METHOD\n%s\n", J9UTF8_DATA(J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef))));
+				j9object_t detailMessage;
+				detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
+				setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
+				goto done;
+			}
+		}
+
+/* 		switch (cpType) {
 #if !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
 			case J9CPTYPE_SHARED_METHOD:
 #endif /* !defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES) */
-			case J9CPTYPE_HANDLE_METHOD:
+/*			case J9CPTYPE_HANDLE_METHOD:
 			case J9CPTYPE_INSTANCE_METHOD:
 			case J9CPTYPE_STATIC_METHOD:
 				if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
@@ -540,7 +560,7 @@ tryAgain:
 					goto done;
 				}
 				break;
-		}
+		} */
 	}
 
 	methodClass = J9_CLASS_FROM_METHOD(method);
