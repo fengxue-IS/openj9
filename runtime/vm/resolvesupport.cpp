@@ -519,7 +519,7 @@ tryAgain:
 		if (J9CPTYPE_INTERFACE_METHOD == cpType) {
 			if (J9_JAVA_INTERFACE != (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
 				J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
-				printf("resolveStaticMethodRefInto:\nJ9CPTYPE_INTERFACE_METHOD\n%s\n", J9UTF8_DATA(J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef))));
+				printf("\nresolveStaticMethodRefInto:\nJ9CPTYPE_INTERFACE_METHOD\nSignature: %s\nClass: %s\n", J9UTF8_DATA(J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef))), J9UTF8_DATA(J9ROMCLASS_CLASSNAME(J9_CLASS_FROM_METHOD(method)->romClass)));
 				j9object_t detailMessage;
 				detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
 				setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
@@ -528,7 +528,7 @@ tryAgain:
 		} else {
 			if (J9_JAVA_INTERFACE == (J9_JAVA_INTERFACE & J9_CLASS_FROM_METHOD(method)->romClass->modifiers)) {
 				J9UTF8 *className = J9ROMCLASS_CLASSNAME(resolvedClass->romClass);
-				printf("resolveStaticMethodRefInto:\nJ9CPTYPE_METHOD\n%s\n", J9UTF8_DATA(J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef))));
+				printf("\nresolveStaticMethodRefInto:\nJ9CPTYPE_METHOD\nSignature: %s\nClass: %s\n", J9UTF8_DATA(J9ROMNAMEANDSIGNATURE_SIGNATURE(J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef))), J9UTF8_DATA(J9ROMCLASS_CLASSNAME(J9_CLASS_FROM_METHOD(method)->romClass)));
 				j9object_t detailMessage;
 				detailMessage = vmStruct->javaVM->memoryManagerFunctions->j9gc_createJavaLangString(vmStruct, J9UTF8_DATA(className), J9UTF8_LENGTH(className), J9_STR_XLAT);
 				setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, (UDATA *)detailMessage);
