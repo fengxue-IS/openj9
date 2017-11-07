@@ -1778,6 +1778,7 @@ jvmtiGetConstantPool_translateCP(J9PortLibrary *privatePortLibrary, jvmtiGcp_tra
 			case J9CPTYPE_HANDLE_METHOD:
 			case J9CPTYPE_INSTANCE_METHOD:
 			case J9CPTYPE_STATIC_METHOD:
+			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_INTERFACE_METHOD:
 
 				rc = jvmtiGetConstantPool_addReference(translation, cpIndex,

@@ -2096,6 +2096,7 @@ typedef struct J9ConstantPool {
 #define J9_CP_DESCRIPTION_MASK  15
 #define J9CPTYPE_UNUSED8  8
 
+#define J9CPTYPE_INTERFACE_STATIC_METHOD 8
 
 
 typedef struct J9RAMConstantPoolItem {

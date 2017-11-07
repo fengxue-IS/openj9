@@ -231,6 +231,7 @@ getMethodAt(JNIEnv *env, jobject constantPoolOop, jint cpIndex, UDATA resolveFla
 					}
 				}
 				break;
+			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_STATIC_METHOD:
 				method = ((J9RAMStaticMethodRef *) ramConstantRef)->method;
 				/* TODO is this the right check for an unresolved method? Can I check against vm->initialMethods.initialStaticMethod */
@@ -260,7 +261,7 @@ getMethodAt(JNIEnv *env, jobject constantPoolOop, jint cpIndex, UDATA resolveFla
 
 		if (NULL != methodID) {
 			if (NULL != jlClass) {
-				returnValue = (*env)->ToReflectedMethod(env, jlClass, methodID, J9CPTYPE_STATIC_METHOD == cpType);
+				returnValue = (*env)->ToReflectedMethod(env, jlClass, methodID, J9CPTYPE_STATIC_METHOD == cpType || J9CPTYPE_INTERFACE_STATIC_METHOD == cpType);
 			} else {
 				throwNativeOOMError(env, 0, 0);
 			}
@@ -540,6 +541,7 @@ Java_sun_reflect_ConstantPool_getMemberRefInfoAt0(JNIEnv *env, jobject unusedObj
 			case J9CPTYPE_HANDLE_METHOD: /* fall thru */
 			case J9CPTYPE_INSTANCE_METHOD: /* fall thru */
 			case J9CPTYPE_STATIC_METHOD: /* fall thru */
+			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_INTERFACE_METHOD:
 				classRefCPIndex = ((J9ROMMethodRef *) romCPItem)->classRefCPIndex;
 				nameAndSignature = J9ROMMETHODREF_NAMEANDSIGNATURE((J9ROMMethodRef *) romCPItem);

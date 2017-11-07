@@ -556,6 +556,10 @@ tryAgain:
 		ramCPEntry->method = method;
 	}
 
+	if (isResolvedClassAnInterface && J9CPTYPE_INTERFACE_STATIC != J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex)) {
+		printf("\n static interface called with\n");
+	}
+
 done:
 	Trc_VM_resolveStaticMethodRef_Exit(vmStruct, method);
 	return method;

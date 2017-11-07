@@ -236,6 +236,9 @@ ConstantPoolMap::computeConstantPoolMapAndSizes()
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_METHOD;
 					} else if (isMarked(cfrCPIndex, INVOKE_SPECIAL)) {
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INSTANCE_METHOD;
+						if (CFR_CONSTANT_InterfaceMethodref == cpTag) {
+							printf("\n special invoke on interface\n");
+						}
 					} else if (isMarked(cfrCPIndex, INVOKE_HANDLEEXACT) || isMarked(cfrCPIndex, INVOKE_HANDLEGENERIC)) {
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_HANDLE_METHOD;
 					} else if (isMarked(cfrCPIndex, INVOKE_STATIC)) {
@@ -245,6 +248,13 @@ ConstantPoolMap::computeConstantPoolMapAndSizes()
 					} else {
 						Trc_BCU_Assert_ShouldNeverHappen();
 					}
+
+					if (CFR_CONSTANT_InterfaceMethodref == cpTag) {
+						if (J9CPTYPE_STATIC_METHOD == _romConstantPoolTypes[romCPIndex]) {
+							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_STATIC_METHOD;
+						}
+					}
+
 					SET_ROM_CP_INDEX(cfrCPIndex, 0, romCPIndex++);
 					break;
 				}
@@ -459,6 +469,7 @@ ConstantPoolMap::constantPoolDo(ConstantPoolVisitor *visitor)
 			case J9CPTYPE_INSTANCE_METHOD: /* fall through */
 			case J9CPTYPE_HANDLE_METHOD: /* fall through */
 			case J9CPTYPE_STATIC_METHOD: /* fall through */
+			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_INTERFACE_METHOD:
 				visitor->visitFieldOrMethod(getROMClassCPIndexForReference(slot1), U_16(slot2));
 				break;

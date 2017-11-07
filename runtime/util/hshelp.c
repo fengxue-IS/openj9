@@ -1605,6 +1605,7 @@ reresolveHotSwappedConstantPool(J9ConstantPool * ramConstantPool, J9VMThread * c
 					break;
 
 				case J9CPTYPE_STATIC_METHOD:
+				case J9CPTYPE_INTERFACE_STATIC_METHOD:
 
 					if (ramConstantPool != (J9ConstantPool *) vm->jclConstantPool) {
 						romMethodRef = ((J9ROMMethodRef *) romConstantPool) + i;
@@ -1682,6 +1683,7 @@ fixRAMConstantPoolForFastHCR(J9ConstantPool *ramConstantPool, J9HashTable *class
 				}
 				break;
 			}
+			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_STATIC_METHOD: {
 				J9RAMStaticMethodRef *methodRef = (J9RAMStaticMethodRef *) &ramConstantPool[cpIndex];
 

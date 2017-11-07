@@ -355,6 +355,7 @@ internalRunPreInitInstructions(J9Class * ramClass, J9VMThread * vmThread)
 					break;
 
 				case J9CPTYPE_STATIC_METHOD:
+				case J9CPTYPE_INTERFACE_STATIC_METHOD:
 					romMethodRef = ((J9ROMMethodRef *) romConstantPool) + i;
 					nas = J9ROMMETHODREF_NAMEANDSIGNATURE(romMethodRef);
 					/* In case this CP entry is shared with invokevirtual */
