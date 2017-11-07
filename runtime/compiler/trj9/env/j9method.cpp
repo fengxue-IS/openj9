@@ -1556,8 +1556,8 @@ cpType2trType(UDATA cpType)
    switch (cpType)
       {
       case J9CPTYPE_UNUSED:
-      case J9CPTYPE_UNUSED8:
-         return TR::NoType;
+//      case J9CPTYPE_UNUSED8:
+//         return TR::NoType;
       case J9CPTYPE_CLASS:
       case J9CPTYPE_STRING:
       case J9CPTYPE_ANNOTATION_UTF8:

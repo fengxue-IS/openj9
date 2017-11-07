@@ -563,7 +563,7 @@ dumpCallSiteData(J9PortLibrary *portLib, J9ROMClass *romClass, U_32 flags)
 						break;
 
 					case J9CPTYPE_UNUSED:
-					case J9CPTYPE_UNUSED8:
+//					case J9CPTYPE_UNUSED8:
 					default:
 						/* unknown cp type */
 						j9tty_printf(PORTLIB, "      <unknown type>\n");
