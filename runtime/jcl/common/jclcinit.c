@@ -308,7 +308,7 @@ jint initializeKnownClasses(J9JavaVM* vm, U_32 runtimeFlags)
 					return JNI_ERR;
 				}
 			}
-		} else if (J9CPTYPE_INSTANCE_METHOD == J9_CP_TYPE(cpShapeDescription, i)) {
+		} else if (J9CPTYPE_INSTANCE_METHOD == J9_CP_TYPE(cpShapeDescription, i) || J9CPTYPE_INTERFACE_INSTANCE_METHOD == J9_CP_TYPE(cpShapeDescription, i)) {
 			J9ROMClassRef* romClassRef = &romClassConstantPool[romMethodConstantPool[i].classRefCPIndex];
 
 			if (0 == (romClassRef->runtimeFlags & runtimeFlags)) {

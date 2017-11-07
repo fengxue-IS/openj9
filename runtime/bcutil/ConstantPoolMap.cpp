@@ -253,6 +253,9 @@ ConstantPoolMap::computeConstantPoolMapAndSizes()
 						if (J9CPTYPE_STATIC_METHOD == _romConstantPoolTypes[romCPIndex]) {
 							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_STATIC_METHOD;
 						}
+						if (J9CPTYPE_INSTANCE_METHOD == _romConstantPoolTypes[romCPIndex]) {
+							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_INSTANCE_METHOD;
+						}
 					}
 
 					SET_ROM_CP_INDEX(cfrCPIndex, 0, romCPIndex++);
@@ -402,7 +405,7 @@ ConstantPoolMap::findVarHandleMethodRefs()
 	U_16 *varHandleMethodTable = NULL;
 
 	for (U_16 i = 1; i < _romConstantPoolCount; i++) {
-		if  (J9CPTYPE_INSTANCE_METHOD == _romConstantPoolTypes[i]) {
+		if  (J9CPTYPE_INSTANCE_METHOD == _romConstantPoolTypes[i] || J9CPTYPE_INTERFACE_INSTANCE_METHOD == _romConstantPoolTypes[i]) {
 			U_16 cfrCPIndex = _romConstantPoolEntries[i];
 			U_32 slot1 = getCPSlot1(cfrCPIndex);
 			U_32 slot2 = getCPSlot2(cfrCPIndex);
@@ -469,6 +472,7 @@ ConstantPoolMap::constantPoolDo(ConstantPoolVisitor *visitor)
 			case J9CPTYPE_INSTANCE_METHOD: /* fall through */
 			case J9CPTYPE_HANDLE_METHOD: /* fall through */
 			case J9CPTYPE_STATIC_METHOD: /* fall through */
+			case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
 			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_INTERFACE_METHOD:
 				visitor->visitFieldOrMethod(getROMClassCPIndexForReference(slot1), U_16(slot2));

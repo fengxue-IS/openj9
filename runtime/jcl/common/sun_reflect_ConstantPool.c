@@ -212,6 +212,7 @@ getMethodAt(JNIEnv *env, jobject constantPoolOop, jint cpIndex, UDATA resolveFla
 			J9ConstantPool *constantPool = J9_CP_FROM_CLASS(cpClass);
 			switch (cpType) {
 			case J9CPTYPE_HANDLE_METHOD: /* fall through */
+			case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
 			case J9CPTYPE_INSTANCE_METHOD:
 				/* Check for resolved special first, then try to resolve as virtual, then special and then static */
 				method = ((J9RAMMethodRef *) ramConstantRef)->method;
@@ -541,6 +542,7 @@ Java_sun_reflect_ConstantPool_getMemberRefInfoAt0(JNIEnv *env, jobject unusedObj
 			case J9CPTYPE_HANDLE_METHOD: /* fall thru */
 			case J9CPTYPE_INSTANCE_METHOD: /* fall thru */
 			case J9CPTYPE_STATIC_METHOD: /* fall thru */
+			case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
 			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_INTERFACE_METHOD:
 				classRefCPIndex = ((J9ROMMethodRef *) romCPItem)->classRefCPIndex;
