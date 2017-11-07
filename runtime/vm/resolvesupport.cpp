@@ -468,6 +468,7 @@ resolveStaticMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA cp
 	J9Class *cpClass;
 	J9Class *methodClass = NULL;
 	BOOLEAN isResolvedClassAnInterface = FALSE;
+	J9JavaVM *vm = vmStruct->javaVM;
 
 	Trc_VM_resolveStaticMethodRef_Entry(vmStruct, ramCP, cpIndex, resolveFlags);
 
@@ -1105,6 +1106,7 @@ resolveSpecialMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 	UDATA jitFlags = 0;
 	UDATA lookupOptions;
 	J9Method *method = NULL;
+	J9JavaVM *vm = vmStruct->javaVM;
 	
 	Trc_VM_resolveSpecialMethodRef_Entry(vmStruct, ramCP, cpIndex, resolveFlags);
 
