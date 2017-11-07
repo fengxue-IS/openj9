@@ -556,8 +556,10 @@ tryAgain:
 		ramCPEntry->method = method;
 	}
 
-	if (isResolvedClassAnInterface && J9CPTYPE_INTERFACE_STATIC != J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex)) {
-		printf("\n static interface called with\n");
+	if (isResolvedClassAnInterface && J9CPTYPE_INTERFACE_STATIC_METHOD != J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex)) {
+		printf("\n static interface called with non interface\n");
+	} else if ( (!isResolvedClassAnInterface) && (J9CPTYPE_INTERFACE_STATIC_METHOD == J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(cpClass->romClass), cpIndex))) {
+		printf("\n non interface static called with interface\n");
 	}
 
 done:
