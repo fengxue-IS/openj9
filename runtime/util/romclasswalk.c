@@ -690,7 +690,7 @@ static void allSlotsInConstantPoolDo(J9ROMClass* romClass, J9ROMClassWalkCallbac
 				break;
 
 
-//			case J9CPTYPE_UNUSED:
+			case J9CPTYPE_UNUSED:
 //			case J9CPTYPE_UNUSED8:
 				callbacks->slotCallback(romClass, J9ROM_U64, &constantPool[index], "cpFieldUnused", userData);
 				break;

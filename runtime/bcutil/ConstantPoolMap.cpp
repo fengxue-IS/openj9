@@ -237,25 +237,19 @@ ConstantPoolMap::computeConstantPoolMapAndSizes()
 					} else if (isMarked(cfrCPIndex, INVOKE_SPECIAL)) {
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INSTANCE_METHOD;
 						if (CFR_CONSTANT_InterfaceMethodref == cpTag) {
-							printf("\n special invoke on interface\n");
+							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_INSTANCE_METHOD;
 						}
 					} else if (isMarked(cfrCPIndex, INVOKE_HANDLEEXACT) || isMarked(cfrCPIndex, INVOKE_HANDLEGENERIC)) {
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_HANDLE_METHOD;
 					} else if (isMarked(cfrCPIndex, INVOKE_STATIC)) {
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_STATIC_METHOD;
+						if (CFR_CONSTANT_InterfaceMethodref == cpTag) {
+							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_STATIC_METHOD;
+						}
 					} else if (isMarked(cfrCPIndex, INVOKE_VIRTUAL)) {
 						_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INSTANCE_METHOD;
 					} else {
 						Trc_BCU_Assert_ShouldNeverHappen();
-					}
-
-					if (CFR_CONSTANT_InterfaceMethodref == cpTag) {
-						if (J9CPTYPE_STATIC_METHOD == _romConstantPoolTypes[romCPIndex]) {
-							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_STATIC_METHOD;
-						}
-						if (J9CPTYPE_INSTANCE_METHOD == _romConstantPoolTypes[romCPIndex]) {
-							_romConstantPoolTypes[romCPIndex] = J9CPTYPE_INTERFACE_INSTANCE_METHOD;
-						}
 					}
 
 					SET_ROM_CP_INDEX(cfrCPIndex, 0, romCPIndex++);
