@@ -1154,7 +1154,7 @@ resolveSpecialMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 	}
 
 	if (currentClass != NULL) {
-		if (resolvedClass->romClass != NULL & currentClass->romClass != NULL) {
+		if (resolvedClass->romClass != NULL && currentClass->romClass != NULL) {
 		if (J9_JAVA_INTERFACE == (resolvedClass->romClass->modifiers & J9_JAVA_INTERFACE)) {
 			if (J9CPTYPE_INTERFACE_INSTANCE_METHOD != J9_CP_TYPE(J9ROMCLASS_CPSHAPEDESCRIPTION(currentClass->romClass), cpIndex)) {
 				setCurrentException(vmStruct, J9VMCONSTANTPOOL_JAVALANGINCOMPATIBLECLASSCHANGEERROR, NULL);
