@@ -672,7 +672,7 @@ static void allSlotsInConstantPoolDo(J9ROMClass* romClass, J9ROMClassWalkCallbac
 			case J9CPTYPE_HANDLE_METHOD:
 			case J9CPTYPE_INSTANCE_METHOD:
 			case J9CPTYPE_STATIC_METHOD:
-			case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
+//			case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
 			case J9CPTYPE_INTERFACE_STATIC_METHOD:
 			case J9CPTYPE_INTERFACE_METHOD:
 				callbacks->slotCallback(romClass, J9ROM_NAS, &((J9ROMMethodRef *)&constantPool[index])->nameAndSignature, "cpFieldNAS", userData);
@@ -688,7 +688,6 @@ static void allSlotsInConstantPoolDo(J9ROMClass* romClass, J9ROMClassWalkCallbac
 				callbacks->slotCallback(romClass, J9ROM_U32, &((J9ROMMethodHandleRef *)&constantPool[index])->methodOrFieldRefIndex, "cpFieldMethodOrFieldRef", userData);
 				callbacks->slotCallback(romClass, J9ROM_U32, &((J9ROMMethodHandleRef *)&constantPool[index])->handleTypeAndCpType, "cpFieldHandleTypeAndCpType", userData);
 				break;
-
 
 			case J9CPTYPE_UNUSED:
 //			case J9CPTYPE_UNUSED8:

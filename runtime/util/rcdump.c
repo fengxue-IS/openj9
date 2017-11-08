@@ -521,7 +521,7 @@ dumpCallSiteData(J9PortLibrary *portLib, J9ROMClass *romClass, U_32 flags)
 
 					case J9CPTYPE_HANDLE_METHOD:
 					case J9CPTYPE_INSTANCE_METHOD:
-					case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
+//					case J9CPTYPE_INTERFACE_INSTANCE_METHOD:
 					case J9CPTYPE_STATIC_METHOD:
 					case J9CPTYPE_INTERFACE_STATIC_METHOD:
 					case J9CPTYPE_INTERFACE_METHOD:
@@ -563,12 +563,7 @@ dumpCallSiteData(J9PortLibrary *portLib, J9ROMClass *romClass, U_32 flags)
 						j9tty_printf(PORTLIB, "\n");
 						break;
 
-<<<<<<< HEAD
 					case J9CPTYPE_UNUSED:
-=======
-//					case J9CPTYPE_UNUSED:
-#if defined(J9VM_INTERP_USE_SPLIT_SIDE_TABLES)
->>>>>>> i
 //					case J9CPTYPE_UNUSED8:
 					default:
 						/* unknown cp type */
