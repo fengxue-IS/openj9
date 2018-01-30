@@ -25,6 +25,7 @@
 
 /* @ddr_namespace: default */
 #include <string.h>
+#include <stdio.h>
 
 #include "j9cfg.h"
 #include "j9comp.h"

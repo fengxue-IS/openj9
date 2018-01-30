@@ -29,6 +29,7 @@
 #include "ut_j9vm.h"
 #include "VMHelpers.hpp"
 #include "AtomicSupport.hpp"
+#include <stdio.h>
 
 #if defined(J9VM_INTERP_USE_UNSAFE_HELPER)
 extern "C" {
@@ -253,6 +254,7 @@ instanceField:
 				J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 				if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+					printf("Enter from put32\n");
 					VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 				}
 				void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -334,6 +336,7 @@ instanceField:
 				J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 				if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+					printf("Enter from put64\n");
 					VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 				}
 				void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -528,6 +531,7 @@ public:
 			J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 			if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+				printf("Enter from putObject\n");
 				VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 			}
 			void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -553,6 +557,7 @@ public:
 			J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 			if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+				printf("Enter from compareAndSwapObject\n");
 				VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 			}
 			void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -589,6 +594,7 @@ public:
 				J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 				if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+					printf("Enter from compareAndSwapLong\n");
 					VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 				}
 				void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -627,6 +633,7 @@ instanceField:
 				J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 				if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+					printf("Enter from compareAndSwapInt\n");
 					VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 				}
 				void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -657,6 +664,7 @@ instanceField:
 			J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 			if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+				printf("Enter from compareAndExchangeObject\n");
 				VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 			}
 			void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -693,6 +701,7 @@ instanceField:
 				J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 				if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+					printf("Enter from compareAndExchangeInt\n");
 					VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 				}
 				void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
@@ -731,6 +740,7 @@ instanceField:
 				J9Class *fieldClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, object);
 
 				if (J9_ARE_ANY_BITS_SET(offset, J9_SUN_FINAL_FIELD_OFFSET_TAG)) {
+					printf("Enter from compareAndExchangeLong\n");
 					VM_VMHelpers::reportFinalFieldModified(currentThread, fieldClass);
 				}
 				void *valueAddress = (void*)((UDATA)fieldClass->ramStatics + (offset & ~(UDATA)J9_SUN_FIELD_OFFSET_MASK));
