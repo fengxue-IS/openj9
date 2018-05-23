@@ -1853,6 +1853,7 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 	specialArgs.argEncoding = &argEncoding;
 	specialArgs.executableJarPath = NULL;
 	specialArgs.ibmMallocTraceSet = &ibmMallocTraceSet;
+	int i = 0;
 #ifdef J9ZTPF
 
     result = tpf_eownrc(TPF_SET_EOWNR, "IBMRT4J                        ");
@@ -2083,6 +2084,13 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 #endif
 
 	args = (JavaVMInitArgs *)vm_args;
+
+	printf("JNI_CreateJavaVM:\n");
+	for (;i< args->nOptions; i++) {
+		printf("\tOption %d\n\t\t%s\n\t\t%s\n", i, args[i].options->optionString, (char*)args[i].options->extraInfo);
+	}
+	printf("\n");
+
 	launcherArgumentsSize = initialArgumentScan(args, &specialArgs);
 	localVerboseLevel = specialArgs.localVerboseLevel;
 
