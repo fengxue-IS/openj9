@@ -2087,7 +2087,7 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 
 	printf("JNI_CreateJavaVM:\n");
 	for (;i< args->nOptions; i++) {
-		printf("\tOption %d\n\t\t%s\n\t\t%s\n", i, args[i].options->optionString, (char*)args[i].options->extraInfo);
+		printf("\tOption %d\n\t\t%s\n\t\t%s\n", i, args->options[i].optionString, (char*)args->options[i].extraInfo);
 	}
 	printf("\n");
 

@@ -304,8 +304,14 @@ int main_runJavaMain(JNIEnv * env, char *mainClassName, int nameIsUTF, int java_
 	jstring str;
 	jclass globalCls;
 	jarray globalArgs;
-
+	int j = 0;
 	PORT_ACCESS_FROM_PORT(j9portLibrary);
+
+	printf("main_runJavaMain:\n");
+	for (;j<java_argc;j++) {
+		printf("\t%s\n", java_argv[j]);
+	}
+	printf("\t[%s]\n", mainClassName);
 
 	slashifiedClassName = j9mem_allocate_memory(strlen(mainClassName) + 1, OMRMEM_CATEGORY_VM);
 	if (slashifiedClassName == NULL) {
