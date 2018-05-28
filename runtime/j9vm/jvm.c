@@ -1854,6 +1854,7 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 	specialArgs.executableJarPath = NULL;
 	specialArgs.ibmMallocTraceSet = &ibmMallocTraceSet;
 	int i = 0;
+	J9PortLibrary *privatePortLibrary = NULL;
 #ifdef J9ZTPF
 
     result = tpf_eownrc(TPF_SET_EOWNR, "IBMRT4J                        ");
@@ -2090,6 +2091,10 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 		printf("\tOption %d\n\t\t%s\n\t\t%s\n", i, args->options[i].optionString, (char*)args->options[i].extraInfo);
 	}
 	printf("\n");
+	privatePortLibrary = &j9portLibrary;
+	char testbuffer[512];
+	j9sysinfo_get_env("IBM_JAVA_COMMAND_LINE", testbuffer, 512);
+	printf("j9sysinfo_get_env(IBM_JAVA_COMMAND_LINE = %s\t null ? %s\n", testbuffer, testbuffer ? "true" : "false");
 
 	launcherArgumentsSize = initialArgumentScan(args, &specialArgs);
 	localVerboseLevel = specialArgs.localVerboseLevel;

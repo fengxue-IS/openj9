@@ -1480,6 +1480,7 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
 			return -1;
 		}
 	}
+	printf("@ addLauncherArgs\n");
 	*xServiceBuffer = NULL;
 	cursor = optionsArgumentBuffer;
 	JVMINIT_VERBOSE_INIT_TRACE1(verboseFlags, "Adding command line arguments\n", NULL);
@@ -1490,6 +1491,8 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
 		char *optString = currentOpt->optionString;
 		char *transcodedString = optString;
 		UDATA consumableFlag = CONSUMABLE_ARG;
+
+		printf("\t%s\n", optString);
 
 		Assert_Util_notNull(optString);
 		if (0 == strcmp(optString, "-Xprod") ) {
