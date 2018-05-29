@@ -77,6 +77,9 @@
 #define JAVA_USER_DIR_EQUALS "-Duser.dir="
 #define SUN_NIO_MAXDIRECTMEMORYSIZE_EQUALS "-Dsun.nio.MaxDirectMemorySize="
 #define OPTIONS_DEFAULT "options.default"
+#define JAVA_LAUNCHER "-Dsun.java.launcher"
+#define JAVA_CLASS_PATH "-Djava.class.path="
+#define JAVA_COMMAND "-Dsun.java.command="
 
 #define LARGE_STRING_BUF_SIZE 256
 
@@ -1466,6 +1469,7 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
 	size_t lastArgumentSize = 0;
 	jint optInd = 0;
 	UDATA convertEncoding = FALSE;
+	char *cmdline = NULL;
 
 	PORT_ACCESS_FROM_PORT(portLib);
 
@@ -1483,6 +1487,10 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
 	printf("@ addLauncherArgs\n");
 	*xServiceBuffer = NULL;
 	cursor = optionsArgumentBuffer;
+
+	cmdline = j9mem_allocate_memory(launcherArgumentsSize, OMRMEM_CATEGORY_VM);
+	cmdline[0] = '\0';
+
 	JVMINIT_VERBOSE_INIT_TRACE1(verboseFlags, "Adding command line arguments\n", NULL);
 	for (optInd = 0; optInd < launcherArgs-> nOptions; ++optInd) {
 		UDATA xOptLen = strlen(VMOPT_XOPTIONSFILE_EQUALS);
@@ -1491,8 +1499,25 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
 		char *optString = currentOpt->optionString;
 		char *transcodedString = optString;
 		UDATA consumableFlag = CONSUMABLE_ARG;
+		UDATA cpLength = strlen(JAVA_CLASS_PATH);
 
 		printf("\t%s\n", optString);
+		if (0 == strncmp(optString, JAVA_LAUNCHER, strlen(JAVA_LAUNCHER))) {
+			/* skip launcher info */
+		} else if (0 == strncmp(optString, JAVA_CLASS_PATH, cpLength)) {
+			if ((cpLength == strlen(optString) - 1) && (optString[cpLength] == '.')) {
+				/* skip default class path*/
+			} else {
+				strcat(cmdline," -classpath ");
+				strcat(cmdline, optString+cpLength);
+			}
+		} else if (0 == strncmp(optString, JAVA_COMMAND, strlen(JAVA_COMMAND))) {
+			strcat(cmdline, " ");
+			strcat(cmdline, optString + strlen(JAVA_COMMAND));
+		} else {
+			strcat(cmdline, " ");
+			strcat(cmdline,optString);
+		}
 
 		Assert_Util_notNull(optString);
 		if (0 == strcmp(optString, "-Xprod") ) {
@@ -1628,6 +1653,7 @@ addLauncherArgs(J9PortLibrary * portLib, JavaVMInitArgs *launcherArgs, UDATA lau
 		}
 
 	}
+	printf("optionsArgumentBuffer: %s\nbuilt cmdline %s\n", optionsArgumentBuffer, cmdline);
 	return 0;
 }
 

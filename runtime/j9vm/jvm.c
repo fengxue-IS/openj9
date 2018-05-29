@@ -2086,15 +2086,11 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 
 	args = (JavaVMInitArgs *)vm_args;
 
-	printf("JNI_CreateJavaVM:\n");
-	for (;i< args->nOptions; i++) {
-		printf("\tOption %d\n\t\t%s\n\t\t%s\n", i, args->options[i].optionString, (char*)args->options[i].extraInfo);
-	}
-	printf("\n");
 	privatePortLibrary = &j9portLibrary;
 	char testbuffer[512];
 	j9sysinfo_get_env("IBM_JAVA_COMMAND_LINE", testbuffer, 512);
-	printf("j9sysinfo_get_env(IBM_JAVA_COMMAND_LINE = %s\t null ? %s\n", testbuffer, testbuffer ? "true" : "false");
+	printf("j9sysinfo_get_env(IBM_JAVA_COMMAND_LINE = %s\t null ? %s\n", testbuffer, (*
+	testbuffer == '\0') ? "true" : "false");
 
 	launcherArgumentsSize = initialArgumentScan(args, &specialArgs);
 	localVerboseLevel = specialArgs.localVerboseLevel;
