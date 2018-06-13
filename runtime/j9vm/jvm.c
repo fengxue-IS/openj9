@@ -91,13 +91,19 @@
 #endif
 
 #if defined(LINUX) && !defined(J9VM_ENV_DATA64)
-#include <unistd.h>
+//#include <unistd.h>
 /* glibc 2.4 and on provide lseek64(), do not use the syscall hack */
 #if !__GLIBC_PREREQ(2,4)
 /* Support code for CMVC 104382. */
 #include <linux/unistd.h>
 _syscall5(int, _llseek, uint, fd, ulong, hi, ulong, lo, loff_t *, res, uint, wh);
 #endif
+#endif
+
+#include <stdio.h>
+
+#if !defined(WIN32)
+#include <unistd.h>
 #endif
 
 /* Ensure J9VM_JAVA9_BUILD is always defined to simplify conditions. */
@@ -1848,13 +1854,15 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 	const char *ldLibraryPathValue = NULL;
 	J9SpecialArguments specialArgs;
 	omrthread_t attachedThread = NULL;
+	J9PortLibrary * privatePortLibrary;
+	char testbuffer[512];
+	char* win_cmd;
+	
 	specialArgs.localVerboseLevel = localVerboseLevel;
 	specialArgs.xoss = &xoss;
 	specialArgs.argEncoding = &argEncoding;
 	specialArgs.executableJarPath = NULL;
 	specialArgs.ibmMallocTraceSet = &ibmMallocTraceSet;
-	int i = 0;
-	J9PortLibrary *privatePortLibrary = NULL;
 #ifdef J9ZTPF
 
     result = tpf_eownrc(TPF_SET_EOWNR, "IBMRT4J                        ");
@@ -2087,11 +2095,46 @@ jint JNICALL JNI_CreateJavaVM(JavaVM **pvm, void **penv, void *vm_args) {
 	args = (JavaVMInitArgs *)vm_args;
 
 	privatePortLibrary = &j9portLibrary;
-	char testbuffer[512];
+	testbuffer[0] = '\0';
 	j9sysinfo_get_env("IBM_JAVA_COMMAND_LINE", testbuffer, 512);
-	printf("j9sysinfo_get_env(IBM_JAVA_COMMAND_LINE = %s\t null ? %s\n", testbuffer, (*
-	testbuffer == '\0') ? "true" : "false");
+	printf("j9sysinfo_get_env(IBM_JAVA_COMMAND_LINE = %s\t null ? %s\n", testbuffer, (*testbuffer == '\0') ? "true" : "false");
+{
+#if defined(WIN32)
+	win_cmd = GetCommandLine();
+	printf("Windows GetCommandLine:\n\t%s\n", win_cmd);
+#else
+	char cmdpath[128];
+	pid_t pid = getpid();
+	sprintf(cmdpath, "/proc/%d/cmdline", (int)pid);
+	intptr_t f;
+    int filesize;
+    if ((f = j9file_open(cmdpath, EsOpenRead, 0)) < 0) {
+		printf("Unable to open file : %s\n", cmdpath);
+	} else {
+		printf("Unix /proc/%d/cmdline:\n\t", (int)pid);
 
+		filesize = (int)j9file_read(f, testbuffer, sizeof(testbuffer)-1);
+		if (filesize <= 0) {
+			printf("Error when reading, return(ed): %d\n", filesize);
+		} else {
+			int count = 0;
+			int cur;
+			printf("Filesize read is: %d\n", filesize);
+			for (cur = 0; cur < filesize; cur++) {
+				if (testbuffer[cur] == '\0') {
+					testbuffer[cur] = ' ';
+					count++;
+				}
+			}
+			printf("%d converted to SPACE\n", count);
+			testbuffer[filesize] = '\0';
+			printf("%s\n", testbuffer);
+		}
+
+		j9file_close(f);
+    }
+#endif
+}
 	launcherArgumentsSize = initialArgumentScan(args, &specialArgs);
 	localVerboseLevel = specialArgs.localVerboseLevel;
 
