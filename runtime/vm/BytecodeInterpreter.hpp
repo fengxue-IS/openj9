@@ -697,9 +697,9 @@ done:
 	{
 		void* const jitReturnAddress = VM_JITInterface::peekJITReturnAddress(_currentThread, _sp);
 		UDATA jitVTableIndex = VM_JITInterface::jitVTableIndex(jitReturnAddress, interfaceVTableIndex);
-		UDATA vTableIndex = sizeof(J9Class) - jitVTableIndex;
+		UDATA vTableOffset = J9VTABLE_OFFSET_FROM_JIT_OFFSET(jitVTableIndex);
 		J9Class *clazz = J9OBJECT_CLAZZ(_currentThread, receiver);
-		return *(J9Method**)((UDATA)clazz + vTableIndex);
+		return *(J9Method**)((UDATA)clazz + vTableOffset);
 	}
 
 	VMINLINE void

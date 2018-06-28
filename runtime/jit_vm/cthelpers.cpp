@@ -81,7 +81,7 @@ done:
 UDATA
 jitGetInterfaceVTableIndexFromCP(J9VMThread *currentThread, J9ConstantPool *constantPool, UDATA cpIndex, J9Class* lookupClass)
 {
-	UDATA vTableIndex = 0;
+	UDATA vTableOffset = 0;
 	UDATA iTableIndex = 0;
 	J9Class *interfaceClass = jitGetInterfaceITableIndexFromCP(currentThread, constantPool, cpIndex, &iTableIndex);
 	if (NULL != interfaceClass) {
@@ -94,22 +94,22 @@ jitGetInterfaceVTableIndexFromCP(J9VMThread *currentThread, J9ConstantPool *cons
 			if (interfaceClass == iTable->interfaceClass) {
 				lookupClass->lastITable = iTable;
 foundITable:
-				vTableIndex = ((UDATA*)(iTable + 1))[iTableIndex];
+				vTableOffset = ((UDATA*)(iTable + 1))[iTableIndex];
 				break;
 			}
 			iTable = iTable->next;
 		}
 	}
-	return vTableIndex;
+	return vTableOffset;
 }
 
 J9Method*
 jitGetInterfaceMethodFromCP(J9VMThread *currentThread, J9ConstantPool *constantPool, UDATA cpIndex, J9Class* lookupClass)
 {
-	UDATA vTableIndex = jitGetInterfaceVTableIndexFromCP(currentThread, constantPool, cpIndex, lookupClass);
+	UDATA vTableOffset = jitGetInterfaceVTableIndexFromCP(currentThread, constantPool, cpIndex, lookupClass);
 	J9Method *method = NULL;
-	if (0 != vTableIndex) {
-		method = *(J9Method**)((UDATA)lookupClass + vTableIndex);
+	if (0 != vTableOffset) {
+		method = *(J9Method**)((UDATA)lookupClass + vTableOffset);
 		if (!J9_ARE_ANY_BITS_SET(J9_ROM_METHOD_FROM_RAM_METHOD(method)->modifiers, J9AccPublic)) {
 			method = NULL;
 		}
