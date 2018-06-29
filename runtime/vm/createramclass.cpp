@@ -954,15 +954,13 @@ copyVTable(J9VMThread *vmStruct, J9Class *ramClass, J9Class *superclass, UDATA *
 	}
 #endif
 	
-	/* skip the virtualMethodResolve pseudo-method */
-	superCount = 1;
 	if (superclass != NULL) {
 		/* add superclass vtable size */
-		superCount += *((UDATA *)(superclass + 1));
+		superCount = J9VTABLE_HEADER_FROM_RAM_CLASS(superclass)->size;
 	}
 	
-	count = *vTable;
-	vTableAddress = (UDATA *)(ramClass + 1);
+	count = ((J9VTableHeader *)vTable)->size;
+	vTableAddress = (UDATA *)J9VTABLE_HEADER_FROM_RAM_CLASS(ramClass);
 	*vTableAddress = count;
 	/* start at 1 to skip the size field */
 	for (index = 1; index <= count; index++) {
@@ -1025,11 +1023,10 @@ found:
 	jitConfig = vmStruct->javaVM->jitConfig;
 	if (jitConfig != NULL) {
 		UDATA *vTableWriteCursor = &((UDATA *)ramClass)[-1];
+		/* only copy in the real methods */
 		UDATA vTableWriteIndex = *vTableAddress;
 		UDATA *vTableReadCursor;
 		if (vTableWriteIndex != 0) {
-			/* do not copy in the default method */
-			vTableWriteIndex--;
 			if ((jitConfig->runtimeFlags & J9JIT_TOSS_CODE) != 0) {
 				vTableWriteCursor -= vTableWriteIndex;
 			} else {
