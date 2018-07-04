@@ -1589,7 +1589,7 @@ retry:
 		}
 		goto retry;
 	}
-	JIT_RETURN_UDATA(JIT_VTABLE_OFFSET_FROM_OFFSET(vTableOffset));
+	JIT_RETURN_UDATA(sizeof(J9Class) - vTableOffset);
 done:
 	SLOW_JIT_HELPER_EPILOGUE();
 	return addr;
