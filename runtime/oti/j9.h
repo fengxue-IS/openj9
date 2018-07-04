@@ -307,6 +307,6 @@ static const struct { \
 #define J9VTABLE_OFFSET_FROM_INDEX(index) (sizeof(J9Class) + sizeof(J9VTableHeader) + index * sizeof(UDATA))
 
 /* Skip 1 slot (the vTable size slot) */
-#define JIT_VTABLE_START_ADDRESS(vtable) ((UDATA *)vTable - 2)
+#define JIT_VTABLE_START_ADDRESS(vtable) ((UDATA *)vtable - 2)
 
 #endif /* J9_H */
