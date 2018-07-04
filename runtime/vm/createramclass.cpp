@@ -937,7 +937,9 @@ copyVTable(J9VMThread *vmStruct, J9Class *ramClass, J9Class *superclass, UDATA *
 {
 	UDATA superCount;
 	UDATA count;
-	UDATA *vTableAddress;
+	J9VTableHeader *vTableAddress;
+	UDATA *sourceVTable;
+	UDATA *newVTable;
 	UDATA index;
 	J9Method *ramMethods = ramClass->ramMethods;
 #if defined(J9VM_INTERP_NATIVE_SUPPORT)
@@ -960,11 +962,15 @@ copyVTable(J9VMThread *vmStruct, J9Class *ramClass, J9Class *superclass, UDATA *
 	}
 	
 	count = ((J9VTableHeader *)vTable)->size;
-	vTableAddress = (UDATA *)J9VTABLE_HEADER_FROM_RAM_CLASS(ramClass);
-	*vTableAddress = count;
-	/* start at 1 to skip the size field */
-	for (index = 1; index <= count; index++) {
-		J9Method *vTableMethod = (J9Method *)vTable[index];
+	vTableAddress = J9VTABLE_HEADER_FROM_RAM_CLASS(ramClass);
+	vTableAddress->size = count;
+	vTableAddress->initialVirtualMethod = ((J9VTableHeader *)vTable)->initialVirtualMethod;
+
+	sourceVTable = J9VTABLE_FROM_HEADER(vTable);
+	newVTable = J9VTABLE_FROM_HEADER(vTableAddress);
+
+	for (index = 0; index < count; index++) {
+		J9Method *vTableMethod = (J9Method *)sourceVTable[index];
 		UDATA temp = (UDATA)vTableMethod;
 		
 		if (ROM_METHOD_ID_TAG == (temp & VTABLE_SLOT_TAG_MASK)) {
@@ -1008,12 +1014,12 @@ found:
 			conflictMethodPtr++;
 		}
 		
-		vTableAddress[index] = (UDATA)vTableMethod;
+		newVTable[index] = (UDATA)vTableMethod;
 		/* once we've walked the inherited entries, we can optimize the ramMethod search
 		 * by remembering where the search ended last time. Since the methods occur in
 		 * order in the VTable, we can start searching at the previous method
 		 */
-		if (index > superCount) {
+		if (index >= superCount) {
 			ramMethods = vTableMethod;
 		}
 	}
@@ -1023,8 +1029,12 @@ found:
 	jitConfig = vmStruct->javaVM->jitConfig;
 	if (jitConfig != NULL) {
 		UDATA *vTableWriteCursor = &((UDATA *)ramClass)[-1];
+
+		/* Skip slots to match the Interpreter vTable size for easy offset conversion */
+		vTableWriteCursor -= (sizeof(J9VTableHeader) / sizeof(UDATA) - 2);
+
 		/* only copy in the real methods */
-		UDATA vTableWriteIndex = *vTableAddress;
+		UDATA vTableWriteIndex = vTableAddress->size;
 		UDATA *vTableReadCursor;
 		if (vTableWriteIndex != 0) {
 			if ((jitConfig->runtimeFlags & J9JIT_TOSS_CODE) != 0) {
@@ -1033,19 +1043,19 @@ found:
 				UDATA superVTableSize;
 				UDATA *superVTableReadCursor;
 				UDATA *superVTableWriteCursor = &((UDATA *)superclass)[-1];
+				/* Skip slots to match the Interpreter vTable size for easy offset conversion */
+				superVTableWriteCursor -= (sizeof(J9VTableHeader) / sizeof(UDATA) - 2);
 				if (superclass == NULL) {
 					superVTableReadCursor = NULL;
 					superVTableSize = 0;
 				} else {
-					superVTableReadCursor = (UDATA *)(superclass + 1);
-					superVTableSize = *superVTableReadCursor;
-					/* do not copy in the default method */
-					superVTableSize--;
+					superVTableReadCursor = (UDATA *)J9VTABLE_HEADER_FROM_RAM_CLASS(superclass);
+					superVTableSize = ((J9VTableHeader *)superVTableReadCursor)->size;
 				}
 				/* initialize pointer to first real vTable method */
-				superVTableReadCursor = &superVTableReadCursor[2];
+				superVTableReadCursor = J9VTABLE_FROM_HEADER(superVTableReadCursor);
 				/* initialize pointer to first real vTable method */
-				vTableReadCursor = &vTableAddress[2];
+				vTableReadCursor = J9VTABLE_FROM_HEADER(vTableAddress);
 				for (; vTableWriteIndex > 0; vTableWriteIndex--) {
 					J9Method *currentMethod = (J9Method *)*vTableReadCursor++;
 					superVTableWriteCursor--;

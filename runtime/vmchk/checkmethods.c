@@ -116,11 +116,11 @@ static BOOLEAN
 findMethodInVTable(J9Method *method, J9Class *clazz)
 {
 	UDATA vTableIndex;
-	UDATA *vTable = (UDATA *)(clazz + 1);
-	UDATA vTableSize = DBG_STAR(vTable);
+	J9VTableHeader *vTableHeader = J9VTABLE_HEADER_FROM_RAM_CLASS(clazz);
+	UDATA vTableSize = vTableHeader->size;
+	UDATA *vTable = J9VTABLE_FROM_HEADER(vTableHeader);
 
-	/* skip magic first entry */
-	for (vTableIndex = 2; vTableIndex <= vTableSize; vTableIndex++) {
+	for (vTableIndex = 0; vTableIndex < vTableSize; vTableIndex++) {
 		if (method == (J9Method *)DBG_INDEX(vTable, vTableIndex)) {
 			return TRUE;
 		}
