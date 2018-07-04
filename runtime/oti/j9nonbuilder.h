@@ -3457,7 +3457,7 @@ typedef struct J9ITable {
 typedef struct J9VTableHeader {
 	UDATA size;
 	UDATA* initialVirtualMethod;
-}
+} J9VTableHeader;
 
 typedef struct J9ClassCastParms {
 	struct J9Class* instanceClass;
