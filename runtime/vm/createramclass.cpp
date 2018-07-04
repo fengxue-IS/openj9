@@ -759,7 +759,7 @@ computeVTable(J9VMThread *vmStruct, J9ClassLoader *classLoader, J9Class *supercl
 	
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
 	if (taggedClass != romClass) {
-		vTableHeader = (UDATA *)J9VTABLE_HEADER_FROM_RAM_CLASS(taggedClass);
+		vTableAddress = (UDATA *)J9VTABLE_HEADER_FROM_RAM_CLASS(taggedClass);
 	}
 #endif
 	
@@ -784,7 +784,7 @@ computeVTable(J9VMThread *vmStruct, J9ClassLoader *classLoader, J9Class *supercl
 
 		if (superclass == NULL) {
 			/* no inherited slots, write default slot in header */
-			vTableHeader->initialVirtualMethod = (UDATA)vm->initialMethods.initialVirtualMethod;
+			vTableHeader->initialVirtualMethod = (UDATA *)vm->initialMethods.initialVirtualMethod;
 		} else {
 			J9VTableHeader *superVTable = J9VTABLE_HEADER_FROM_RAM_CLASS(superclass);
 			vTableMethodCount = superVTable->size;
@@ -818,7 +818,7 @@ computeVTable(J9VMThread *vmStruct, J9ClassLoader *classLoader, J9Class *supercl
 					) {
 						vTableMethodCount = processVTableMethod(vmStruct, classLoader, vTableAddress, superclass, romClass, romMethod,
 								packageID, vTableMethodCount, (J9ROMMethod *)((UDATA)romMethod + ROM_METHOD_ID_TAG), errorData);
-						if (((UDATA)-1 == vTableMethodCount) {
+						if ((UDATA)-1 == vTableMethodCount) {
 							goto fail;
 						}
 					}
@@ -935,7 +935,7 @@ fail:
 static void
 copyVTable(J9VMThread *vmStruct, J9Class *ramClass, J9Class *superclass, UDATA *vTable, UDATA defaultConflictCount)
 {
-	UDATA superCount;
+	UDATA superCount = 0;
 	UDATA count;
 	J9VTableHeader *vTableAddress;
 	UDATA *sourceVTable;
@@ -1085,7 +1085,7 @@ found:
 #endif
 	
 #if defined(J9VM_INTERP_HOT_CODE_REPLACEMENT)
-	if (vTable != vTableAddress) {
+	if (vTable != (UDATA *)vTableAddress) {
 		if (vTable != vmStruct->javaVM->vTableScratch) {
 			j9mem_free_memory(vTable);
 		}
@@ -1192,7 +1192,7 @@ processVTableMethod(J9VMThread *vmThread, J9ClassLoader *classLoader, UDATA *vTa
 				/* Look at the vTable of each superclass, not just the immediate one */
 				J9Class *currentSuperclass = superclass;
 				do {
-					UDATA *currentSuperclassVTable = J9VTABLE_HEADER_FROM_RAM_CLASS(currentSuperclass);
+					J9VTableHeader *currentSuperclassVTable = J9VTABLE_HEADER_FROM_RAM_CLASS(currentSuperclass);
 					/* Stop the search if the superclass does not contain an entry at the search index */
 					if (currentSuperclassVTable->size <= superclassVTableIndex) {
 						break;
