@@ -1272,7 +1272,9 @@ processVTableMethod(J9VMThread *vmThread, J9ClassLoader *classLoader, UDATA *vTa
 					}
 				}
 				/* Keep checking the rest of the methods in the superclass. */
+				/* no need to decrease as the search result is zero based and search input is 1 based
 				superclassVTableIndex--;
+				*/
 			}
 		}
 
