@@ -68,14 +68,14 @@ getMethodForSpecialSend(J9VMThread *vmStruct, J9Class *currentClass, J9Class *re
 					 * 3) Walk the current class vtable backwards to find the most "recent" override of that method
 					 * 4) Lookup the method at vtableIndex in currentClass's super class
 					 */
-					UDATA superVTableSize = (*(UDATA*)(superclass + 1) * sizeof(UDATA)) + sizeof(J9Class);
+					UDATA superVTableSize = J9VTABLE_OFFSET_FROM_INDEX(*(UDATA*)(superclass + 1)) + sizeof(J9Class);
 					method = *(J9Method **)(((UDATA)currentClass) + vTableIndex);
 					vTableIndex = vmFuncs->getVTableIndexForMethod(method, currentClass, vmStruct);
 					/* We may have looked up a J9Method from an interface due to either defender methods
 					 * or the method not being implemented in the class.  If that's the case, we need
 					 * to ensure we don't read a non-existent vtable slot.  The found method is the correct one
 					 */
-					if ((vTableIndex > 0) && (vTableIndex <= superVTableSize)) {
+					if ((vTableIndex > 0) && (vTableIndex < superVTableSize)) {
 						method = *(J9Method **)(((UDATA)superclass) + vTableIndex);
 					}
 				} else {
