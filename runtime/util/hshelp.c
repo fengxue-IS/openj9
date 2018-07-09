@@ -1177,7 +1177,6 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 	J9JVMTIMethodPair methodPair;
 	J9JVMTIMethodPair * result;
 
-
 	Trc_hshelp_fixVTables_forNormalRedefine_Entry(currentThread);
 
 
@@ -1201,9 +1200,9 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 		vTableSize = oldVTableHeader->size;
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-		oldJitVTable = (UDATA *) ((U_8 *) classPair->originalRAMClass - sizeof(UDATA));
+		oldJitVTable = JIT_VTABLE_START_ADDRESS(classPair->originalRAMClass);
 		if (classPair->replacementClass.ramClass) {
-			newJitVTable = (UDATA *) ((U_8 *) classPair->replacementClass.ramClass - sizeof(UDATA));
+			newJitVTable = JIT_VTABLE_START_ADDRESS(classPair->replacementClass.ramClass);
 		} else {
 			newJitVTable = oldJitVTable;
 		}
@@ -1219,8 +1218,6 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 
 		oldVTable = J9VTABLE_FROM_HEADER(oldVTableHeader);
 		newVTable = J9VTABLE_FROM_HEADER(newVTableHeader);
-		oldJitVTable = JIT_VTABLE_START_ADDRESS(oldJitVTable);
-		newJitVTable = JIT_VTABLE_START_ADDRESS(newJitVTable);
 
 		/* Skip the first two slots containing vtable size and the resolve method */
 		for (i = 0; i < vTableSize; i++) {

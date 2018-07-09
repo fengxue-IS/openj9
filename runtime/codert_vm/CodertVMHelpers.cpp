@@ -208,13 +208,14 @@ jitMethodTranslated(J9VMThread *currentThread, J9Method *method, void *jitStartA
 			void *j2jAddress = VM_VMHelpers::jitToJitStartAddress(jitStartAddress);
 			do {
 				J9VTableHeader* vTableHeader = J9VTABLE_HEADER_FROM_RAM_CLASS(currentClass);
+
+				/* get number of real methods in Interpreter vTable */
 				UDATA vTableWriteIndex = vTableHeader->size;
 				if (0 != vTableWriteIndex) {
 					/* initialize pointer to first real vTable method */
-					void **vTableWriteCursor = (void**)currentClass - 2;
+					void **vTableWriteCursor = (void**)JIT_VTABLE_START_ADDRESS(currentClass);
 					J9Method **vTableReadCursor = (J9Method**)J9VTABLE_FROM_HEADER(vTableHeader);
-					/* JIT vTable does not contain the default method */
-					vTableWriteIndex -= 1;
+
 					while (0 != vTableWriteIndex) {
 						if (method == *vTableReadCursor) {
 							*vTableWriteCursor = j2jAddress;
