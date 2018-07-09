@@ -285,27 +285,25 @@ jitResetAllMethods(J9VMThread *currentThread)
 	while (clazz != NULL) {
 		/* Interface classes do not have vTables, so skip them */
 		if (!J9ROMCLASS_IS_INTERFACE(clazz->romClass)) {
-			UDATA *vTableWriteCursor = ((UDATA*)clazz) - 1;
+			UDATA *vTableWriteCursor = JIT_VTABLE_START_ADDRESS(clazz);
 			UDATA *vTableReadCursor = (UDATA*)(clazz + 1);
 			UDATA vTableSize = *vTableReadCursor;
 
-			/* JIT vTable does not include the magic 1st method - skip it and the size */
-			vTableReadCursor += 2;
-			vTableSize -= 1;
+			vTableReadCursor = J9VTABLE_FROM_HEADER(vTableReadCursor);
 
 			/* Put invalid entries in the obsolete JIT vTables and reinitialize the current ones */
 			if (J9_IS_CLASS_OBSOLETE(clazz)) {
 				while (0 != vTableSize) {
-					vTableWriteCursor -= 1;
 					*vTableWriteCursor = (UDATA)-1;
+					vTableWriteCursor -= 1;
 					vTableSize -= 1;
 				}
 			} else {
 				while (0 != vTableSize) {
 					J9Method *method = *(J9Method**)vTableReadCursor;
 					vTableReadCursor += 1;
-					vTableWriteCursor -= 1;
 					vmFuncs->fillJITVTableSlot(currentThread, vTableWriteCursor, method);
+					vTableWriteCursor -= 1;
 					vTableSize -= 1;
 				}
 			}
