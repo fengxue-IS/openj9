@@ -208,13 +208,13 @@ jitMethodTranslated(J9VMThread *currentThread, J9Method *method, void *jitStartA
 			void *j2jAddress = VM_VMHelpers::jitToJitStartAddress(jitStartAddress);
 			do {
 				UDATA *vTable = (UDATA*)(currentClass + 1);
+				/* Only get the real methods in Interpreter vTable */
 				UDATA vTableWriteIndex = vTable[0];
 				if (0 != vTableWriteIndex) {
 					/* initialize pointer to first real vTable method */
-					void **vTableWriteCursor = (void**)currentClass - 2;
-					J9Method **vTableReadCursor = (J9Method**)vTable + 2;
-					/* JIT vTable does not contain the default method */
-					vTableWriteIndex -= 1;
+					void **vTableWriteCursor = (void**)JIT_VTABLE_START_ADDRESS(currentClass);
+					J9Method **vTableReadCursor = (J9Method**)J9VTABLE_FROM_HEADER(vTable);
+
 					while (0 != vTableWriteIndex) {
 						if (method == *vTableReadCursor) {
 							*vTableWriteCursor = j2jAddress;
@@ -294,9 +294,9 @@ jitUpdateInlineAttribute(J9VMThread *currentThread, J9Class * classPtr, void *ji
 		if (NULL != superclass) {
 			/* Skip the count field and the first method in the table (not a real method) */
 			UDATA *superVTable = (UDATA*)(superclass + 1);
-			UDATA methodCount = superVTable[0] - 1;
-			J9Method **superMethods = (J9Method**)(superVTable + 2);
-			J9Method **subMethods = (J9Method**)(classPtr + 1) + 2;
+			UDATA methodCount = superVTable[0];
+			J9Method **superMethods = (J9Method**)J9VTABLE_FROM_HEADER(superVTable);
+			J9Method **subMethods = (J9Method**)J9VTABLE_FROM_RAM_CLASS(classPtr);
 			/* Walk all methods which could possibly be overridden */
 			while (0 != methodCount) {
 				J9Method *superMethod = *superMethods;
