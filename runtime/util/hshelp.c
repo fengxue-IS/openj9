@@ -933,11 +933,12 @@ findMethodInVTable(J9Method *method, UDATA *vTable)
 {
 	J9ROMMethod *romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
 	UDATA vTableSize = *vTable;
+	UDATA *vTableMethods = J9VTABLE_FROM_HEADER(vTable);
 	UDATA searchIndex;
 
 	/* Search the vTable for a public method of the correct name. */
-	for (searchIndex = 2; searchIndex <= vTableSize; searchIndex++) {
-		J9Method *vTableMethod = (J9Method *)vTable[searchIndex];
+	for (searchIndex = 0; searchIndex < vTableSize; searchIndex++) {
+		J9Method *vTableMethod = (J9Method *)vTableMethods[searchIndex];
 		J9ROMMethod *vTableRomMethod = J9_ROM_METHOD_FROM_RAM_METHOD(vTableMethod);
 
 		if (vTableRomMethod->modifiers & J9_JAVA_PUBLIC) {
@@ -1005,7 +1006,11 @@ fixITablesForFastHCR(J9VMThread *currentThread, J9HashTable *classPairs)
 	
 							for (methodIndex = 0; methodIndex < methodCount; methodIndex++) {
 								UDATA vTableIndex = findMethodInVTable(&interfaceClass->ramMethods[methodIndex], vTable);
-								iTableMethods[methodIndex] = (vTableIndex * sizeof(UDATA)) + sizeof(J9Class);
+								if (vTableIndex != (UDATA)-1) {
+									iTableMethods[methodIndex] = J9VTABLE_OFFSET_FROM_INDEX(vTableIndex);
+								} else {
+									iTableMethods[methodIndex] = (UDATA)-1;
+								}
 							}
 						}
 						iTableMethods += methodCount;
@@ -1165,6 +1170,8 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 	UDATA i;
 	UDATA * oldVTable;
 	UDATA * newVTable;
+	UDATA * oldVTableMethods;
+	UDATA * newVTableMethods;
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
 	UDATA * newJitVTable;
 	UDATA * oldJitVTable;
@@ -1196,9 +1203,9 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 		vTableSize = *oldVTable;
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-		oldJitVTable = (UDATA *) ((U_8 *) classPair->originalRAMClass - sizeof(UDATA));
+		oldJitVTable = JIT_VTABLE_START_ADDRESS(classPair->originalRAMClass);
 		if (classPair->replacementClass.ramClass) {
-			newJitVTable = (UDATA *) ((U_8 *) classPair->replacementClass.ramClass - sizeof(UDATA));
+			newJitVTable = JIT_VTABLE_START_ADDRESS(classPair->replacementClass.ramClass);
 		} else {
 			newJitVTable = oldJitVTable;
 		}
@@ -1213,25 +1220,26 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 		Trc_hshelp_fixVTables_Shape(currentThread, vTableSize, getClassName(classPair->originalRAMClass));
 
 		/* Skip the first two slots containing vtable size and the resolve method */
-
-		for (i = 2; i <= vTableSize; i++) {
+		oldVTableMethods = J9VTABLE_FROM_HEADER(oldVTable);
+		newVTableMethods = J9VTABLE_FROM_HEADER(newVTable);
+		for (i = 0; i < vTableSize; i++) {
 
 			/* Given the old method, find the corresponding new method and replace
 			 * the old classes vtable entry (for the old method with the new method) */
 
-			methodPair.oldMethod = (J9Method *) oldVTable[i];
+			methodPair.oldMethod = (J9Method *) oldVTableMethods[i];
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
 			Trc_hshelp_fixVTables_Search(currentThread, i,
 						classPair->replacementClass.ramClass ? classPair->replacementClass.ramClass : classPair->originalRAMClass,
 						methodPair.oldMethod, getMethodName(methodPair.oldMethod),
-						vm->jitConfig ? oldJitVTable[1 - i] : 0, vm->jitConfig ? newJitVTable[1 - i] : 0);
+						vm->jitConfig ? oldJitVTable[-i] : 0, vm->jitConfig ? newJitVTable[-i] : 0);
 #endif
 
 			result = hashTableFind(methodPairs, &methodPair);
 			if (result != NULL) {
 				/* Replace the old method pointer with the redefined one */
-				newVTable[i] = (UDATA) result->newMethod;
+				newVTableMethods[i] = (UDATA) result->newMethod;
 				Trc_hshelp_fixVTables_intVTableReplace(currentThread, i);
 
 #ifdef J9VM_JIT_FULL_SPEED_DEBUG
@@ -1245,10 +1253,10 @@ fixVTables_forNormalRedefine(J9VMThread *currentThread, J9HashTable *classPairs,
 						 * We do not need to remap the order here because we're making the newVTable/newJitVTable
 						 * have the same order of the oldVTable/oldJitVTable.
 						 */
-						newJitVTable[1 - i] = oldJitVTable[1 - i];
+						newJitVTable[-i] = oldJitVTable[-i];
 						Trc_hshelp_fixVTables_jitVTableReplace(currentThread, i);
 					} else {
-						vmFuncs->fillJITVTableSlot(currentThread, &newJitVTable[1 - i], result->newMethod);
+						vmFuncs->fillJITVTableSlot(currentThread, &newJitVTable[-i], result->newMethod);
 					}
 				}
 #endif
