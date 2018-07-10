@@ -1328,7 +1328,7 @@ getVTableIndexForNameAndSigStartingAt(UDATA *vTable, J9UTF8 *name, J9UTF8 *signa
 	U_8 *signatureData = J9UTF8_DATA(signature);
 	UDATA signatureLength = J9UTF8_LENGTH(signature);
 
-	while (vTableIndex > 0) {
+	while (vTableIndex != 0) {
 		/* The vTableIndex passed in is 1 based, converting it to zero based search index */
 		/* move to previous vTable index */
 		vTableIndex--;
