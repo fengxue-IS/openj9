@@ -1028,10 +1028,7 @@ found:
 #if defined(J9VM_INTERP_NATIVE_SUPPORT)
 	jitConfig = vmStruct->javaVM->jitConfig;
 	if (jitConfig != NULL) {
-		UDATA *vTableWriteCursor = &((UDATA *)ramClass)[-1];
-
-		/* Skip slots to match the Interpreter vTable size for easy offset conversion */
-		vTableWriteCursor -= (sizeof(J9VTableHeader) / sizeof(UDATA) - 2);
+		UDATA *vTableWriteCursor = JIT_VTABLE_START_ADDRESS(ramClass);
 
 		/* only copy in the real methods */
 		UDATA vTableWriteIndex = vTableAddress->size;
@@ -1042,27 +1039,24 @@ found:
 			} else {
 				UDATA superVTableSize;
 				UDATA *superVTableReadCursor;
-				UDATA *superVTableWriteCursor = &((UDATA *)superclass)[-1];
-				/* Skip slots to match the Interpreter vTable size for easy offset conversion */
-				superVTableWriteCursor -= (sizeof(J9VTableHeader) / sizeof(UDATA) - 2);
+				UDATA *superVTableWriteCursor = JIT_VTABLE_START_ADDRESS(superclass);
 				if (superclass == NULL) {
 					superVTableReadCursor = NULL;
 					superVTableSize = 0;
 				} else {
 					superVTableReadCursor = (UDATA *)J9VTABLE_HEADER_FROM_RAM_CLASS(superclass);
 					superVTableSize = ((J9VTableHeader *)superVTableReadCursor)->size;
+					/* initialize pointer to first real vTable method */
+					superVTableReadCursor = J9VTABLE_FROM_HEADER(superVTableReadCursor);
 				}
-				/* initialize pointer to first real vTable method */
-				superVTableReadCursor = J9VTABLE_FROM_HEADER(superVTableReadCursor);
 				/* initialize pointer to first real vTable method */
 				vTableReadCursor = J9VTABLE_FROM_HEADER(vTableAddress);
 				for (; vTableWriteIndex > 0; vTableWriteIndex--) {
-					J9Method *currentMethod = (J9Method *)*vTableReadCursor++;
-					superVTableWriteCursor--;
+					J9Method *currentMethod = (J9Method *)*vTableReadCursor;
 					if (superclass != NULL && currentMethod == (J9Method *)*superVTableReadCursor) {
-						*--vTableWriteCursor = *superVTableWriteCursor;
+						*vTableWriteCursor = *superVTableWriteCursor;
 					} else {
-						fillJITVTableSlot(vmStruct, --vTableWriteCursor, currentMethod);
+						fillJITVTableSlot(vmStruct, vTableWriteCursor, currentMethod);
 					}
 
 					/* Always consume an entry from the super vTable.  Note that once the size hits zero and superclass becomes NULL,
@@ -1075,9 +1069,11 @@ found:
 						superclass = NULL;
 					}
 					superVTableReadCursor++;
+					superVTableWriteCursor--;
+					vTableReadCursor++;
+					vTableWriteCursor--;
 				}
 			}
-			vTableWriteCursor--;
 		}
 		
 		/* The SRP to the start of the RAM class is written by internalAllocateRAMClass() */
