@@ -118,9 +118,9 @@ findMethodInVTable(J9Method *method, J9Class *clazz)
 	UDATA vTableIndex;
 	UDATA *vTable = (UDATA *)(clazz + 1);
 	UDATA vTableSize = DBG_STAR(vTable);
+	vTable = J9VTABLE_FROM_HEADER(vTable);
 
-	/* skip magic first entry */
-	for (vTableIndex = 2; vTableIndex <= vTableSize; vTableIndex++) {
+	for (vTableIndex = 0; vTableIndex < vTableSize; vTableIndex++) {
 		if (method == (J9Method *)DBG_INDEX(vTable, vTableIndex)) {
 			return TRUE;
 		}
