@@ -598,7 +598,6 @@ add_existing:
 							goto continueInterfaceScan;
 						}
 					}
-					tempIndex -= 1;
 				}
 				/* Add the interface method as the Local class does not implement a public method of the given name. */
 				vTableWriteIndex = growNewVTableSlot(vTableMethods, vTableWriteIndex, interfaceMethod);
@@ -954,11 +953,9 @@ copyVTable(J9VMThread *vmStruct, J9Class *ramClass, J9Class *superclass, UDATA *
 	}
 #endif
 	
-	/* skip the virtualMethodResolve pseudo-method */
-	superCount = 1;
 	if (superclass != NULL) {
 		/* add superclass vtable size */
-		superCount += *((UDATA *)(superclass + 1));
+		superCount = *((UDATA *)(superclass + 1));
 	}
 	
 	count = *vTable;
@@ -1071,7 +1068,6 @@ found:
 					vTableWriteCursor--;
 				}
 			}
-			vTableWriteCursor--;
 		}
 		
 		/* The SRP to the start of the RAM class is written by internalAllocateRAMClass() */

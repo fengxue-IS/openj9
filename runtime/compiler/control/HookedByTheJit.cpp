@@ -3526,8 +3526,7 @@ static void updateOverriddenFlag( J9VMThread *vm , J9Class *cl)
                   tempmethodCount =  *((intptrj_t *)(tempsuperCl +1));
                   if(methodIndex >= tempmethodCount)  //we are outside the grandparent's vft slots
                      break;
-                  tempsuperVTable = (J9Method **)((char *)tempsuperCl + sizeof(J9Class));
-                  tempsuperVTable = (J9Method **)J9VTABLE_FROM_HEADER(tempsuperVTable);
+                  tempsuperVTable = (J9Method **)J9VTABLE_FROM_RAM_CLASS(tempsuperCl);
                   tempsuperVTable = tempsuperVTable + methodIndex;
                   tempsuperMethod= *tempsuperVTable;
                   jitUpdateMethodOverride(vm, cl, tempsuperMethod,subMethod);
@@ -3562,13 +3561,11 @@ static void updateOverriddenFlag( J9VMThread *vm , J9Class *cl)
             intptrj_t tempmethodCount;
             for(int32_t k=classDepth-1;k>=0;k--)
                {
-
                tempsuperCl = cl->superclasses[k];
                tempmethodCount =  *((intptrj_t *)(tempsuperCl +1));
                if(methodIndex >= tempmethodCount) //we are outside the grandparent's vft slots
                   break;
-               tempsuperVTable = (J9Method **)((char *)tempsuperCl + sizeof(J9Class));
-               tempsuperVTable = (J9Method **)J9VTABLE_FROM_HEADER(tempsuperVTable);
+               tempsuperVTable = (J9Method **)J9VTABLE_FROM_RAM_CLASS(tempsuperCl);
                tempsuperVTable = tempsuperVTable + methodIndex;
                tempsuperMethod= *tempsuperVTable;
 
