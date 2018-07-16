@@ -1006,11 +1006,7 @@ fixITablesForFastHCR(J9VMThread *currentThread, J9HashTable *classPairs)
 	
 							for (methodIndex = 0; methodIndex < methodCount; methodIndex++) {
 								UDATA vTableIndex = findMethodInVTable(&interfaceClass->ramMethods[methodIndex], vTable);
-								if (vTableIndex != (UDATA)-1) {
-									iTableMethods[methodIndex] = J9VTABLE_OFFSET_FROM_INDEX(vTableIndex);
-								} else {
-									iTableMethods[methodIndex] = (UDATA)-1;
-								}
+								iTableMethods[methodIndex] = J9VTABLE_OFFSET_FROM_INDEX(vTableIndex);
 							}
 						}
 						iTableMethods += methodCount;
