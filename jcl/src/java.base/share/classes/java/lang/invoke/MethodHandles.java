@@ -512,9 +512,16 @@ public class MethodHandles {
 		 * @throws IllegalAccessException If the {@link Class} is not accessible from {@link #accessClass}. 
 		 */
 		private void checkClassAccess(Class<?> targetClass) throws IllegalAccessException {
+			if (targetClass.getSimpleName().equals("ProtectedNestedClass")) { //$NON-NLS-1$
+				System.out.println("ProtectedNestedClass: modifiers = " + String.valueOf(targetClass.getModifiers()) + (Modifier.isPublic(targetClass.getModifiers()) ? " PUBLIC" : "") +  (Modifier.isProtected(targetClass.getModifiers()) ? " PROTECTED" : "")); //$NON-NLS-1$
+				System.out.println("accessMode = " + String.valueOf(accessMode)); //$NON-NLS-1$
+			}
 			/*[IF Sidecar19-SE]*/
 			checkClassModuleVisibility(accessMode, accessClass.getModule(), targetClass);
 			/*[ENDIF]*/
+			if (targetClass.getSimpleName().equals("ProtectedNestedClass")) { //$NON-NLS-1$
+				System.out.println("ProtectedNestedClass: finished checkClassModuleVisibility"); //$NON-NLS-1$
+			}
 			if (NO_ACCESS != accessMode) {
 				/* target class should always be accessible to the lookup class when they are the same class */
 				if (accessClass == targetClass) {
@@ -536,7 +543,9 @@ public class MethodHandles {
 					}
 				}
 			}
-
+			if (targetClass.getSimpleName().equals("ProtectedNestedClass")) { //$NON-NLS-1$
+				System.out.println("ProtectedNestedClass: finished checkClassAccess, GOING to throw error"); //$NON-NLS-1$
+			}
 			/*[MSG "K0680", "Class '{0}' no access to: class '{1}'"]*/
 			throw new IllegalAccessException(com.ibm.oti.util.Msg.getString("K0680", accessClass.getName(), targetClass.getName()));  //$NON-NLS-1$
 		}
