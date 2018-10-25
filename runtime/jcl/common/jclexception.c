@@ -97,6 +97,10 @@ getStackTraceIterator(J9VMThread * vmThread, void * voidUserData, J9ROMClass * r
 		return FALSE;
 	}
 
+	/* Skip the frame if */
+	if (J9_ARE_ALL_BITS_SET(romClass->extraModifiers, J9AccClassAnonClass)) {
+		return TRUE;
+	}
 	/* Prevent the current class from being unloaded during allocation */
 	PUSH_OBJECT_IN_SPECIAL_FRAME(vmThread, (NULL == classLoader) ? NULL : classLoader->classLoaderObject);
 
