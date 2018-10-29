@@ -23,12 +23,14 @@
 #include "j2sever.h"
 #include "j9.h"
 #include "j9cp.h"
+#include "j9protos.h"
 #include "jclexception.h"
 #include "jvminit.h"
 #include "objhelp.h"
 #include "omrgcconsts.h"
 #include "rommeth.h"
 #include "vm_api.h"
+
 
 static UDATA getStackTraceIterator(J9VMThread * vmThread, void * voidUserData, J9ROMClass * romClass, J9ROMMethod * romMethod, J9UTF8 * fileName, UDATA lineNumber, J9ClassLoader* classLoader);
 
@@ -98,8 +100,11 @@ getStackTraceIterator(J9VMThread * vmThread, void * voidUserData, J9ROMClass * r
 	}
 
 	/* Skip the frame if */
-	if (J9_ARE_ALL_BITS_SET(romClass->extraModifiers, J9AccClassAnonClass)) {
-		return TRUE;
+	if (J9_ARE_ALL_BITS_SET(romClass->extraModifiers, J9AccClassAnonClass) && (NULL != romMethod) && J9ROMMETHOD_HAS_EXTENDED_MODIFIERS(romMethod)) {
+		UDATA extraModifiers = getExtendedModifiersDataFromROMMethod(romMethod);
+		if (J9ROMMETHOD_HAS_LAMBDAFROM_HIDDEN_ANNOTATION(extraModifiers)) {
+			return TRUE;
+		}
 	}
 	/* Prevent the current class from being unloaded during allocation */
 	PUSH_OBJECT_IN_SPECIAL_FRAME(vmThread, (NULL == classLoader) ? NULL : classLoader->classLoaderObject);
@@ -280,7 +285,7 @@ retry:
 	/* If the stack trace sizes are inconsistent between pass 1 and 2, start again */
 
 	if (vmThread->currentException == NULL) {
-		if (userData.index != numberOfFrames) {
+		if (userData.index >= numberOfFrames) {
 			goto retry;
 		}
 	}
