@@ -103,6 +103,7 @@ getStackTraceIterator(J9VMThread * vmThread, void * voidUserData, J9ROMClass * r
 	if (J9_ARE_ALL_BITS_SET(romClass->extraModifiers, J9AccClassAnonClass) && (NULL != romMethod) && J9ROMMETHOD_HAS_EXTENDED_MODIFIERS(romMethod)) {
 		UDATA extraModifiers = getExtendedModifiersDataFromROMMethod(romMethod);
 		if (J9ROMMETHOD_HAS_LAMBDAFROM_HIDDEN_ANNOTATION(extraModifiers)) {
+			userData->hiddenFrames += 1;
 			return TRUE;
 		}
 	}
@@ -277,6 +278,7 @@ retry:
 
 	userData.elementClass = elementClass;
 	userData.index = 0;
+	userData.hiddenFrames = 0;
 	userData.maxFrames = numberOfFrames;
 	PUSH_OBJECT_IN_SPECIAL_FRAME(vmThread, (j9object_t) result);
 	vmfns->iterateStackTrace(vmThread, exceptionAddr, getStackTraceIterator, &userData, pruneConstructors);
@@ -285,7 +287,7 @@ retry:
 	/* If the stack trace sizes are inconsistent between pass 1 and 2, start again */
 
 	if (vmThread->currentException == NULL) {
-		if (userData.index >= numberOfFrames) {
+		if ((userData.index + userData.hiddenFrames) != numberOfFrames) {
 			goto retry;
 		}
 	}
