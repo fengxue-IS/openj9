@@ -2853,9 +2853,11 @@ processVMArgsFromFirstToLast(J9JavaVM * vm)
 	for (i = 0; i < vm_args->nOptions; ++i) {
 		char * testString = getOptionString(j9vm_args, i);	/* may return mapped value */
 
-		/* Since these two options are -XX, we don't need to consume them as they will be ignored */
-
-		if (strcmp(testString, VMOPT_XXNOSTACKTRACEINTHROWABLE) == 0) {
+		/* Since these options are -XX, we don't need to consume them as they will be ignored */
+		if (strcmp(testString, VMOPT_XXSHOWHIDDENFRAMES) == 0) {
+			printf("VMOPT_XXSHOWHIDDENFRAMES detected\n");
+			//vm->runtimeFlags |= J9_RUNTIME_SHOW_HIDDEN_FRAMES;
+		} else if (strcmp(testString, VMOPT_XXNOSTACKTRACEINTHROWABLE) == 0) {
 			vm->runtimeFlags |= J9_RUNTIME_OMIT_STACK_TRACES;
 		} else if (strcmp(testString, VMOPT_XXSTACKTRACEINTHROWABLE) == 0) {
 			vm->runtimeFlags &= ~(UDATA)J9_RUNTIME_OMIT_STACK_TRACES;
