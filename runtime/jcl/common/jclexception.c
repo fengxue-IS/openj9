@@ -285,7 +285,7 @@ retry:
 	result = (j9array_t) POP_OBJECT_IN_SPECIAL_FRAME(vmThread);
 
 	/* If the stack trace sizes are inconsistent between pass 1 and 2, start again */
-
+	printf("getStackTrace: userData.index = %d, userData.hiddenFrames = %d, numberOfFrames = %d\n", (int)userData.index, (int)userData.hiddenFrames, (int)numberOfFrames);
 	if (vmThread->currentException == NULL) {
 		if ((userData.index + userData.hiddenFrames) != numberOfFrames) {
 			goto retry;
