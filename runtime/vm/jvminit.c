@@ -1002,6 +1002,7 @@ initializeJavaVM(void * osMainThread, J9JavaVM ** vmPtr, J9CreateJavaVMParams *c
 		J9PORT_SIG_FLAG_SIGALLSYNC | J9PORT_SIG_FLAG_MAY_CONTINUE_EXECUTION,
 		&result)
 	) {
+		printf ("Failed j9sigProtect, result = %ld\n", (unsigned long int)result);
 		result = JNI_ERR;
 	}
 

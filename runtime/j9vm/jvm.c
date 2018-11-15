@@ -1622,10 +1622,12 @@ initialArgumentScan(JavaVMInitArgs *args, J9SpecialArguments *specialArgs)
 			/* fake up command-line args for parseCmdLine */
 			memcheckArgs[0] = ""; /* program name -- unused */
 			memcheckArgs[1] = args->options[argCursor].optionString;
+			printf("initialArgumentScan - index: %ld, str: %s\n", (unsigned long int)argCursor, memcheckArgs[1]);
 			if (memoryCheck_parseCmdLine(&j9portLibrary, 1, memcheckArgs) != 0) {
 				/* Abandon -Xcheck processing */
 				/* -Xcheck:memory overrides env var */
 				*(specialArgs->ibmMallocTraceSet) = FALSE;
+				printf("break at index %ld\n", (unsigned long int)argCursor);
 				break;
 			}
 		}

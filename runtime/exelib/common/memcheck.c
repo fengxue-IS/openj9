@@ -2575,6 +2575,7 @@ memoryCheck_parseCmdLine(J9PortLibrary *j9portLibrary, UDATA lastLegalArg, char 
 			return -1;
 			break;
 		} else if (0 == strcmp("-Xcheck:memory",argv[i])) {
+			printf("memoryCheck_parseCmdLine found -Xcheck:memory at index %ld, calling initialize\n", (unsigned long int)i);
 			memoryCheck_initialize(j9portLibrary, "all", argv);
 			return i;
 		} else if (0 == strncmp("-Xcheck:memory:", argv[i], sizeof("-Xcheck:memory:") - 1  )) {
