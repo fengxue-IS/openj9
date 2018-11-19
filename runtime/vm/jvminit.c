@@ -1007,6 +1007,7 @@ initializeJavaVM(void * osMainThread, J9JavaVM ** vmPtr, J9CreateJavaVMParams *c
 	}
 
 	if (0 != result) {
+		printf ("Failed result check, result = %ld\n", (unsigned long int)result);
 		freeJavaVM(vm);
 	}
 
