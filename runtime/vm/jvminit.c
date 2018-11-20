@@ -2378,19 +2378,25 @@ static void checkDllInfo(void* dllLoadInfo, void* userDataTemp) {
 		}
 		userData->success = RC_FAILED;
 		if ((entry->loadFlags & FAILED_TO_LOAD)) {
+			printf("J9NLS_VM_UNABLE_TO_LOAD_DLL : %s - %s\n", entry->dllName, entry->fatalErrorStr);
 			j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_UNABLE_TO_LOAD_DLL, entry->dllName, entry->fatalErrorStr);
 		} else if ((entry->loadFlags & FAILED_TO_UNLOAD)) {
+			printf("J9NLS_VM_UNABLE_TO_UNLOAD_DLL : %s - %s\n", entry->dllName, entry->fatalErrorStr);
 			j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_UNABLE_TO_UNLOAD_DLL, entry->dllName, entry->fatalErrorStr);
 		} else if ((entry->loadFlags & (NOT_A_LIBRARY | BUNDLED_COMP))) {
 			if (isInitialization) {
+				printf("J9NLS_VM_UNABLE_TO_LOAD_DLL : %s - %s\n", entry->dllName, entry->fatalErrorStr);
 				j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_INITIALIZATION_ERROR_IN_FUNCTION, entry->dllName, userData->stage, entry->fatalErrorStr);
 			} else {
+				printf("J9NLS_VM_UNABLE_TO_LOAD_DLL : %s - %s\n", entry->dllName, entry->fatalErrorStr);
 				j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_SHUTDOWN_ERROR_IN_FUNCTION, entry->dllName, userData->stage, entry->fatalErrorStr);
 			}
 		} else {
 			if (isInitialization) {
+				printf("J9NLS_VM_INITIALIZATION_ERROR_FOR_LIBRARY : %s - %s\n", entry->dllName, entry->fatalErrorStr);
 				j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_INITIALIZATION_ERROR_FOR_LIBRARY, entry->dllName, userData->stage, entry->fatalErrorStr);
 			} else {
+				printf("J9NLS_VM_SHUTDOWN_ERROR_FOR_LIBRARY : %s - %s\n", entry->dllName, entry->fatalErrorStr);
 				j9nls_printf(PORTLIB, J9NLS_WARNING, J9NLS_VM_SHUTDOWN_ERROR_FOR_LIBRARY, entry->dllName, userData->stage, entry->fatalErrorStr);
 			}
 		}
