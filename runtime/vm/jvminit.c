@@ -5366,11 +5366,13 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	 * weird undebuggable crash later on
 	 */
 	if (0 != setGlobalConvertersAware(vm)) {
+		printf("if (0 != setGlobalConvertersAware(vm))\n");
 		goto error;
 	}
 #if !defined(WIN32)
 	vm->originalSIGPIPESignalAction = j9mem_allocate_memory(sizeof(struct sigaction), OMRMEM_CATEGORY_VM); 
 	if (NULL == vm->originalSIGPIPESignalAction) {
+		printf("if (NULL == vm->originalSIGPIPESignalAction)\n");
 		goto error;
 	}
 	
@@ -5394,11 +5396,13 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	/* -Xrealtime is special: we used to support it, but now we don't - tell the user. */
 	if (0 <= FIND_ARG_IN_VMARGS(EXACT_MATCH, VMOPT_XREALTIME, NULL)) {
 		j9nls_printf(PORTLIB, J9NLS_ERROR, J9NLS_VM_XOPTION_NO_LONGER_SUPPORTED, VMOPT_XREALTIME);
+		printf("if (0 <= FIND_ARG_IN_VMARGS(EXACT_MATCH, VMOPT_XREALTIME, NULL))\n");
 		goto error;
 	}
 
 #ifdef WIN32
 	if (0 != preloadUser32Dll(vm)) {
+		printf("if (0 != preloadUser32Dll(vm))\n");
 		goto error;
 	}
 #endif
@@ -5463,36 +5467,44 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 
 #if defined(COUNT_BYTECODE_PAIRS)
 	if (JNI_OK != initializeBytecodePairs(vm)) {
+		printf("if (JNI_OK != initializeBytecodePairs(vm))\n");
 		goto error;
 	}
 #endif /* COUNT_BYTECODE_PAIRS */
 	if (JNI_OK != initializeVTableScratch(vm)) {
+		printf("if (JNI_OK != initializeVTableScratch(vm))\n");
 		goto error;
 	}
 
 	if (JNI_OK != initializeVprintfHook(vm)) {
+		printf("if (JNI_OK != initializeVprintfHook(vm))\n");
 		goto error;
 	}
 
 	if (NULL == contendedLoadTableNew(vm, portLibrary)) {
+		printf("if (NULL == contendedLoadTableNew(vm, portLibrary))\n");
 		goto error;
 	}
 
 	/* Handle -Xlog early, so that any future init failures can be reported to the system log */
 	if (JNI_OK != processXLogOptions(vm)) {
+		printf("if (JNI_OK != processXLogOptions(vm))\n");
 		parseError = TRUE;
 		goto error;
 	}
 
 	if (JNI_OK != initializeDDR(vm)) {
+		printf("if (JNI_OK != initializeDDR(vm))\n");
 		goto error;
 	}
 
 	if (J9SYSPROP_ERROR_NONE != initializeSystemProperties(vm)) {
+		printf("if (J9SYSPROP_ERROR_NONE != initializeSystemProperties(vm))\n");
 		goto error;
 	}
 
 	if (0 != initializeVMHookInterface(vm)) {
+		printf("if (0 != initializeVMHookInterface(vm))\n");
 		goto error;
 	}
 
@@ -5511,6 +5523,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 		 * https://github.com/eclipse/omr/issues/2332.
 		 */
 		if (0 != j9sig_set_async_signal_handler(shutDownHookWrapper, vm, J9PORT_SIG_FLAG_SIGTERM | J9PORT_SIG_FLAG_SIGINT)) {
+			printf("if (0 != j9sig_set_async_signal_handler(shutDownHookWrapper, vm, J9PORT_SIG_FLAG_SIGTERM | J9PORT_SIG_FLAG_SIGINT))\n");
 			goto error;
 		}
 	}
@@ -5518,6 +5531,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 
 #ifndef J9VM_SIZE_SMALL_CODE
 	if (NULL == fieldIndexTableNew(vm, portLibrary)) {
+		printf("if (NULL == fieldIndexTableNew(vm, portLibrary))\n");
 		goto error;
 	}
 #endif
@@ -5526,6 +5540,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	if (NULL == vm->zipCachePool) {
 		vm->zipCachePool = zipCachePool_new(portLibrary, vm);
 		if (NULL == vm->zipCachePool) {
+			printf("if (NULL == vm->zipCachePool)\n");
 			goto error;
 		}
 	}
@@ -5534,12 +5549,14 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 #ifdef J9VM_RAS_DUMP_AGENTS
 	/* Setup primordial dump facade as early as possible */
 	if (JNI_OK != configureRasDump(vm)) {
+		printf("if (JNI_OK != configureRasDump(vm))\n");
 		goto error;
 	}
 #endif
 
 #ifdef J9VM_OPT_SIDECAR
 	if (JNI_OK != initializeJVMExtensionInterface(vm)) {
+		printf("if (JNI_OK != initializeJVMExtensionInterface(vm))\n");
 		goto error;
 	}
 #endif
@@ -5548,30 +5565,35 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 #ifdef J9VM_OPT_SIDECAR
 	/* Whinge about -Djava.compiler after extra VM options are added, but before mappings are set */
 	if (RC_FAILED == checkDjavacompiler(portLibrary, vm->vmArgsArray)) {
+		printf("if (RC_FAILED == checkDjavacompiler(portLibrary, vm->vmArgsArray))\n");
 		goto error;
 	}
 
 #ifdef J9VM_OPT_JVMTI
 	/* Must be called before -javaagent is mapped below */
 	if (RC_FAILED == updateJavaAgentClasspath(vm)) {
+		printf("if (RC_FAILED == updateJavaAgentClasspath(vm))\n");
 		goto error;
 	}
 #endif
 
 	/* Registers any unrecognised arguments that need to be mapped to J9 options */
 	if (RC_FAILED == registerVMCmdLineMappings(vm)) {
+		printf("if (RC_FAILED == registerVMCmdLineMappings(vm))\n");
 		goto error;
 	}
 #endif
 
 	vm->dllLoadTable = initializeDllLoadTable(portLibrary, vm->vmArgsArray, localVerboseLevel);
 	if (NULL == vm->dllLoadTable) {
+		printf("if (NULL == vm->dllLoadTable)\n");
 		goto error;
 	}
 	JVMINIT_VERBOSE_INIT_TRACE_WORKING_SET(vm);
 
 	/* Scans cmd-line and whacks the table for entries like -Xint */
 	if (JNI_OK != modifyDllLoadTable(vm, vm->dllLoadTable, vm->vmArgsArray)) {
+		printf("if (JNI_OK != modifyDllLoadTable(vm, vm->dllLoadTable, vm->vmArgsArray))\n");
 		goto error;
 	}
 	
@@ -5585,6 +5607,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 
 	/* Scans cmd-line arguments in order */
 	if (JNI_OK != processVMArgsFromFirstToLast(vm)) {
+		printf("if (JNI_OK != processVMArgsFromFirstToLast(vm))\n");
 		goto error;
 	}
 
@@ -5615,81 +5638,99 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 
 	/* Attach the VM to OMR */
 	if (JNI_OK != attachVMToOMR(vm)) {
+		printf("if (JNI_OK != attachVMToOMR(vm))\n");
 		goto error;
 	}
 
 	/* Use this stage to load libraries which need to set up hooks as early as possible */
 	if (JNI_OK != runLoadStage(vm, EARLY_LOAD)) {
+		printf("if (JNI_OK != runLoadStage(vm, EARLY_LOAD))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, PORT_LIBRARY_GUARANTEED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, PORT_LIBRARY_GUARANTEED)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, ALL_DEFAULT_LIBRARIES_LOADED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, ALL_DEFAULT_LIBRARIES_LOADED)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != runLoadStage(vm, LOAD_BY_DEFAULT)) {
+		printf("if (JNI_OK != runLoadStage(vm, LOAD_BY_DEFAULT))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, ALL_LIBRARIES_LOADED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, ALL_LIBRARIES_LOADED)))\n");
 		goto error;
 	}
 
 	J9RelocateRASData(vm);
 	if (JNI_OK != runLoadStage(vm, FORCE_LATE_LOAD)) {
+		printf("if (JNI_OK != runLoadStage(vm, FORCE_LATE_LOAD))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, DLL_LOAD_TABLE_FINALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, DLL_LOAD_TABLE_FINALIZED)))\n");
 		goto error;
 	}
 
 	/* Run shutdown stage for any libraries being forced to unload */
 	/* Note that INTERPRETER_SHUTDOWN is not run here. The interpreter is not yet started... */
 	if (JNI_OK != runShutdownStage(vm, LIBRARIES_ONUNLOAD, (void*)FALSE, FORCE_UNLOAD)) {
+		printf("if (JNI_OK != runShutdownStage(vm, LIBRARIES_ONUNLOAD, (void*)FALSE, FORCE_UNLOAD))\n");
 		goto error;
 	}
 
 	if (JNI_OK != runForcedUnloadStage(vm)) {
+		printf("if (JNI_OK != runForcedUnloadStage(vm))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, VM_THREADING_INITIALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, VM_THREADING_INITIALIZED)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, HEAP_STRUCTURES_INITIALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, HEAP_STRUCTURES_INITIALIZED)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, ALL_VM_ARGS_CONSUMED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, ALL_VM_ARGS_CONSUMED)))\n");
 		goto error;
 	}
 
 	if (FALSE == checkArgsConsumed(portLibrary, vm->vmArgsArray)) {
+		printf("if (FALSE == checkArgsConsumed(portLibrary, vm->vmArgsArray))\n");
 		parseError = TRUE;
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, BYTECODE_TABLE_SET))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, BYTECODE_TABLE_SET)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, SYSTEM_CLASSLOADER_SET))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, SYSTEM_CLASSLOADER_SET)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, DEBUG_SERVER_INITIALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, DEBUG_SERVER_INITIALIZED)))\n");
 		goto error;
 	}
 
 #if defined(J9VM_GC_DYNAMIC_CLASS_UNLOADING)
 	vmHooks = getVMHookInterface(vm);
 	if(0 != (*vmHooks)->J9HookRegisterWithCallSite(vmHooks, J9HOOK_VM_CLASS_UNLOAD, jniIDTableClassUnload, OMR_GET_CALLSITE(), NULL)) {
+		printf("if(0 != (*vmHooks)->J9HookRegisterWithCallSite(vmHooks, J9HOOK_VM_CLASS_UNLOAD, jniIDTableClassUnload, OMR_GET_CALLSITE(), NULL))\n");
 		goto error;
 	}
 #endif
@@ -5697,15 +5738,18 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	/* env is not used, but must be passed for compatibility */
 	/* use NO_OBJECT, because it's too early to allocate an object -- we'll take care of that later in standardInit() or tinyInit() */
 	if (JNI_OK != internalAttachCurrentThread(vm, &env, NULL, J9_PRIVATE_FLAGS_NO_OBJECT, osMainThread)) {
+		printf("if (JNI_OK != internalAttachCurrentThread(vm, &env, NULL, J9_PRIVATE_FLAGS_NO_OBJECT, osMainThread))\n");
 		goto error;
 	}
 	env->gpProtected = TRUE;
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, TRACE_ENGINE_INITIALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, TRACE_ENGINE_INITIALIZED)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, JIT_INITIALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, JIT_INITIALIZED)))\n");
 		goto error;
 	}
 
@@ -5727,6 +5771,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 		vm->osrGlobalBufferSize = osrGlobalBufferSize;
 		vm->osrGlobalBuffer = j9mem_allocate_memory(osrGlobalBufferSize, OMRMEM_CATEGORY_JIT);
 		if (NULL == vm->osrGlobalBuffer) {
+			printf("if (NULL == vm->osrGlobalBuffer)\n");
 			goto error;
 		}
 #endif
@@ -5754,6 +5799,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, AGENTS_STARTED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, AGENTS_STARTED)))\n");
 		goto error;
 	}
 
@@ -5772,6 +5818,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	if ((NULL != vm->sharedClassConfig) && (NULL != vm->sharedClassConfig->sharedAPIObject)) {
 		SCAbstractAPI * sharedapi = (SCAbstractAPI *)(vm->sharedClassConfig->sharedAPIObject);
 		if (J9VMDLLMAIN_OK != sharedapi->sharedClassesFinishInitialization(vm)) {
+			printf("if (J9VMDLLMAIN_OK != sharedapi->sharedClassesFinishInitialization(vm))\n");
 			goto error;
 		}
 	}
@@ -5780,6 +5827,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	initializeInitialMethods(vm);
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, ABOUT_TO_BOOTSTRAP))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, ABOUT_TO_BOOTSTRAP)))\n");
 		goto error;
 	}
 
@@ -5790,10 +5838,12 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, JCL_INITIALIZED))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, JCL_INITIALIZED)))\n");
 		goto error;
 	}
 
 	if (JNI_OK != (stageRC = runInitializationStage(vm, VM_INITIALIZATION_COMPLETE))) {
+		printf("if (JNI_OK != (stageRC = runInitializationStage(vm, VM_INITIALIZATION_COMPLETE)))\n");
 		goto error;
 	}
 
@@ -5805,6 +5855,7 @@ protectedInitializeJavaVM(J9PortLibrary* portLibrary, void * userData)
 #endif /* J9VM_INTERP_ATOMIC_FREE_JNI */
 
 	if (0 != vm->memoryManagerFunctions->gcStartupHeapManagement(vm)) {
+		printf("if (0 != vm->memoryManagerFunctions->gcStartupHeapManagement(vm))\n");
 		goto error;
 	}
 
