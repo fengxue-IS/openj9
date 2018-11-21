@@ -1644,6 +1644,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		break;
 
 	default:
+		printf("combinationMemoryParameterVerification 1647\n");
 		j9tty_printf(PORTLIB, "Internal GC error %p\n", setMemoryParameters); /* No NLS */
 		assume0(0); /* should never get here */
 		return JNI_ERR;
@@ -1684,6 +1685,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			if (extensions->oldSpaceSize != extensions->initialMemorySize) {
 				memoryOption = displayXmoOrXmos(memoryParameters);
 				memoryOption2 = displayXmsOrInitialRAMPercentage(memoryParameters);
+				printf("combinationMemoryParameterVerification 1688\n");
 				goto _subSpaceNotEqualError;
 			}
 			break;
@@ -1720,6 +1722,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			if (opt_XmoxSet && (extensions->oldSpaceSize > extensions->maxOldSpaceSize)) {
 				memoryOption = displayXmoOrXmox(memoryParameters);
 				subSpaceTooSmallOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+				printf("combinationMemoryParameterVerification 1725\n");
 				goto _subSpaceTooSmall;
 			}
 			break;
@@ -1744,6 +1747,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			break;
 
 		default:
+			printf("combinationMemoryParameterVerification 1750\n");
 			j9tty_printf(PORTLIB, "Internal GC error %p\n", setMemoryParameters); /* No NLS */
 			assume0(0); /* should never get here */
 			return JNI_ERR;
@@ -1807,8 +1811,10 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				memoryOption2 =  displayXmnOrXmns(memoryParameters);
 				if (maximumXmsValueParameter) {
 					subSpaceTooLargeOption = maximumXmsValueParameter;
+					printf("combinationMemoryParameterVerification 1814\n");
 					goto _subSpaceCombinationTooLarge;
 				}
+				printf("combinationMemoryParameterVerification 1817\n");
 				goto _subSpaceCombinationTooLargeForHeap;
 			}
 
@@ -1820,6 +1826,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				memoryOption = displayXmoOrXmos(memoryParameters);
 				memoryOption2 =  displayXmnOrXmns(memoryParameters);
 				subSpaceTooLargeOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+				printf("combinationMemoryParameterVerification 1829\n");
 				goto _subSpaceCombinationNotEqual;
 			}
 			break;
@@ -1843,6 +1850,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				if (candidateXmnsValue < newSpaceSizeMinimum) {
 					memoryOption = displayXmoOrXmos(memoryParameters);
 					subSpaceTooLargeOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 1853\n");
 					goto _subSpaceTooLarge;
 				}
 
@@ -1850,6 +1858,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				if (opt_XmnxSet && (candidateXmnsValue > extensions->maxNewSpaceSize)) {
 					memoryOption = displayXmnOrXmnx(memoryParameters);
 					subSpaceTooSmallOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 1861\n");
 					goto _subSpaceTooSmall;
 				}
 
@@ -1857,6 +1866,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				if ((extensions->oldSpaceSize + candidateXmnsValue) != extensions->initialMemorySize) {
 					memoryOption = displayXmoOrXmos(memoryParameters);
 					subSpaceTooLargeOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 1869\n");
 					goto _subSpaceTooLarge;
 				}
 			} else {
@@ -1880,8 +1890,10 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 						memoryOption = displayXmoOrXmos(memoryParameters);
 						if (maximumXmsValueParameter) {
 							subSpaceTooLargeOption = maximumXmsValueParameter;
+							printf("combinationMemoryParameterVerification 1893\n");
 							goto _subSpaceTooLarge;
 						}
+						printf("combinationMemoryParameterVerification 1896\n");
 						goto _subSpaceTooLargeForHeap;
 					}
 				}
@@ -1916,6 +1928,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				if (candidateXmosValue < oldSpaceSizeMinimum) {
 					memoryOption = displayXmnOrXmns(memoryParameters);
 					subSpaceTooLargeOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 1931\n");
 					goto _subSpaceTooLarge;
 				}
 
@@ -1923,6 +1936,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				if (opt_XmoxSet && (candidateXmosValue > extensions->maxOldSpaceSize)) {
 					memoryOption = displayXmoOrXmox(memoryParameters);
 					subSpaceTooSmallOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 1939\n");
 					goto _subSpaceTooSmall;
 				}
 
@@ -1930,6 +1944,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				if ((candidateXmosValue + extensions->newSpaceSize) != extensions->initialMemorySize) {
 					memoryOption = displayXmnOrXmns(memoryParameters);
 					subSpaceTooLargeOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 1947\n");
 					goto _subSpaceTooLarge;
 				}
 			} else {
@@ -1943,8 +1958,10 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 						memoryOption = displayXmnOrXmns(memoryParameters);
 						if (maximumXmsValueParameter) {
 							subSpaceTooLargeOption = maximumXmsValueParameter;
+							printf("combinationMemoryParameterVerification 1690\n");
 							goto _subSpaceTooLarge;
 						}
+						printf("combinationMemoryParameterVerification 1964\n");
 						goto _subSpaceTooLargeForHeap;
 					}
 				}
@@ -2028,6 +2045,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 					memoryOption = "-Xmox";
 					memoryOption2 = "-Xmnx";
 					subSpaceTooSmallOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 2048\n");
 					goto _subSpaceCombinationTooSmall;
 				}
 			} else {
@@ -2051,8 +2069,10 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 						memoryOption2 = "-Xmnx";
 						if (maximumXmsValueParameter) {
 							subSpaceTooLargeOption = maximumXmsValueParameter;
+							printf("combinationMemoryParameterVerification 2072\n");
 							goto _subSpaceCombinationTooLarge;
 						}
+						printf("combinationMemoryParameterVerification 2075\n");
 						goto _subSpaceCombinationTooLargeForHeap;
 					}
 				}
@@ -2066,6 +2086,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			break;
 
 		default:
+			printf("combinationMemoryParameterVerification 2089\n");
 			j9tty_printf(PORTLIB, "Internal GC error %p\n", setMemoryParameters); /* No NLS */
 			assume0(0); /* should never get here */
 			return JNI_ERR;
@@ -2083,6 +2104,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				assume0(0); /* Previous stage checked Xmdx > minConfiguration */
 				memoryOption = "-Xmdx";
 				minimumSizeValue = extensions->absoluteMinimumOldSubSpaceSize + (2*extensions->absoluteMinimumNewSubSpaceSize); /* smallest configuration */
+				printf("combinationMemoryParameterVerification 2107\n");
 				goto _subSpaceTooSmallForValue;
 			}
 		}
@@ -2095,6 +2117,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				assume0(0); /* Previous stage checked Xms > minConfiguration */
 				memoryOption = displayXmsOrInitialRAMPercentage(memoryParameters);
 				minimumSizeValue = extensions->absoluteMinimumOldSubSpaceSize + (2*extensions->absoluteMinimumNewSubSpaceSize); /* smallest configuration */
+				printf("combinationMemoryParameterVerification 2120\n");
 				goto _subSpaceTooSmallForValue;
 			}
 		}
@@ -2134,12 +2157,15 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 				memoryOption2 = displayXmnOrXmnx(memoryParameters);
 				if (opt_XmdxSet) {
 					subSpaceTooLargeOption = "-Xmdx";
+					printf("combinationMemoryParameterVerification 2160\n");
 					goto _subSpaceCombinationTooLarge;
 				}
 				if (opt_XmxSet) {
 					subSpaceTooLargeOption = displayXmxOrMaxRAMPercentage(memoryParameters);
+					printf("combinationMemoryParameterVerification 2165\n");
 					goto _subSpaceCombinationTooLarge;
 				}
+				printf("combinationMemoryParameterVerification 2168\n");
 				goto _subSpaceCombinationTooLargeForHeap;
 			}
 		}
@@ -2152,6 +2178,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		memoryOption2 = "-Xmaxf";
 		maxValue = (float)extensions->heapFreeMaximumRatioMultiplier / 100;
 		memoryOptionMinimumDifference = "0.05";
+		printf("combinationMemoryParameterVerification 2181\n");
 		goto _subSpaceCombinationTooClose;
 	}
 
@@ -2161,6 +2188,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 	if (extensions->survivorSpaceMinimumSizeRatio > extensions->survivorSpaceMaximumSizeRatio) {
 		memoryOption = "scvTiltRatioMin=";
 		memoryOption2 = "scvTiltRatioMax=";
+		printf("combinationMemoryParameterVerification 2191\n");
 		goto _combinationLargerThan;
 	}
 #endif /* J9VM_GC_TILTED_NEW_SPACE */
@@ -2170,6 +2198,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 	if (extensions->largeObjectAreaInitialRatio < extensions->largeObjectAreaMinimumRatio) {
 		memoryOption = "-Xloainitial";
 		subSpaceTooSmallOption = "-Xloaminimum";
+		printf("combinationMemoryParameterVerification 2201\n");
 		goto _subSpaceTooSmall;
 	}
 
@@ -2177,6 +2206,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 	if (extensions->largeObjectAreaInitialRatio > extensions->largeObjectAreaMaximumRatio) {
 		memoryOption = "-Xloamaximum";
 		subSpaceTooSmallOption = "-Xloainitial";
+		printf("combinationMemoryParameterVerification 2209\n");
 		goto _subSpaceTooSmall;
 	}
 #endif /* J9VM_GC_LARGE_OBJECT_AREA */
@@ -2209,8 +2239,10 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 
 		UDATA total = extensions->maxNewSpaceSize + extensions->maxOldSpaceSize;
 		if (extensions->memoryMax > total) {
+			printf("combinationMemoryParameterVerification 2242\n");
 			goto _subSpaceCombinationTooSmall;
 		} else if (extensions->memoryMax < total) {
+			printf("combinationMemoryParameterVerification 2245\n");
 			goto _subSpaceCombinationTooLarge;
 		}
 	}
@@ -2225,21 +2257,25 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (!isLessThanEqualOrUnspecifiedAgainstFixed(&extensions->userSpecifiedParameters._Xmn, mx)) {
 			memoryOption = "-Xmn";
 			subSpaceTooLargeOption = displayXmxOrMaxRAMPercentage(memoryParameters);
+			printf("combinationMemoryParameterVerification 2260\n");
 			goto _subSpaceTooLarge;
 		}
 		if (!isLessThanEqualOrUnspecifiedAgainstFixed(&extensions->userSpecifiedParameters._Xmns, mx)) {
 			memoryOption = "-Xmns";
 			subSpaceTooLargeOption = displayXmxOrMaxRAMPercentage(memoryParameters);
+			printf("combinationMemoryParameterVerification 2266\n");
 			goto _subSpaceTooLarge;
 		}
 		if (!isLessThanEqualOrUnspecifiedAgainstFixed(&extensions->userSpecifiedParameters._Xmnx, mx)) {
 			memoryOption = "-Xmnx";
 			subSpaceTooLargeOption = displayXmxOrMaxRAMPercentage(memoryParameters);
+			printf("combinationMemoryParameterVerification 2272\n");
 			goto _subSpaceTooLarge;
 		}
 		if (!isLessThanEqualOrUnspecifiedAgainstOption(&extensions->userSpecifiedParameters._Xmns, &extensions->userSpecifiedParameters._Xmnx)) {
 			memoryOption = "-Xmnx";
 			subSpaceTooLargeOption = "-Xmns";
+			printf("combinationMemoryParameterVerification 2278\n");
 			goto _subSpaceTooLarge;
 		}
 		/* now interpret the values */
@@ -2317,6 +2353,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (extensions->suballocatorCommitSize > extensions->suballocatorInitialSize) {
 			memoryOption = "-Xgc:suballocatorCommitSize=";
 			memoryOption2 = "-Xgc:suballocatorInitialSize=";
+			printf("combinationMemoryParameterVerification 2356\n");
 			goto _combinationLargerThan;
 		}
 	}
@@ -2325,12 +2362,14 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 	if (opt_XsoftmxSet) {
 		if (extensions->softMx > extensions->memoryMax) {
 			memoryOption = "-Xsoftmx";
+			printf("combinationMemoryParameterVerification 2365\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
 		if (extensions->softMx < extensions->initialMemorySize) {
 			memoryOption = "-Xsoftmx";
 			minimumSizeValue = extensions->initialMemorySize;
+			printf("combinationMemoryParameterVerification 2372\n");
 			goto _subSpaceTooSmallForValue;
 		}
 	}
