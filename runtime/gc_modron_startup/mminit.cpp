@@ -1252,8 +1252,10 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			memoryOption = displayXmsOrInitialRAMPercentage(memoryParameters);
 			if (maximumXmsValueParameter) {
 				subSpaceTooLargeOption = maximumXmsValueParameter;
+				printf("independentMemoryParameterVerification: _subSpaceTooLarge\n");
 				goto _subSpaceTooLarge;
 			}
+			printf("independentMemoryParameterVerification: _subSpaceTooLargeForHeap\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
@@ -1269,12 +1271,14 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 
 		if (extensions->softMx > extensions->memoryMax) {
 			memoryOption = "-Xsoftmx";
+			printf("independentMemoryParameterVerification: _subSpaceTooLargeForHeap -Xsoftmx\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
 		if (extensions->softMx < extensions->initialMemorySize) {
 			memoryOption = "-Xsoftmx";
 			minimumSizeValue = extensions->initialMemorySize;
+			printf("independentMemoryParameterVerification: _subSpaceTooSmallForValue -Xsoftmx\n");
 			goto _subSpaceTooSmallForValue;
 		}
 	}
@@ -1291,6 +1295,7 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (extensions->newSpaceSize < newSpaceSizeMinimum) {
 			memoryOption = displayXmnOrXmns(memoryParameters);
 			minimumSizeValue = newSpaceSizeMinimum; /* display min size */
+			printf("independentMemoryParameterVerification: _subSpaceTooSmallForValue\n");
 			goto _subSpaceTooSmallForValue;
 		}
 
@@ -1298,8 +1303,10 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			memoryOption = displayXmnOrXmns(memoryParameters);
 			if (maximumXmsValueParameter) {
 				subSpaceTooLargeOption = maximumXmsValueParameter; /* display correct parameter */
+				printf("independentMemoryParameterVerification: _subSpaceTooLarge\n");
 				goto _subSpaceTooLarge;
 			}
+			printf("independentMemoryParameterVerification: _subSpaceTooLargeForHeap 1309\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
@@ -1318,6 +1325,7 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (extensions->maxNewSpaceSize < newSpaceSizeMinimum) {
 			memoryOption = displayXmnOrXmnx(memoryParameters);
 			minimumSizeValue = newSpaceSizeMinimum; /* display min size */
+			printf("independentMemoryParameterVerification: _subSpaceTooSmallForValue 1328\n");
 			goto _subSpaceTooSmallForValue;
 		}
 
@@ -1325,14 +1333,17 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			memoryOption = displayXmnOrXmnx(memoryParameters);
 			if (maximumXmdxValueParameter) {
 				subSpaceTooLargeOption = maximumXmdxValueParameter;
+				printf("independentMemoryParameterVerification: _subSpaceTooLarge 1336\n");
 				goto _subSpaceTooLarge;
 			}
+			printf("independentMemoryParameterVerification: _subSpaceTooLargeForHeap 1339\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
 		if (opt_XmnsSet && (extensions->maxNewSpaceSize < extensions->newSpaceSize)) {
 			memoryOption = displayXmnOrXmns(memoryParameters);
 			subSpaceTooLargeOption = displayXmnOrXmnx(memoryParameters);
+			printf("independentMemoryParameterVerification: _subSpaceTooLarge 1346\n");
 			goto _subSpaceTooLarge;
 		}
 	}
@@ -1349,6 +1360,7 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (extensions->oldSpaceSize < oldSpaceSizeMinimum) {
 			memoryOption = displayXmoOrXmos(memoryParameters);
 			minimumSizeValue = oldSpaceSizeMinimum;
+			printf("independentMemoryParameterVerification: _subSpaceTooSmallForValue 1363\n");
 			goto _subSpaceTooSmallForValue;
 		}
 
@@ -1356,8 +1368,10 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			memoryOption = displayXmoOrXmos(memoryParameters);
 			if (maximumXmsValueParameter) {
 				subSpaceTooLargeOption = maximumXmsValueParameter; /* display correct parameter */
+				printf("independentMemoryParameterVerification: _subSpaceTooLarge 1371\n");
 				goto _subSpaceTooLarge;
 			}
+			printf("independentMemoryParameterVerification: _subSpaceTooLargeForHeap 1374\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
@@ -1376,10 +1390,12 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			if (opt_XmosSet) {
 				subSpaceTooLargeOption = displayXmoOrXmox(memoryParameters);
 				memoryOption = displayXmoOrXmos(memoryParameters);
+				printf("independentMemoryParameterVerification: _subSpaceTooLarge 1393\n");
 				goto _subSpaceTooLarge;
 			}
 			memoryOption = displayXmoOrXmox(memoryParameters);
 			minimumSizeValue = oldSpaceSizeMinimum;
+			printf("independentMemoryParameterVerification: _subSpaceTooSmallForValue 1398\n");
 			goto _subSpaceTooSmallForValue;
 		}
 
@@ -1387,14 +1403,17 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			memoryOption = displayXmoOrXmox(memoryParameters);
 			if (maximumXmdxValueParameter) {
 				subSpaceTooLargeOption = maximumXmdxValueParameter;
+				printf("independentMemoryParameterVerification: _subSpaceTooLarge 1406\n");
 				goto _subSpaceTooLarge;
 			}
+			printf("independentMemoryParameterVerification: _subSpaceTooLargeForHeap 1409\n");
 			goto _subSpaceTooLargeForHeap;
 		}
 
 		if (opt_XmosSet && (extensions->maxOldSpaceSize < extensions->oldSpaceSize)) {
 			memoryOption = displayXmoOrXmos(memoryParameters);
 			subSpaceTooLargeOption = displayXmoOrXmox(memoryParameters);
+			printf("independentMemoryParameterVerification: _subSpaceTooLarge 1416\n");
 			goto _subSpaceTooLarge;
 		}
 
@@ -1433,6 +1452,7 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 	 * the Sum of Xmos + Xmns is too large for Xmdx.  It is correct, just possibly confusing
 	 */
 	if (gcInitializeXmxXmdxVerification(javaVM, memoryParameters, flatConfiguration, XmsMinimumValue, memoryOption, memoryOption2) != JNI_OK) {
+		printf("independentMemoryParameterVerification: gcInitializeXmxXmdxVerification 1455\n");
 		return JNI_ERR;
 	}
 
@@ -1440,9 +1460,11 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (NULL == memoryOption) {
 			memoryOption = displayXmsOrInitialRAMPercentage(memoryParameters);
 			minimumSizeValue = XmsMinimumValue; /* display min size */
+			printf("independentMemoryParameterVerification: _subSpaceTooSmallForValue 1463\n");
 			goto _subSpaceTooSmallForValue;
 		} else {
 			subSpaceTooLargeOption = displayXmsOrInitialRAMPercentage(memoryParameters);
+			printf("independentMemoryParameterVerification: _subSpaceTooLarge 1467\n");
 			goto _subSpaceTooLarge;
 		}
 	}
@@ -2381,6 +2403,7 @@ gcCalculateMemoryParameters(J9JavaVM *javaVM, IDATA* memoryParameters, bool flat
 	 */
 	result = setConfigurationSpecificMemoryParameters(javaVM, memoryParameters, flatConfiguration);
 	if (JNI_OK != result) {
+		printf("gcCalculateMemoryParameters: setConfigurationSpecificMemoryParameters\n");
 		return result;
 	}
 
@@ -2389,6 +2412,7 @@ gcCalculateMemoryParameters(J9JavaVM *javaVM, IDATA* memoryParameters, bool flat
 	 */
 	result = independentMemoryParameterVerification(javaVM, memoryParameters, flatConfiguration);
 	if (JNI_OK != result) {
+		printf("gcCalculateMemoryParameters: independentMemoryParameterVerification\n");
 		return result;
 	}
 
@@ -2397,6 +2421,7 @@ gcCalculateMemoryParameters(J9JavaVM *javaVM, IDATA* memoryParameters, bool flat
 	 */
 	result = combinationMemoryParameterVerification(javaVM, memoryParameters, flatConfiguration);
 	if (JNI_OK != result) {
+		printf("gcCalculateMemoryParameters: combinationMemoryParameterVerification\n");
 		return result;
 	}
 
