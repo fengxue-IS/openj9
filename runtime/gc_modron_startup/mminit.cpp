@@ -2459,6 +2459,7 @@ gcInitializeVerification(J9JavaVM *javaVM, IDATA* memoryParameters, bool flatCon
 #if defined(J9VM_GC_MODRON_SCAVENGER)
 	if (extensions->scavengerScanCacheMaximumSize < extensions->scavengerScanCacheMinimumSize) {
 		PORT_ACCESS_FROM_JAVAVM(javaVM);
+		printf("gcInitializeVerification (extensions->scavengerScanCacheMaximumSize < extensions->scavengerScanCacheMinimumSize)\n");
 		j9nls_printf(PORTLIB,J9NLS_ERROR,J9NLS_GC_OPTIONS_MUST_BE_NO_GREATER_THAN, "-XXgc:scanCacheMinimumSize", "-XXgc:scanCacheMaximumSize");
 		return JNI_ERR;
 	}
@@ -2470,6 +2471,7 @@ gcInitializeVerification(J9JavaVM *javaVM, IDATA* memoryParameters, bool flatCon
 	/* Recalculate memory parameters based on user input (Xms, Xmo, Xmn) */
 	result = gcCalculateMemoryParameters(javaVM, memoryParameters, flatConfiguration);
 	if (JNI_OK != result) {
+		printf("gcInitializeVerification - gcCalculateMemoryParameters failed with %ld\n", (long int)result);
 		return result;
 	}
 
@@ -2916,7 +2918,7 @@ gcInitializeDefaults(J9JavaVM* vm)
 
 		/* Verify all memory parameters */
 		if (JNI_OK != gcInitializeVerification(vm, memoryParameterTable, flatConfiguration)) {
-			printf("GC dll init - gcInitializeVerification(vm, memoryParameterTable, flatConfiguration))");
+			printf("GC dll init - gcInitializeVerification(vm, memoryParameterTable, flatConfiguration))\n");
 			loadInfo->fatalErrorStr = (char *)j9nls_lookup_message(J9NLS_DO_NOT_PRINT_MESSAGE_TAG | J9NLS_DO_NOT_APPEND_NEWLINE, J9NLS_GC_FAILED_TO_INITIALIZE, "Failed to initialize.");
 			goto error;
 		}
