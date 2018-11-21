@@ -2880,6 +2880,7 @@ gcInitializeDefaults(J9JavaVM* vm)
 	((J9JavaVM*)env.getLanguageVM())->gcPolicy = vm->omrVM->gcPolicy;
 
 	if (NULL == extensions->configuration) {
+		printf("GC dll init - (NULL == extensions->configuration)");
 		loadInfo->fatalErrorStr = (char *)j9nls_lookup_message(J9NLS_DO_NOT_PRINT_MESSAGE_TAG | J9NLS_DO_NOT_APPEND_NEWLINE, J9NLS_GC_FAILED_TO_INITIALIZE, "Failed to initialize.");
 		goto error;
 	}
@@ -2901,18 +2902,21 @@ gcInitializeDefaults(J9JavaVM* vm)
 	while (true) {
 		/* Verify Xmx and Xmdx before using the Xmdx value to calculate further values */
 		if (JNI_OK != gcInitializeXmxXmdxVerification(vm, memoryParameterTable, flatConfiguration, minimumVMSize, NULL, NULL)) {
+			printf("GC dll init - (JNI_OK != gcInitializeXmxXmdxVerification(vm, memoryParameterTable, flatConfiguration, minimumVMSize, NULL, NULL))");
 			loadInfo->fatalErrorStr = (char *)j9nls_lookup_message(J9NLS_DO_NOT_PRINT_MESSAGE_TAG | J9NLS_DO_NOT_APPEND_NEWLINE, J9NLS_GC_FAILED_TO_INITIALIZE, "Failed to initialize.");
 			goto error;
 		}
 
 		/* Calculate memory parameters based on Xmx/Xmdx */
 		if (JNI_OK != gcInitializeCalculatedValues(vm, memoryParameterTable)) {
+			printf("GC dll init - (JNI_OK != gcInitializeCalculatedValues(vm, memoryParameterTable))");
 			loadInfo->fatalErrorStr = (char *)j9nls_lookup_message(J9NLS_DO_NOT_PRINT_MESSAGE_TAG | J9NLS_DO_NOT_APPEND_NEWLINE, J9NLS_GC_FAILED_TO_INITIALIZE, "Failed to initialize.");
 			goto error;
 		}
 
 		/* Verify all memory parameters */
 		if (JNI_OK != gcInitializeVerification(vm, memoryParameterTable, flatConfiguration)) {
+			printf("GC dll init - gcInitializeVerification(vm, memoryParameterTable, flatConfiguration))");
 			loadInfo->fatalErrorStr = (char *)j9nls_lookup_message(J9NLS_DO_NOT_PRINT_MESSAGE_TAG | J9NLS_DO_NOT_APPEND_NEWLINE, J9NLS_GC_FAILED_TO_INITIALIZE, "Failed to initialize.");
 			goto error;
 		}
@@ -2922,14 +2926,16 @@ gcInitializeDefaults(J9JavaVM* vm)
 			break;
 		}
 
-		if(extensions->largePageFailedToSatisfy) {
+		if (extensions->largePageFailedToSatisfy) {
 			/* We were unable to satisfy the user's request for a strict page size. */
+			printf("GC dll init - (extensions->largePageFailedToSatisfy)");
 			goto error;
 		}
 
 		if (!reduceXmxValueForHeapInitialization(vm, memoryParameterTable, minimumVMSize)) {
 			/* Unable to reduce the Xmx value -- fail */
 			/* Error string is set by j9gc_initialize_heap */
+			printf("GC dll init - (!reduceXmxValueForHeapInitialization(vm, memoryParameterTable, minimumVMSize))");
 			goto error;
 		}
 
