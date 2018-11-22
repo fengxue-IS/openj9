@@ -2353,7 +2353,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (extensions->suballocatorCommitSize > extensions->suballocatorInitialSize) {
 			memoryOption = "-Xgc:suballocatorCommitSize=";
 			memoryOption2 = "-Xgc:suballocatorInitialSize=";
-			printf("combinationMemoryParameterVerification 2356\n");
+			printf("\ncombinationMemoryParameterVerification 2356\n\tsuballocatorCommitSize: %ld\n\tsuballocatorInitialSize: %ld\n\n", (long int)extensions->suballocatorCommitSize, (long int)extensions->suballocatorInitialSize);
 			goto _combinationLargerThan;
 		}
 	}
