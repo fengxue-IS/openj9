@@ -1477,7 +1477,9 @@ independentMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 
 #if defined(J9VM_GC_COMPRESSED_POINTERS)
 	/* Align the Xmcrs if necessary */
+	printf("independentMemoryParameterVerification: \n\tBEFORE %lu\n", (unsigned long)extensions->suballocatorInitialSize);
 	extensions->suballocatorInitialSize = MM_Math::roundToCeiling(SUBALLOCATOR_ALIGNMENT, extensions->suballocatorInitialSize);
+	printf("independentMemoryParameterVerification: \n\tAFTER %lu\n", (unsigned long)extensions->suballocatorInitialSize);
 #endif /* defined(J9VM_GC_COMPRESSED_POINTERS) */
 
 	return JNI_OK;
@@ -2353,7 +2355,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 		if (extensions->suballocatorCommitSize > extensions->suballocatorInitialSize) {
 			memoryOption = "-Xgc:suballocatorCommitSize=";
 			memoryOption2 = "-Xgc:suballocatorInitialSize=";
-			printf("\ncombinationMemoryParameterVerification 2356\n\tsuballocatorCommitSize: %ld\n\tsuballocatorInitialSize: %ld\n\n", (long int)extensions->suballocatorCommitSize, (long int)extensions->suballocatorInitialSize);
+			printf("\ncombinationMemoryParameterVerification 2356\n\tsuballocatorCommitSize: %lu\n\tsuballocatorInitialSize: %lu\n\n", (unsigned long)extensions->suballocatorCommitSize, (unsigned long)extensions->suballocatorInitialSize);
 			goto _combinationLargerThan;
 		}
 	}

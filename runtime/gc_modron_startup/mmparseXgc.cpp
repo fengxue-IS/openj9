@@ -1355,10 +1355,12 @@ gcParseXgcArguments(J9JavaVM *vm, char *optArg)
 
 		/* see if they are requesting an initial suballocator heap sise */
 		if (try_scan(&scan_start, "suballocatorInitialSize=")) {
+			printf("gcParseXgcArguments: \n\tBEFORE %lu\n", (unsigned long)extensions->suballocatorInitialSize);
 			if(!scan_udata_memory_size_helper(vm, &scan_start, &extensions->suballocatorInitialSize, "suballocatorInitialSize=")) {
 				returnValue = JNI_EINVAL;
 				break;
 			}
+			printf("gcParseXgcArguments: \n\tAFTER %lu\n", (unsigned long)extensions->suballocatorInitialSize);
 			if(0 == extensions->suballocatorInitialSize) {
 				j9nls_printf(PORTLIB, J9NLS_ERROR, J9NLS_GC_OPTIONS_VALUE_MUST_BE_ABOVE, "-Xgc:suballocatorInitialSize=", (UDATA)0);
 				returnValue = JNI_EINVAL;

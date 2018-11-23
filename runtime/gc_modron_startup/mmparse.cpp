@@ -1454,7 +1454,9 @@ gcParseCommandLineAndInitializeWithValues(J9JavaVM *vm, IDATA *memoryParameters)
 
 #if defined(J9VM_GC_COMPRESSED_POINTERS)	/* This should be J9VM_INTERP_COMPRESSED_OBJECT_HEADER */
 	if (-1 != index) {
+		printf("gcParseCommandLineAndInitializeWithValues: \n\tBEFORE %lu\n", (unsigned long)extensions->suballocatorInitialSize);
 		extensions->suballocatorInitialSize = optionValue;
+		printf("gcParseCommandLineAndInitializeWithValues: \n\tAFTER %lu\n", (unsigned long)extensions->suballocatorInitialSize);
 	}
 	if(0 == extensions->suballocatorInitialSize) {
 		j9nls_printf(PORTLIB, J9NLS_ERROR, J9NLS_GC_OPTIONS_VALUE_MUST_BE_ABOVE, OPT_XMCRS, (UDATA)0);
