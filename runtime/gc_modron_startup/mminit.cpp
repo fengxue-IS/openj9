@@ -2345,6 +2345,7 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 	}
 #endif /* J9VM_GC_VLHGC */
 
+	printf("\ncombinationMemoryParameterVerification method CALLED!!!!!!\n\n");
 	if (opt_XmcrsSet) {
 		/* Silently handle a size mismatch; don't report an error about undocumented options
 		 * if the user has specified the official one. */
@@ -2356,7 +2357,11 @@ combinationMemoryParameterVerification(J9JavaVM *javaVM, IDATA* memoryParameters
 			memoryOption = "-Xgc:suballocatorCommitSize=";
 			memoryOption2 = "-Xgc:suballocatorInitialSize=";
 			printf("\ncombinationMemoryParameterVerification 2356\n\tsuballocatorCommitSize: %lu\n\tsuballocatorInitialSize: %lu\n\n", (unsigned long)extensions->suballocatorCommitSize, (unsigned long)extensions->suballocatorInitialSize);
+#if defined(J9VM_GC_COMPRESSED_POINTERS)
 			goto _combinationLargerThan;
+#else
+			printf("non-compressed refs, skip failure\n");
+#endif
 		}
 	}
 
