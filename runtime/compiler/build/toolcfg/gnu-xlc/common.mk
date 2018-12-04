@@ -73,7 +73,8 @@ CX_FLAGS+=\
     -qalias=noansi \
     -qfuncsect \
     -qxflag=LTOL:LTOL0 \
-    -qarch=$(CX_ARCH)
+    -qarch=$(CX_ARCH) \
+    -qstackprotect
 
 CXX_FLAGS+=\
     -qlanglvl=extended0x \

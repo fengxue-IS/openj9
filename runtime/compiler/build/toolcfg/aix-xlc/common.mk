@@ -77,7 +77,8 @@ CX_FLAGS+=\
     -qlanglvl=extended0x \
     -qfuncsect \
     -qsuppress=1540-1087:1540-1088:1540-1090:1540-029:1500-029 \
-    -qdebug=nscrep
+    -qdebug=nscrep \
+    -qstackprotect
 
 CX_DEFINES_DEBUG+=DEBUG
 CX_FLAGS_DEBUG+=-g -qfullpath

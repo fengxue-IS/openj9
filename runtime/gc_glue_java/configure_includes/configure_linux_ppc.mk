@@ -234,6 +234,10 @@ ifneq (,$(findstring _gcc,$(SPEC)))
 	endif
 	CONFIGURE_ARGS += 'OMR_TOOLCHAIN=gcc'
 	CONFIGURE_ARGS += 'CXXLINKSHARED=$(CXX)'
+
+	CONFIGURE_ARGS+= 'GLOBAL_CFLAGS=-fstack-protector'
+	CONFIGURE_ARGS+= 'GLOBAL_CPPFLAGS=-fstack-protector'
+	CONFIGURE_ARGS+= 'GLOBAL_CXXFLAGS=-fstack-protector'
 else
 	ifeq (default,$(origin AS))
 		AS = xlc_r
@@ -247,6 +251,10 @@ else
 	CONFIGURE_ARGS += 'OMR_TOOLCHAIN=xlc'
 	CONFIGURE_ARGS += 'CXXLINKSHARED=$(CC)'
 	# CPP is unused: 'CPP=cpp'
+
+	CONFIGURE_ARGS+= 'GLOBAL_CFLAGS=-qstackprotect'
+	CONFIGURE_ARGS+= 'GLOBAL_CPPFLAGS=-qstackprotect'
+	CONFIGURE_ARGS+= 'GLOBAL_CXXFLAGS=-qstackprotect'
 endif
 
 CONFIGURE_ARGS += 'AR=$(AR)'

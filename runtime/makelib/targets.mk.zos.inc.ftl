@@ -110,9 +110,9 @@ endif
 
 ASFLAGS+=-Wa,goff -Wa,SYSPARM\(BIT64\)
 
-CFLAGS+=-Wc,"langlvl(extc99)" $(UMA_ZOS_FLAGS)
-CPPFLAGS+=-Wc,"langlvl(extc99)" 
-CXXFLAGS+=-Wc,"langlvl(extended)" $(UMA_WC_64) -+ $(UMA_ZOS_FLAGS)
+CFLAGS+=-Wc,"langlvl(extc99)" $(UMA_ZOS_FLAGS) -Wc,stackprotect
+CPPFLAGS+=-Wc,"langlvl(extc99)" -Wc,stackprotect
+CXXFLAGS+=-Wc,"langlvl(extended)" $(UMA_WC_64) -+ $(UMA_ZOS_FLAGS) -Wc,stackprotect
 
 UMA_ZOS_CXX_LD_FLAGS+=-Wc,"langlvl(extended)" $(UMA_WC_64) -+
 

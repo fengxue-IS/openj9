@@ -148,5 +148,5 @@ CONFIGURE_ARGS += 'OMR_HOST_ARCH=s390'
 CONFIGURE_ARGS += 'OMR_TARGET_DATASIZE=$(TEMP_TARGET_DATASIZE)'
 CONFIGURE_ARGS += 'OMR_TOOLCHAIN=xlc'
 
-CONFIGURE_ARGS += 'GLOBAL_CXXFLAGS=-W "c,SERVICE(j${uma.buildinfo.build_date})"'
-CONFIGURE_ARGS += 'GLOBAL_CFLAGS=-W "c,SERVICE(j${uma.buildinfo.build_date})"'
+CONFIGURE_ARGS += 'GLOBAL_CXXFLAGS=-W "c,SERVICE(j${uma.buildinfo.build_date})" -Wc,stackprotect'
+CONFIGURE_ARGS += 'GLOBAL_CFLAGS=-W "c,SERVICE(j${uma.buildinfo.build_date})" -Wc,stackprotect'

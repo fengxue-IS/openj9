@@ -91,7 +91,8 @@ CX_FLAGS+=\
     -Wc,FLOAT\(IEEE,FOLD,AFP\) \
     -Wc,ARCH\($(ARCHLEVEL)\) \
     -Wc,TUNE\($(TUNELEVEL)\) \
-    -Wc,TARGET\($(TGTLEVEL)\)
+    -Wc,TARGET\($(TGTLEVEL)\) \
+    -Wc,stackprotect
 
 # Now we get to do this awesome thing because of EBCDIC
 CX_FLAGS+=\

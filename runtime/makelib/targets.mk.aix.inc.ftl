@@ -100,9 +100,9 @@ ifdef I5_VERSION
 else
   CXXFLAGS += -s $(UMA_CC_MODE)
 endif
-CXXFLAGS += -q mbcs -qlanglvl=extended -qarch=ppc -qinfo=pro -qalias=noansi -qxflag=LTOL:LTOL0 -qsuppress=1506-1108
-CXXFLAGS += -D_XOPEN_SOURCE_EXTENDED=1 -D_ALL_SOURCE -DRS6000 -DAIXPPC -D_LARGE_FILES
-CPPFLAGS += -D_XOPEN_SOURCE_EXTENDED=1 -D_ALL_SOURCE -DRS6000 -DAIXPPC -D_LARGE_FILES
+CXXFLAGS += -q mbcs -qlanglvl=extended -qarch=ppc -qinfo=pro -qalias=noansi -qxflag=LTOL:LTOL0 -qsuppress=1506-1108 -qstackprotect
+CXXFLAGS += -D_XOPEN_SOURCE_EXTENDED=1 -D_ALL_SOURCE -DRS6000 -DAIXPPC -D_LARGE_FILES -qstackprotect
+CPPFLAGS += -D_XOPEN_SOURCE_EXTENDED=1 -D_ALL_SOURCE -DRS6000 -DAIXPPC -D_LARGE_FILES -qstackprotect
 
 ifeq ($(j9vm_env_data64),1)
   CFLAGS += -DPPC64

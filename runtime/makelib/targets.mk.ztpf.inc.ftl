@@ -114,9 +114,9 @@ ifdef j9vm_uma_supportsIpv6
   CPPFLAGS +=
 endif
 
-CFLAGS += $(J9M31) -DS390 -D_LONG_LONG -DJ9VM_TIERED_CODE_CACHE -fno-strict-aliasing
-CXXFLAGS += $(J9M31) -DS390 -D_LONG_LONG -DJ9VM_TIERED_CODE_CACHE -fno-strict-aliasing
-CPPFLAGS += -DS390 -D_LONG_LONG -DJ9VM_TIERED_CODE_CACHE
+CFLAGS += $(J9M31) -DS390 -D_LONG_LONG -DJ9VM_TIERED_CODE_CACHE -fno-strict-aliasing -fstack-protector
+CXXFLAGS += $(J9M31) -DS390 -D_LONG_LONG -DJ9VM_TIERED_CODE_CACHE -fno-strict-aliasing -fstack-prtector
+CPPFLAGS += -DS390 -D_LONG_LONG -DJ9VM_TIERED_CODE_CACHE -fstack-protector
 ifdef j9vm_env_data64
   CFLAGS += -DS39064
   CXXFLAGS += -DS39064
