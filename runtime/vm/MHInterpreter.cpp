@@ -2060,7 +2060,7 @@ convertInt:
 					} else if (currentClass == byteWrapperClass) {
 						intValue = J9VMJAVALANGBYTE_VALUE(_currentThread, currentReference);
 						if (!explicitCast) {
-							if (nextClass == booleanReflectClass) {
+							if ((nextClass == booleanReflectClass) || (nextClass == charReflectClass)) {
 								goto classCastException;
 							}
 						}
