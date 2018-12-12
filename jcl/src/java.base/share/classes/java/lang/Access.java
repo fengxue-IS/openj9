@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URI;
 import java.util.Map;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import com.ibm.oti.reflect.AnnotationParser;
@@ -378,7 +379,11 @@ final class Access implements JavaLangAccess {
 	public byte[] getBytesNoRepl(String str, Charset charset) throws CharacterCodingException {
 		byte[] lol = StringCoding.getBytesNoRepl(str, charset);
 		System.out.println(charset.name());
-		System.out.println(lol);
+		System.out.println(Arrays.toString(lol));
+		for (byte a : lol) {
+			System.out.print("\t" + String.valueOf(a));
+		}
+		System.out.println();
 		return lol;
 	}
 	public String newStringNoRepl(byte[] bytes, Charset charset) throws CharacterCodingException {
