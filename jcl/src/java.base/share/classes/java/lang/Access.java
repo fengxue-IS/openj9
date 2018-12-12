@@ -376,7 +376,10 @@ final class Access implements JavaLangAccess {
 		Thread.blockedOn(interruptible);
 	}
 	public byte[] getBytesNoRepl(String str, Charset charset) throws CharacterCodingException {
-		return StringCoding.getBytesNoRepl(str, charset);
+		byte[] lol = StringCoding.getBytesNoRepl(str, charset);
+		System.out.println(charset.name());
+		System.out.println(lol);
+		return lol;
 	}
 	public String newStringNoRepl(byte[] bytes, Charset charset) throws CharacterCodingException {
 		return StringCoding.newStringNoRepl(bytes, charset);
