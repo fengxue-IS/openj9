@@ -353,11 +353,15 @@ public class SamePackageExample {
 
 	public static char finallyCharMethod(Throwable t, char result, char arg1, char arg2) throws Throwable {
 		if (null == t) {
+			System.out.println("finallyCharMethod: null == t");
 			return result;
 		} else if (t.getMessage().equals("tryCharMethod_CharReturnType_Throwable")) {
+			System.out.println("finallyCharMethod: tryCharMethod_CharReturnType_Throwable");
 			/* The value of result doesn't exist in the case exception thrown by the try handle */
 			throw new Throwable("[Throwable, " + (('\0' == result) ? '0' : result) + ", " + arg1 + ", " + arg2 + "]");
 		} else {
+			System.out.println("finallyCharMethod: tryCharMethod_Unknown");
+			System.out.println(t.getMessage());
 			throw new Throwable("tryCharMethod_Unknown");
 		}
 	}

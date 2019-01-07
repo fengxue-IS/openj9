@@ -328,6 +328,8 @@ public class MethodHandleAPI_tryFinally {
 		try {
 			char result = (char)mhResult.invokeExact('1', '2', '3');
 		} catch(Throwable t) {
+			System.out.println("test_tryFinally_TryCharMethod_CharReturnType_Throwable:");
+			System.out.println(t.getMessage());
 			/* The exception thrown out from the try handle should be addressed in the finally handle */
 			AssertJUnit.assertTrue(t.getMessage().equals("[Throwable, 0, 1, 2]"));
 		}
