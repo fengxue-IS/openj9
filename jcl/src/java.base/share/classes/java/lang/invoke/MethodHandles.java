@@ -4767,7 +4767,11 @@ public class MethodHandles {
 						if (boolean.class == tryTargetReturnType) {
 							finallyParams[1] = false;
 						} else if (tryTargetReturnType.isPrimitive()) {
-							finallyParams[1] = (byte)0;
+							if (tryTargetReturnType == char.class) {
+								finallyParams[1] = (char)0;
+							} else {
+								finallyParams[1] = (byte)0;
+							}
 						}
 					}
 					System.arraycopy(arguments, 0, finallyParams, 2, finallyParamCount - 2);
