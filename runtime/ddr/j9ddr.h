@@ -72,7 +72,7 @@ typedef struct J9DDRStructDefinition {
 #define J9DDRConstantTableEntryWithValue(constantName, constantValue)	{ (U_64) (constantValue), (constantName) },
 #define J9DDRConstantTableEnd             { 0, 0 } };
 
-#define J9DDRStructTableBegin(name)	const J9DDRStructDefinition J9DDR_##name##_structs [] = {
+#define J9DDRStructTableBegin(name)	static const J9DDRStructDefinition J9DDR_##name##_structs [] = {
 #define J9DDRStruct(structName, superStruct)	{ #structName, (superStruct), J9DDR_##structName##_fields, J9DDR_##structName##_constants, (U_32)sizeof(structName) },
 #define J9DDRStructWithName(structName, name, superStruct)	{ #name, (superStruct), J9DDR_##name##_fields, J9DDR_##name##_constants, (U_32)sizeof(structName) },
 #define J9DDREmptyStruct(structName, superStruct)	{ #structName, (superStruct), NULL, J9DDR_##structName##_constants, (U_32)0 },
