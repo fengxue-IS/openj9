@@ -313,7 +313,7 @@ public class GenerateBlobC
 			Set<UserDefinedType> writtenOutTypes, GenerateBlobCConfig config)
 	{
 		out.println();
-		out.println("static J9DDRStructTableBegin(" + config.autoblobConfiguration.getName() + ")");
+		out.println("J9DDRStructTableBegin(" + config.autoblobConfiguration.getName() + ")");
 		for (UserDefinedType type : writtenOutTypes) {
 			type.writeStructDefinitionAsBlobC(out);
 		}
