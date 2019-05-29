@@ -1896,6 +1896,20 @@ static void loadLibraryWithPath(String libName, ClassLoader loader, String libra
 		}
 	}
 	byte[] message = ClassLoader.loadLibraryWithPath(com.ibm.oti.util.Util.getBytes(libName), loader, libraryPath == null ? null : com.ibm.oti.util.Util.getBytes(libraryPath));
+
+	if (System.internalGetProperties().getProperty("os.name").equals("Mac OS X")) { //$NON-NLS-1$ //$NON-NLS-2$
+		if ((message != null) && (libraryPath != null)) {
+			String legacyPath = libraryPath.replaceAll("/$", "") + "/lib" + libName + ".jnilib"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+			try {
+				byte[] message2 = ClassLoader.loadLibraryWithPath(com.ibm.oti.util.Util.getBytes(legacyPath), loader, null);
+				if (message2 == null) {
+					message = null;
+				}
+			} catch (Exception e) { /* Ignore Exception */ }
+		}
+	}
+
 	if (message != null) {
 		String error;
 		try {
