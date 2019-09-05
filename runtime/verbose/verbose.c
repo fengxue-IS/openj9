@@ -685,15 +685,15 @@ parseVerboseArgumentList(J9JavaVM* vm, J9VMDllLoadInfo* loadInfo, char **errorSt
 		}
 	} while (verboseIndex >= 0);
 
-	xverbvrfyIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, VMOPT_XXVERBOSEVERIFICATION, NULL);
-	xnoverbvrfyIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, VMOPT_XXNOVERBOSEVERIFICATION, NULL);
+	xverbvrfyIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, VMOPT_XXVERBOSEVERIFICATION, NULL);
+	xnoverbvrfyIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, VMOPT_XXNOVERBOSEVERIFICATION, NULL);
 	if (xverbvrfyIndex > xnoverbvrfyIndex) {
 		verboseOptions.verification = VERBOSE_SETTINGS_SET;
 		foundArg = 1;
 	}
 
-	verifyErrorDetailsIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, VMOPT_XXVERIFYERRORDETAILS, NULL);
-	noVerifyErrorDetailsIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, VMOPT_XXNOVERIFYERRORDETAILS, NULL);
+	verifyErrorDetailsIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, VMOPT_XXVERIFYERRORDETAILS, NULL);
+	noVerifyErrorDetailsIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, VMOPT_XXNOVERIFYERRORDETAILS, NULL);
 	if (verifyErrorDetailsIndex >= noVerifyErrorDetailsIndex) {
 		verboseOptions.verifyErrorDetails = VERBOSE_SETTINGS_SET;
 		foundArg = 1;

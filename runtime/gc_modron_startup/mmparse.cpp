@@ -1222,8 +1222,8 @@ gcParseXXArguments(J9JavaVM *vm)
 	MM_GCExtensions *extensions = MM_GCExtensions::getExtensions(vm);
 
 	{
-		IDATA heapManagementMXBeanCompatibilityIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, "-XX:+HeapManagementMXBeanCompatibility", NULL);
-		IDATA noHheapManagementMXBeanCompatibilityIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, "-XX:-HeapManagementMXBeanCompatibility", NULL);
+		IDATA heapManagementMXBeanCompatibilityIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, "-XX:+HeapManagementMXBeanCompatibility", NULL);
+		IDATA noHheapManagementMXBeanCompatibilityIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, "-XX:-HeapManagementMXBeanCompatibility", NULL);
 		if (heapManagementMXBeanCompatibilityIndex != noHheapManagementMXBeanCompatibilityIndex) {
 			/* At least one option is set. Find the right most one. */
 			if (heapManagementMXBeanCompatibilityIndex > noHheapManagementMXBeanCompatibilityIndex) {
@@ -1235,8 +1235,8 @@ gcParseXXArguments(J9JavaVM *vm)
 	}
 
 	{
-		IDATA useGCStartupHintsIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, "-XX:+UseGCStartupHints", NULL);
-		IDATA noUseGCStartupHintsIndex = FIND_ARG_IN_VMARGS(EXACT_MATCH, "-XX:-UseGCStartupHints", NULL);
+		IDATA useGCStartupHintsIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, "-XX:+UseGCStartupHints", NULL);
+		IDATA noUseGCStartupHintsIndex = FIND_AND_CONSUME_ARG(EXACT_MATCH, "-XX:-UseGCStartupHints", NULL);
 		if (useGCStartupHintsIndex != noUseGCStartupHintsIndex) {
 			/* At least one option is set. Find the right most one. */
 			if (useGCStartupHintsIndex > noUseGCStartupHintsIndex) {

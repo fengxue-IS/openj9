@@ -1079,11 +1079,11 @@ static void JITServerParseCommonOptions(J9JavaVM *vm, TR::CompilationInfo *compI
    const char *xxJITServerSSLCertOption = "-XX:JITServerSSLCert=";
    const char *xxJITServerSSLRootCertsOption = "-XX:JITServerSSLRootCerts=";
 
-   int32_t xxJITServerPortArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxJITServerPortOption, 0);
-   int32_t xxJITServerTimeoutArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxJITServerTimeoutOption, 0);
-   int32_t xxJITServerSSLKeyArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxJITServerSSLKeyOption, 0);
-   int32_t xxJITServerSSLCertArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxJITServerSSLCertOption, 0);
-   int32_t xxJITServerSSLRootCertsArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxJITServerSSLRootCertsOption, 0);
+   int32_t xxJITServerPortArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxJITServerPortOption, 0);
+   int32_t xxJITServerTimeoutArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxJITServerTimeoutOption, 0);
+   int32_t xxJITServerSSLKeyArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxJITServerSSLKeyOption, 0);
+   int32_t xxJITServerSSLCertArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxJITServerSSLCertOption, 0);
+   int32_t xxJITServerSSLRootCertsArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxJITServerSSLRootCertsOption, 0);
 
    if (xxJITServerPortArgIndex >= 0)
       {
@@ -2043,9 +2043,9 @@ J9::Options::fePreProcess(void * base)
       const char *xxDisableUseJITServerOption = "-XX:-UseJITServer";
       const char *xxStartAsJITServerOption = "-XX:StartAsJITServer";
 
-      int32_t xxUseJITServerArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxUseJITServerOption, 0);
-      int32_t xxDisableUseJITServerArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxDisableUseJITServerOption, 0);
-      int32_t xxStartAsJITServerArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxStartAsJITServerOption, 0);
+      int32_t xxUseJITServerArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxUseJITServerOption, 0);
+      int32_t xxDisableUseJITServerArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxDisableUseJITServerOption, 0);
+      int32_t xxStartAsJITServerArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxStartAsJITServerOption, 0);
 
       // Check if option is at all specified
       if ((xxUseJITServerArgIndex > xxDisableUseJITServerArgIndex) ||
@@ -2056,7 +2056,7 @@ J9::Options::fePreProcess(void * base)
             compInfo->getPersistentInfo()->setRemoteCompilationMode(JITServer::CLIENT);
 
             const char *xxJITServerAddressOption = "-XX:JITServerAddress=";
-            int32_t xxJITServerAddressArgIndex = FIND_ARG_IN_VMARGS(STARTSWITH_MATCH, xxJITServerAddressOption, 0);
+            int32_t xxJITServerAddressArgIndex = FIND_AND_CONSUME_ARG(STARTSWITH_MATCH, xxJITServerAddressOption, 0);
 
             if (xxJITServerAddressArgIndex >= 0)
                {
