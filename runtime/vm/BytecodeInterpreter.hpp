@@ -646,6 +646,7 @@ throwStackOverflow:
 							// vmStruct already up-to-date in all paths to here
 							fatalRecursiveStackOverflow(_currentThread);
 						}
+						printf("StackOverFlow: BytecodeInterpreter.hpp:649\n");
 						setCurrentExceptionUTF(_currentThread, J9VMCONSTANTPOOL_JAVALANGSTACKOVERFLOWERROR, NULL);
 						VMStructHasBeenUpdated(REGISTER_ARGS);
 						rc = GOTO_THROW_CURRENT_EXCEPTION;
@@ -1705,6 +1706,7 @@ throwStackOverflow:
 					// vmStruct already up-to-date in all paths to here
 					fatalRecursiveStackOverflow(_currentThread);
 				}
+				printf("StackOverFlow: BytecodeInterpreter.hpp:1708\n");
 				setCurrentExceptionUTF(_currentThread, J9VMCONSTANTPOOL_JAVALANGSTACKOVERFLOWERROR, NULL);
 				VMStructHasBeenUpdated(REGISTER_ARGS);
 				rc = GOTO_THROW_CURRENT_EXCEPTION;
@@ -9195,6 +9197,7 @@ throwStackOverflow:
 				fatalRecursiveStackOverflow(_currentThread);
 			}
 			Trc_VM_VMprCheckStackAndSend_throwingError(_currentThread);
+			printf("StackOverFlow: BytecodeInterpreter.hpp:9198\n");
 			setCurrentExceptionUTF(_currentThread, J9VMCONSTANTPOOL_JAVALANGSTACKOVERFLOWERROR, NULL);
 			VMStructHasBeenUpdated(REGISTER_ARGS);
 			goto throwCurrentException;

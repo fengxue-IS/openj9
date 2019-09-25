@@ -1516,6 +1516,7 @@ verifyClassLoadingStack(J9VMThread *vmThread, J9ClassLoader *classLoader, J9ROMC
 			Trc_VM_CreateRAMClassFromROMClass_overflow(vmThread, count);
 			omrthread_monitor_exit(javaVM->classTableMutex);
 			vmThread->privateFlags |= J9_PRIVATE_FLAGS_CLOAD_OVERFLOW;
+			printf("StackOverFlow: createramclass.cpp:1519\n");
 			setCurrentException(vmThread, J9VMCONSTANTPOOL_JAVALANGSTACKOVERFLOWERROR, NULL);
 			vmThread->privateFlags &= ~J9_PRIVATE_FLAGS_CLOAD_OVERFLOW;
 			return FALSE;
