@@ -363,4 +363,5 @@ static_assert((LITERAL_STRLEN(J9_UNMODIFIABLE_CLASS_ANNOTATION) < (size_t)'/'), 
 #endif /* __cplusplus */
 #endif /* 0 */
 
+#define TRACE_TRANSITIONS 1
 #endif /* J9_H */

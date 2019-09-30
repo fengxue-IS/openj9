@@ -51,7 +51,7 @@
 #undef USE_COMPUTED_GOTO
 #endif
 
-#undef TRACE_TRANSITIONS
+//#undef TRACE_TRANSITIONS
 
 #if defined(TRACE_TRANSITIONS)
 #include "bcnames.h"
