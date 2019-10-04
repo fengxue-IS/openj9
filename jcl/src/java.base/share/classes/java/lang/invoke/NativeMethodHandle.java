@@ -80,7 +80,7 @@ public class NativeMethodHandle extends PrimitiveHandle {
 
 	private void checkIfPrimitiveType(MethodType newType) {
 		/* Throw InternalError if the newType contains non-primitives. */
-		Class<?> retType = newType.returnType;
+		Class<?> retType = newType.returnType();
 		if (!retType.isPrimitive()) {
 			throw new InternalError("newType has non-primitive return type, only primtives are supported");  //$NON-NLS-1$
 		}
