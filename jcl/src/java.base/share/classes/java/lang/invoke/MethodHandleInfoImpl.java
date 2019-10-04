@@ -1,6 +1,6 @@
 /*[INCLUDE-IF Sidecar18-SE]*/
 /*******************************************************************************
- * Copyright (c) 2014, 2018 IBM Corp. and others
+ * Copyright (c) 2014, 2019 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -127,7 +127,21 @@ final class MethodHandleInfoImpl implements MethodHandleInfo {
 							result = defc.getDeclaredField(getName());
 						}
 					// Method
-					} else if (isMethod()) { 
+					} else if (isMethod()) {
+/*[IF OPENJDK_METHODHANDLES]*/
+						if (isPublic) {
+							result = defc.getMethod(getName(), getMethodType().ptypes());
+						} else {
+							result = defc.getDeclaredMethod(getName(), getMethodType().ptypes());
+						}
+					// Constructor
+					} else if (isConstructor()) {
+						if (isPublic) {
+							result = defc.getConstructor(getMethodType().ptypes());
+						} else {
+							result = defc.getDeclaredConstructor(getMethodType().ptypes());
+						}
+/*[ELSE] OPENJDK_METHODHANDLES */
 						if (isPublic) {
 							result = defc.getMethod(getName(), getMethodType().arguments);
 						} else {
@@ -140,6 +154,7 @@ final class MethodHandleInfoImpl implements MethodHandleInfo {
 						} else {
 							result = defc.getDeclaredConstructor(getMethodType().arguments);
 						}
+/*[ENDIF] OPENJDK_METHODHANDLES */
 					}
 				} catch (NoSuchFieldException | NoSuchMethodException e) {
 					throw new IllegalArgumentException(e);

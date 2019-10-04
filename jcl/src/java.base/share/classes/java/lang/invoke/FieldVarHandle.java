@@ -113,7 +113,11 @@ abstract class FieldVarHandle extends VarHandle {
 			for (AccessMode mode : AccessMode.values()) {
 				if (mode.isSetter) {
 					MethodHandle mh = handleTable[mode.ordinal()];
+/*[IF OPENJDK_METHODHANDLES]*/
+					Class<?>[] args = mh.type.ptypes();
+/*[ELSE]*/
 					Class<?>[] args = mh.type.arguments;
+/*[ENDIF] OPENJDK_METHODHANDLES */
 					handleTable[mode.ordinal()] = MethodHandles.dropArguments(exceptionThrower, 0, args);
 				}
 			}
