@@ -98,7 +98,7 @@ public abstract class CallSite {
 		}
 		initialTargetHandle = initialTargetHandle.asType(methodType(type.returnType()));
 		/* Adapt the initial target to be compliant with what the caller expects */
-		return MethodHandles.dropArguments(initialTargetHandle, 0, type.arguments);
+		return MethodHandles.dropArguments(initialTargetHandle, 0, type.ptypes());
 	}
 	
 	/* Initialize the cached MethodHandle for initialTarget */
