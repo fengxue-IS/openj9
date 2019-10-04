@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corp. and others
+ * Copyright (c) 2000, 2020 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -142,7 +142,7 @@
        {r(TR::Symbol::Java_lang_invoke_MutableCallSiteDynamicInvokerHandle_mutableSite,"java/lang/invoke/MutableCallSiteDynamicInvokerHandle", "mutableSite", "Ljava/lang/invoke/MutableCallSite;")},
        {r(TR::Symbol::Java_lang_invoke_MethodHandle_thunks,           "java/lang/invoke/MethodHandle", "thunks", "Ljava/lang/invoke/ThunkTuple;")},
        {r(TR::Symbol::Java_lang_invoke_MethodHandle_type,             "java/lang/invoke/MethodHandle", "type", "Ljava/lang/invoke/MethodType;")},
-       {r(TR::Symbol::Java_lang_invoke_MethodType_arguments,          "java/lang/invoke/MethodType", "arguments", "[Ljava/lang/Class;")},
+       {r(TR::Symbol::Java_lang_invoke_MethodType_ptypes,          "java/lang/invoke/MethodType", "ptypes", "[Ljava/lang/Class;")},
        {r(TR::Symbol::Java_lang_invoke_PrimitiveHandle_rawModifiers,  "java/lang/invoke/PrimitiveHandle", "rawModifiers", "I")},
        {r(TR::Symbol::Java_lang_invoke_PrimitiveHandle_defc,          "java/lang/invoke/PrimitiveHandle", "defc", "Ljava/lang/Class;")},
        {r(TR::Symbol::Java_lang_invoke_ThunkTuple_invokeExactThunk,   "java/lang/invoke/ThunkTuple", "invokeExactThunk", "J")},
