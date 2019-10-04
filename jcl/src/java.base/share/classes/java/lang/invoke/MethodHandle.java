@@ -430,7 +430,7 @@ public abstract class MethodHandle
 			
 			Class<?>[] parameters = type.arguments.clone();
 			Arrays.fill(parameters, spreadPosition, spreadPosition + spreadCount, componentType);
-			adapted = asType(MethodType.methodType(type.returnType, parameters));
+			adapted = asType(MethodType.methodType(type.returnType(), parameters));
 		}
 		return new SpreadHandle(adapted, collectType, arrayClass, spreadCount, spreadPosition);
 	}
@@ -524,8 +524,8 @@ public abstract class MethodHandle
 			return localPreviousAsType;
 		}
 		MethodHandle handle = this;
-		Class<?> fromReturn = type.returnType;
-		Class<?> toReturn = newType.returnType;
+		Class<?> fromReturn = type.returnType();
+		Class<?> toReturn = newType.returnType();
 		if (fromReturn != toReturn) {
 			if(toReturn.isAssignableFrom(fromReturn)){
 				handle = cloneWithNewType(MethodType.methodType(toReturn, type.arguments));
@@ -584,7 +584,7 @@ public abstract class MethodHandle
 			}
 			classes[i] = c;
 		}
-		return WrongMethodTypeException.newWrongMethodTypeException(type, MethodType.methodType(type.returnType, classes));
+		return WrongMethodTypeException.newWrongMethodTypeException(type, MethodType.methodType(type.returnType(), classes));
 	}
 	static final class IWAContainer {
 		static MethodHandle getMH(int len){

@@ -519,7 +519,7 @@ public abstract class VarHandle extends VarHandleInternal
 			/* The resulting method handle must come with the same signature as the requested access mode method
 			 * so as to throw out UnsupportedOperationException from that method.
 			 */
-			mh = mh.asType(MethodType.methodType(mt.returnType));
+			mh = mh.asType(MethodType.methodType(mt.returnType()));
 			mh = MethodHandles.dropArguments(mh, 0, mt.arguments);
 		}
 		

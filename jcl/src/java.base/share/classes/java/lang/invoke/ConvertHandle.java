@@ -220,10 +220,10 @@ abstract class ConvertHandle extends MethodHandle {
 
 		static MethodHandle getPrimitiveReturnFilter(MethodType type, boolean isExplicitCast) throws IllegalAccessException, NoSuchMethodException {
 			Class<?> fromClass = type.arguments[0];
-			Class<?> toClass = type.returnType;
+			Class<?> toClass = type.returnType();
 			
 			if (!isExplicitCast) {
-				if ((type.returnType != void.class) && !checkIfWideningPrimitiveConversion(fromClass, toClass)) {
+				if ((type.returnType() != void.class) && !checkIfWideningPrimitiveConversion(fromClass, toClass)) {
 					throw new WrongMethodTypeException();
 				}
 			}
@@ -252,7 +252,7 @@ abstract class ConvertHandle extends MethodHandle {
 		 */
 		static MethodHandle getBoxingReturnFilter(MethodType type) throws IllegalAccessException, NoSuchMethodException {
 			Class<?> wrapper = MethodType.wrapPrimitive(type.arguments[0]);
-			if (!type.returnType.isAssignableFrom(wrapper)) {
+			if (!type.returnType().isAssignableFrom(wrapper)) {
 				throw new WrongMethodTypeException();
 			}
 			MethodHandle filter = cachedReturnFilters.get(type);
@@ -263,7 +263,7 @@ abstract class ConvertHandle extends MethodHandle {
 					filter = previous;
 				}
 			}
-			if (type.returnType != wrapper) {
+			if (type.returnType() != wrapper) {
 				filter = filter.cloneWithNewType(type);
 			}
 			return filter;
@@ -271,7 +271,7 @@ abstract class ConvertHandle extends MethodHandle {
 		
 		static MethodHandle getUnboxingReturnFilter(MethodType type, boolean isExplicitCast) throws IllegalAccessException, NoSuchMethodException {
 			Class<?> toUnbox = type.arguments[0];
-			Class<?> returnType = type.returnType;
+			Class<?> returnType = type.returnType();
 			
 			if (toUnbox.equals(Object.class)) {
 				String methodName;
@@ -345,7 +345,7 @@ abstract class ConvertHandle extends MethodHandle {
 		 * object to object conversion: use Class#cast(Object)
 		 */
 		static MethodHandle getCastFilter(MethodType type, boolean isExplicitCast) throws IllegalAccessException, NoSuchMethodException{
-			Class<?> returnClass = type.returnType;
+			Class<?> returnClass = type.returnType();
 			if (isExplicitCast && returnClass.isInterface()) {
 				// Interfaces are passed unchecked
 				MethodType filterType = MethodType.methodType(Object.class, Object.class);
