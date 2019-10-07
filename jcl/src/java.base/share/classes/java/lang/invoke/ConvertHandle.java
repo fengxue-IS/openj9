@@ -318,7 +318,7 @@ abstract class ConvertHandle extends MethodHandle {
 				/* widen the return if possible */
 				return MethodHandles.filterReturnValue(filter, getPrimitiveReturnFilter(MethodType.methodType(returnType, char.class), isExplicitCast));
 			
-			} else if (MethodType.WRAPPER_SET.contains(toUnbox)) {
+			} else if (MethodTypeHelper.WRAPPER_SET.contains(toUnbox)) {
 				/* remaining wrappers may have widening conversions - can be handled by toUnbox#'type'Value() methods (ie: Number subclasses)*/
 				Class<?> unwrapped = MethodTypeHelper.unwrapPrimitive(toUnbox);
 				boolean justUnwrap = returnType.equals(unwrapped);
