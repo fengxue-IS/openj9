@@ -160,4 +160,8 @@ class LambdaForm {
 	LambdaFormEditor editor() {
 		throw OpenJDKCompileStub.OpenJDKCompileStubThrowError();
 	}
+
+	@interface Compiled {
+	}
+
 }
