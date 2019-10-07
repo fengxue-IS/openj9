@@ -2045,7 +2045,7 @@ public class MethodHandles {
 	 * @throws IllegalArgumentException if the resulting MethodHandle would take too many parameters.
 	 */
 	public static MethodHandle exactInvoker(MethodType type) throws IllegalArgumentException {
-		return type.getInvokeExactHandle();
+		return type.invokers().exactInvoker();
 	}
 	
 	/**

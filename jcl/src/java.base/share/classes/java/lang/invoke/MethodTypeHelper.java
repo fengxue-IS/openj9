@@ -229,4 +229,38 @@ public final class MethodTypeHelper {
 
 		return index;
 	}
+
+	/**
+	 * This helper calls MethodType.fromMethodDescriptorString(...) or 
+	 * MethodType.fromMethodDescriptorStringAppendArg(...) but throws 
+	 * NoClassDefFoundError instead of TypeNotPresentException during 
+	 * the VM resolve stage.
+	 *
+	 * @param methodDescriptor - the method descriptor string
+	 * @param loader - the ClassLoader to be used
+	 * @param appendArgumentType - an extra argument type
+	 *
+	 * @return a MethodType object representing the method descriptor string
+	 *
+	 * @throws IllegalArgumentException - if the string is not well-formed
+	 * @throws NoClassDefFoundError - if a named type cannot be found
+	 */
+	static final MethodType vmResolveFromMethodDescriptorString(String methodDescriptor, ClassLoader loader, Class<?> appendArgumentType) throws Throwable {
+		try {
+			MethodType result = MethodType.fromMethodDescriptorString(methodDescriptor, loader);
+			if (null != appendArgumentType) {
+				result = result.appendParameterTypes(appendArgumentType);
+			}
+			return result;
+		} catch (TypeNotPresentException e) {
+			Throwable cause = e.getCause();
+			if (cause instanceof ClassNotFoundException) {
+				NoClassDefFoundError noClassDefFoundError = new NoClassDefFoundError(cause.getMessage());
+				noClassDefFoundError.initCause(cause);
+				throw noClassDefFoundError;
+			}
+			throw e;
+		}
+	}
+
 }
