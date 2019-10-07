@@ -55,7 +55,7 @@ abstract class FieldVarHandle extends VarHandle {
 		this.definingClass = lookupClass;
 		this.fieldName = fieldName;
 		int header = (isStatic ? 0 : VM.OBJECT_HEADER_SIZE);
-		this.vmslot = lookupField(definingClass, fieldName, MethodType.getBytecodeStringName(fieldType), fieldType, isStatic, accessClass) + header;
+		this.vmslot = lookupField(definingClass, fieldName, MethodTypeHelper.getBytecodeStringName(fieldType), fieldType, isStatic, accessClass) + header;
 		checkSetterFieldFinality(handleTable);
 	}
 	

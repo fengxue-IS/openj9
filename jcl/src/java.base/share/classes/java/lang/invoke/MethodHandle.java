@@ -943,7 +943,7 @@ public abstract class MethodHandle
 		char[] signature = new char[length];
 		fieldDescriptor.getChars(0, length, signature, 0);
 
-		MethodType.parseIntoClass(signature, 0, classList, classLoader, fieldDescriptor);
+		MethodTypeHelper.parseIntoClass(signature, 0, classList, classLoader, fieldDescriptor);
 
 		return classList.get(0);
 	}
@@ -1375,7 +1375,7 @@ public abstract class MethodHandle
 			return this;
 		}
 		if (dropFirstArg) {
-			return asType(newType.dropFirstParameterType());
+			return asType(newType.dropParameterTypes(0, 1));
 		}
 		return asType(newType);
 	}
