@@ -1542,7 +1542,7 @@ public abstract class MethodHandle
 	}
 
 	static final void enforceArityLimit(byte kind, MethodType type) {
-		int argumentSlots = type.argSlots;
+		int argumentSlots = type.parameterSlotCount();
 		
 		/* The upper limit of argument slots is 255. For a constructor, 
 		 * there should be at most 253 argument slots, one slot for

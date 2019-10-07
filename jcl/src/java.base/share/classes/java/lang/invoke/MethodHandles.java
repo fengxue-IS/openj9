@@ -952,7 +952,7 @@ public class MethodHandles {
 			if (MethodHandle.class.isAssignableFrom(clazz)) {
 				if (INVOKE_EXACT.equals(methodName)) {
 					accessCheckArgRetTypes(type);
-					return type.getInvokeExactHandle();
+					return type.invokers().exactInvoker();
 				} else if (INVOKE.equals(methodName))  {
 					accessCheckArgRetTypes(type);
 					return new InvokeGenericHandle(type);
@@ -3133,18 +3133,18 @@ public class MethodHandles {
 		
 		if (filterReturnClass == void.class) {
 			// special case: a filter handle that returns void doesn't provide an argument to the target handle
-			if ((pos < 0) || (pos > targetType.argSlots)) {
+			if ((pos < 0) || (pos > targetType.parameterSlotCount())) {
 				/*[MSG "K0580", "Filter argument index (pos) is not between 0 and target arity (\"{0}\")"]*/
-				throw new IllegalArgumentException(com.ibm.oti.util.Msg.getString("K0580", targetType.argSlots)); //$NON-NLS-1$
+				throw new IllegalArgumentException(com.ibm.oti.util.Msg.getString("K0580", targetType.parameterSlotCount())); //$NON-NLS-1$
 			}
 			MethodType resultType = targetType.insertParameterTypes(pos, filterType.ptypes());
 			MethodHandle result = buildTransformHandle(new VoidCollectHelper(target, pos, filter), resultType);
 			return result;
 		}
 		
-		if ((pos < 0) || (pos >= targetType.argSlots)) {
+		if ((pos < 0) || (pos >= targetType.parameterSlotCount())) {
 			/*[MSG "K0580", "Filter argument index (pos) is not between 0 and target arity (\"{0}\")"]*/
-			throw new IllegalArgumentException(com.ibm.oti.util.Msg.getString("K0580", targetType.argSlots)); //$NON-NLS-1$
+			throw new IllegalArgumentException(com.ibm.oti.util.Msg.getString("K0580", targetType.parameterSlotCount())); //$NON-NLS-1$
 		}
 		
 		if (filterReturnClass != targetType.ptypes()[pos]) {
