@@ -30,11 +30,8 @@ import java.lang.invoke.VarHandle.AccessMode;
  * Invokers are the MethodHandle-subclasses required to implement
  * the invokeExact and invoke MethodHandle combinators.
  */
-@VMCONSTANTPOOL_CLASS
 abstract class VarHandleInvokeHandle extends PrimitiveHandle {
-	@VMCONSTANTPOOL_FIELD
 	final int operation;
-	@VMCONSTANTPOOL_FIELD
 	final MethodType accessModeType;
 
 	VarHandleInvokeHandle(AccessMode accessMode, MethodType accessModeType, byte kind) {

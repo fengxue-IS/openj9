@@ -33,20 +33,15 @@ import com.ibm.jit.JITHelpers;
  * PrimitiveHandle is a subclass of MethodHandle used for grouping MethodHandles that directly refer a Java-level method. 
  * 
  */
-@VMCONSTANTPOOL_CLASS
 abstract class PrimitiveHandle extends MethodHandle {
 
-	@VMCONSTANTPOOL_FIELD 
 	long vmSlot; /* Either the address of the method to be invoked or the {i,v}table index */
 
-	@VMCONSTANTPOOL_FIELD 
 	int rawModifiers; /* Field/Method modifiers.  Currently only used by fields to determine if volatile */
 
-	@VMCONSTANTPOOL_FIELD 
 	Class<?> defc; /* Used by security check. Class containing the method implementation or field. */
 
 	/* Used by staticFieldGetterDispatchTargets as the class passed to the readStatic object access barrier. */
-	@VMCONSTANTPOOL_FIELD 
 	final Class<?> referenceClass; /* Lookup class for the method or field. */
 
 	final String name; /* Name used to look up method */

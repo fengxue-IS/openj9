@@ -25,9 +25,7 @@ package java.lang.invoke;
 abstract class FoldHandle extends MethodHandle {
 	protected final MethodHandle next;
 	protected final MethodHandle combiner;
-	@VMCONSTANTPOOL_FIELD
 	private final int foldPosition;  /* The starting position of fold arguments */
-	@VMCONSTANTPOOL_FIELD
 	private final int[] argumentIndices;  /* An array of argument indexes of fold handle */
 	
 	protected FoldHandle(MethodHandle next, MethodHandle combiner, MethodType type, int foldPosition, int... argumentIndices) {

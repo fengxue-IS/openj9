@@ -23,10 +23,8 @@
 package java.lang.invoke;
 
 final class PermuteHandle extends MethodHandle {
-	@VMCONSTANTPOOL_FIELD
 	private final MethodHandle next;
 	
-	@VMCONSTANTPOOL_FIELD
 	private final int[] permute;
 
 	PermuteHandle(MethodType type, MethodHandle next, int[] permute) {

@@ -22,7 +22,6 @@
  *******************************************************************************/
 package java.lang.invoke;
 
-@VMCONSTANTPOOL_CLASS
 final class MutableCallSiteDynamicInvokerHandle extends DynamicInvokerHandle {
 	/* mutableSite and the parent's site fields will always be sync.  This is 
 	 * a redefinition as a MCS to enable the thunkArchetype to inline without

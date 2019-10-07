@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.ibm.oti.util.Msg;
 
 abstract class ConvertHandle extends MethodHandle {
-	@VMCONSTANTPOOL_FIELD
 	final MethodHandle next;
 
 	ConvertHandle(MethodHandle handle, MethodType type, byte kind, Object thunkArg) {
@@ -45,7 +44,6 @@ abstract class ConvertHandle extends MethodHandle {
 		this.requiresBoxing = originalHandle.requiresBoxing;
 	}
 
-	@VMCONSTANTPOOL_FIELD
 	boolean requiresBoxing = false;
 	
 	/*

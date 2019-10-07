@@ -24,9 +24,7 @@ package java.lang.invoke;
 
 import java.lang.invoke.MethodHandle.FrameIteratorSkip;
 
-@VMCONSTANTPOOL_CLASS
 final class FilterReturnHandle extends ConvertHandle {
-	@VMCONSTANTPOOL_FIELD
 	final MethodHandle filter;
 	
 	FilterReturnHandle(MethodHandle next, MethodHandle filter) {

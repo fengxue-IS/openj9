@@ -22,9 +22,7 @@
  *******************************************************************************/
 package java.lang.invoke;
 
-@VMCONSTANTPOOL_CLASS
 class DynamicInvokerHandle extends MethodHandle {
-	@VMCONSTANTPOOL_FIELD
 	final CallSite site;
 	
 	DynamicInvokerHandle(CallSite site) {

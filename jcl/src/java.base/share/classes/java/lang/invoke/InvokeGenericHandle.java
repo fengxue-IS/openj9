@@ -33,7 +33,6 @@ import java.lang.reflect.Modifier;
  */
 final class InvokeGenericHandle extends PrimitiveHandle {
  	/* MethodType that the first argument MethodHandle will be cast to using asType */
-	@VMCONSTANTPOOL_FIELD
  	final MethodType castType;
  
 	

@@ -30,7 +30,6 @@ package java.lang.invoke;
  * @version		initial
  * @since		1.7
  */
-@VMCONSTANTPOOL_CLASS
 public class WrongMethodTypeException extends RuntimeException {
 	
 	/**

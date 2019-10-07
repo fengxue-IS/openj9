@@ -68,7 +68,6 @@ import java.lang.invoke.MethodTypeForm;
  * 
  * @since 1.7
  */
-@VMCONSTANTPOOL_CLASS
 public final class MethodType implements Serializable 
 /*[IF Java12]*/
 	, Constable, TypeDescriptor.OfMethod<Class<?>, MethodType>
@@ -107,13 +106,10 @@ public final class MethodType implements Serializable
 	static final class InternTableAddLock { }
 	private static InternTableAddLock internTableAddLock = new InternTableAddLock();
 	
-	@VMCONSTANTPOOL_FIELD
 	final Class<?> returnType;
 	
-	@VMCONSTANTPOOL_FIELD
 	final Class<?>[] arguments;
 
-	@VMCONSTANTPOOL_FIELD
 	int argSlots;	// Number of stack slots used by the described args in the MethodType
 	
 	/*[IF ]*/
@@ -124,7 +120,6 @@ public final class MethodType implements Serializable
 	 * frame.
 	 */
 	/*[ENDIF]*/
-	@VMCONSTANTPOOL_FIELD
 	int[] stackDescriptionBits;
 
 	private String methodDescriptor;
@@ -339,7 +334,6 @@ public final class MethodType implements Serializable
 	 * @throws IllegalArgumentException - if the string is not well-formed
 	 * @throws TypeNotPresentException - if a named type cannot be found
 	 */
-	@VMCONSTANTPOOL_METHOD
 	public static MethodType fromMethodDescriptorString(String methodDescriptor, ClassLoader loader) {
 		ClassLoader classLoader = loader; 
 		if (classLoader == null) {

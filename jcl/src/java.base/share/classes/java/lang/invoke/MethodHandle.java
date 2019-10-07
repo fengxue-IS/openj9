@@ -92,7 +92,6 @@ import com.ibm.oti.vm.VMLangAccess;
  * 
  * @since 1.7
  */
-@VMCONSTANTPOOL_CLASS
 public abstract class MethodHandle 
 /*[IF Java12]*/
 	implements Constable
@@ -197,12 +196,9 @@ public abstract class MethodHandle
 	
 	private native void requestCustomThunkFromJit(ThunkTuple tt);
 
-	@VMCONSTANTPOOL_FIELD
 	final MethodType type;		/* Type of the MethodHandle */
-	@VMCONSTANTPOOL_FIELD
 	final byte kind;				/* The kind (STATIC/SPECIAL/etc) of this MethodHandle */
 	
-	@VMCONSTANTPOOL_FIELD
 	int invocationCount; /* used to determine how many times the MH has been invoked*/
 
 	// {{{ JIT support
@@ -495,7 +491,6 @@ public abstract class MethodHandle
 		return new CollectHandle(asType(type.changeParameterType(collectPosition, arrayClass)), collectCount, collectPosition);
 	}
 	
-	@VMCONSTANTPOOL_FIELD
 	private MethodHandle previousAsType;
 
 	/**
@@ -1369,7 +1364,6 @@ public abstract class MethodHandle
 	 * other similar conversions.
 	 */
 	@SuppressWarnings("unused")  /* Used by builder */
-	@VMCONSTANTPOOL_METHOD
 	private final MethodHandle forGenericInvoke(MethodType newType, boolean dropFirstArg){
 		if (this.type == newType) {
 			return this;
@@ -1381,7 +1375,6 @@ public abstract class MethodHandle
 	}
 	
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private static final MethodHandle sendResolveMethodHandle(
 			int cpRefKind,
 			Class<?> currentClass,
@@ -1462,7 +1455,6 @@ public abstract class MethodHandle
 	 */
 	/*[ENDIF]*/
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private MethodHandle returnFilterPlaceHolder() {
 		return this;
 	}
@@ -1476,7 +1468,6 @@ public abstract class MethodHandle
 	 */
 	/*[ENDIF]*/
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private MethodHandle filterArgumentsWithCombinerPlaceHolder() {
 		return this;
 	}
@@ -1490,7 +1481,6 @@ public abstract class MethodHandle
 	 */
 	/*[ENDIF]*/
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private MethodHandle foldHandlePlaceHolder() {
 		return this;
 	}
@@ -1503,7 +1493,6 @@ public abstract class MethodHandle
 	 */
 	/*[ENDIF]*/
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private MethodHandle guardWithTestPlaceHolder() {
 		return this;
 	}
@@ -1516,7 +1505,6 @@ public abstract class MethodHandle
 	 */
 	/*[ENDIF]*/
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private MethodHandle filterArgumentsPlaceHolder(int index, int parentOffset, int nextOffset) {
 		return this;
 	}
@@ -1529,7 +1517,6 @@ public abstract class MethodHandle
 	 */
 	/*[ENDIF]*/
 	@SuppressWarnings("unused")
-	@VMCONSTANTPOOL_METHOD
 	private static Object constructorPlaceHolder(Object newObjectRef) {
 		return newObjectRef;
 	}
@@ -1911,7 +1898,6 @@ final class ThunkKeyWithIntArray extends ThunkKey {
 
 final class ThunkTuple {
 	final String thunkableSignature;
-	@VMCONSTANTPOOL_FIELD
 	int invocationCount; /* used to determine how many times the thunkTuple has been invoked */
 	
 	/*[IF ]*/
@@ -1931,7 +1917,6 @@ final class ThunkTuple {
 	//
 	/*[ENDIF]*/
 	long invokeExactThunk;
-	@VMCONSTANTPOOL_FIELD
 	long i2jInvokeExactThunk;
 
 	static ThunkTuple newShareable(MethodType thunkableType) {

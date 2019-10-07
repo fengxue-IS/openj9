@@ -41,7 +41,6 @@ import java.lang.reflect.Modifier;
  * <p>
  * The vmSlot will hold a J9Method address.
  */
-@VMCONSTANTPOOL_CLASS
 final class ReceiverBoundHandle extends DirectHandle {
 	final Object receiver;
 	final MethodHandle combinableVersion;

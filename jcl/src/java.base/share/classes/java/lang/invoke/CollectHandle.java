@@ -36,11 +36,8 @@ import java.lang.reflect.Array;
  * down the call chain.
  */
 final class CollectHandle extends MethodHandle {
-	@VMCONSTANTPOOL_FIELD
 	final MethodHandle next;
-	@VMCONSTANTPOOL_FIELD
 	final int collectArraySize; /* Size of the collect array */
-	@VMCONSTANTPOOL_FIELD
 	final int collectPosition; /* The starting position of arguments to collect */
 	final Object emptyArray;
 	

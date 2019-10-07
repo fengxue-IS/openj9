@@ -26,7 +26,6 @@ package java.lang.invoke;
  * DefaultMethodConflictException is thrown when method resolution 
  * found conflicting definitions of interface default methods.
  */
-@VMCONSTANTPOOL_CLASS
 final class DefaultMethodConflictException extends RuntimeException {
 	/**
 	 * Serialized version ID
