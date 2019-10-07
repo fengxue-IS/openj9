@@ -1265,7 +1265,7 @@ public abstract class VarHandle extends VarHandleInternal
 	}
 /*[ENDIF] Java12 */
 
-	final class AccessDescriptor {
+	static final class AccessDescriptor {
 		final MethodType symbolicMethodTypeErased;
 		final MethodType symbolicMethodTypeInvoker;
 		final Class<?> returnType;
