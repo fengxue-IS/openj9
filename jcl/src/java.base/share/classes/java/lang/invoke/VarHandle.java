@@ -218,13 +218,13 @@ public abstract class VarHandle extends VarHandleInternal
 		 */
 		GET_AND_BITWISE_XOR_RELEASE("getAndBitwiseXorRelease", SignatureType.getAndSet, true); //$NON-NLS-1$
 		
-		SignatureType signatureType;
+		SignatureType at;
 		boolean isSetter;
 		private String methodName;
 		
 		AccessMode(String methodName, SignatureType signatureType, boolean isSetter) {
 			this.methodName = methodName;
-			this.signatureType = signatureType;
+			this.at = signatureType;
 			this.isSetter = isSetter;
 		}
 		
@@ -260,6 +260,8 @@ public abstract class VarHandle extends VarHandleInternal
 		compareAndExchange,
 		getAndSet,
 		invalid;
+
+		final boolean isMonomorphicInReturnType = false;
 	}
 	
 	static final Unsafe _unsafe = Unsafe.getUnsafe();
