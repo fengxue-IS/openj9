@@ -139,6 +139,9 @@ class LambdaForm {
 		Name(NamedFunction nf,Object... objs) {
 			OpenJDKCompileStub.OpenJDKCompileStubThrowError();
 		}
+		Name(int which, Object obj) {
+			OpenJDKCompileStub.OpenJDKCompileStubThrowError();
+		}
 		
 		Name withConstraint(Object obj) {
 			throw OpenJDKCompileStub.OpenJDKCompileStubThrowError();
@@ -165,5 +168,9 @@ class LambdaForm {
 	}
 
 	MemberName vmentry = null;
+
+	static LambdaForm.Name argument(int which, Object obj) {
+		return new LambdaForm.Name(which, obj);
+	}
 
 }
