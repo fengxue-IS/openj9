@@ -243,4 +243,8 @@ class LambdaForm {
 		return new LambdaForm.Name(which, obj);
 	}
 
+	static boolean debugNames() {
+		return false;
+	}
+
 }
