@@ -164,4 +164,6 @@ class LambdaForm {
 	@interface Compiled {
 	}
 
+	MemberName vmentry = null;
+
 }
