@@ -116,13 +116,83 @@ class LambdaForm {
 	}
 	/*[IF Java10]*/
 	enum Kind {
-		CONVERT,
-		SPREAD,
-		COLLECT,
-		GUARD,
-		GUARD_WITH_CATCH,
-		LOOP,
-		TRY_FINALLY
+		GENERIC("invoke"),
+		ZERO("zero"),
+		IDENTITY("indentity"),
+		BOUND_REINVOKER("BMH.reinvoke", "reinvoke"),
+		REINVOKER("MH.reinvoke", "reinvoke"),
+		DELEGATE("MH.delegate", "delegate"),
+		EXACT_LINKER("MH.invokeExact_MT", "invokeExact_MT"),
+		EXACT_INVOKER("MH.exactInvoker", "exactInvoker"),
+		GENERIC_LINKER("MH.invoke_MT"),
+		GENERIC_INVOKER("MH.invoker"),
+		LINK_TO_TARGET_METHOD("linkToTargetMethod"),
+		LINK_TO_CALL_SITE("linkToCallSite"),
+		DIRECT_INVOKE_VIRTUAL("DMH.invokeVirtual"),
+		DIRECT_INVOKE_SPECIAL("DMH.invokeSpecial"),
+		DIRECT_INVOKE_SPECIAL_IFC("DMH.invokeSpecialIFC"),
+		DIRECT_INVOKE_STATIC("DMH.invokeStatic"),
+		DIRECT_NEW_INVOKE_SPECIAL("DMH.newInvokeSpecial"),
+		DIRECT_INVOKE_INTERFACE("DMH.invokeInterface"),
+		DIRECT_INVOKE_STATIC_INIT("DMH.invokeStaticInit"),
+		GET_OBJECT("getObject"),
+		PUT_OBJECT("putObject"),
+		GET_OBJECT_VOLATILE("getObjectVolatile"),
+		PUT_OBJECT_VOLATILE("putObjectVolatile"),
+		GET_INT("getInt"),
+		PUT_INT("putInt"),
+		GET_INT_VOLATILE("getIntVolatile"),
+		PUT_INT_VOLATILE("putIntVolatile"),
+		GET_BOOLEAN("getBoolean"),
+		PUT_BOOLEAN("putBoolean"),
+		GET_BOOLEAN_VOLATILE("getBooleanVolatile"),
+		PUT_BOOLEAN_VOLATILE("putBooleanVolatile"),
+		GET_BYTE("getByte"),
+		PUT_BYTE("putByte"),
+		GET_BYTE_VOLATILE("getByteVolatile"),
+		PUT_BYTE_VOLATILE("putByteVolatile"),
+		GET_CHAR("getChar"),
+		PUT_CHAR("putChar"),
+		GET_CHAR_VOLATILE("getCharVolatile"),
+		PUT_CHAR_VOLATILE("putCharVolatile"),
+		GET_SHORT("getShort"),
+		PUT_SHORT("putShort"),
+		GET_SHORT_VOLATILE("getShortVolatile"),
+		PUT_SHORT_VOLATILE("putShortVolatile"),
+		GET_LONG("getLong"),
+		PUT_LONG("putLong"),
+		GET_LONG_VOLATILE("getLongVolatile"),
+		PUT_LONG_VOLATILE("putLongVolatile"),
+		GET_FLOAT("getFloat"),
+		PUT_FLOAT("putFloat"),
+		GET_FLOAT_VOLATILE("getFloatVolatile"),
+		PUT_FLOAT_VOLATILE("putFloatVolatile"),
+		GET_DOUBLE("getDouble"),
+		PUT_DOUBLE("putDouble"),
+		GET_DOUBLE_VOLATILE("getDoubleVolatile"),
+		PUT_DOUBLE_VOLATILE("putDoubleVolatile"),
+		TRY_FINALLY("tryFinally"),
+		COLLECT("collect"),
+		CONVERT("convert"),
+		SPREAD("spread"),
+		LOOP("loop"),
+		FIELD("field"),
+		GUARD("guard"),
+		GUARD_WITH_CATCH("guardWithCatch"),
+		VARHANDLE_EXACT_INVOKER("VH.exactInvoker"),
+		VARHANDLE_INVOKER("VH.invoker", "invoker"),
+		VARHANDLE_LINKER("VH.invoke_MT", "invoke_MT");
+
+		final String methodName;
+		final String defaultLambdaName;
+
+		Kind(String defaultLambdaName) {
+			this(defaultLambdaName, defaultLambdaName);
+		}
+		Kind(String defaultLambdaName, String methodName) {
+			this.defaultLambdaName = defaultLambdaName;
+			this.methodName = methodName;
+		}
 	}
 	/*[ENDIF]*/
 	
