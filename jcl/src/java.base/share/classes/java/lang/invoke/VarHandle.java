@@ -254,14 +254,19 @@ public abstract class VarHandle extends VarHandleInternal
 	}
 	
 	enum SignatureType {
-		getter,
-		setter,
-		compareAndSet,
-		compareAndExchange,
-		getAndSet,
-		invalid;
+		getter(Object.class),
+		setter(Void.class),
+		compareAndSet(Boolean.class),
+		compareAndExchange(Object.class),
+		getAndSet(Object.class),
+		invalid(Object.class);
 
 		final boolean isMonomorphicInReturnType = false;
+		final Class<?> returnType;
+
+		SignatureType(Class<?> returnType) {
+			this.returnType = returnType;
+		}
 	}
 	
 	static final Unsafe _unsafe = Unsafe.getUnsafe();
