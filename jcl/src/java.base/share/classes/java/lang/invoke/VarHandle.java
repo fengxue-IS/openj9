@@ -254,11 +254,11 @@ public abstract class VarHandle extends VarHandleInternal
 	}
 	
 	enum AccessType {
-		getter(Object.class),
-		setter(Void.class),
-		compareAndSet(Boolean.class),
-		compareAndExchange(Object.class),
-		getAndSet(Object.class),
+		GET(Object.class),
+		SET(Void.class),
+		COMPARE_AND_SET(Boolean.class),
+		COMPARE_AND_EXCHANGE(Object.class),
+		GET_AND_UPDATE(Object.class),
 		invalid(Object.class);
 
 		final boolean isMonomorphicInReturnType = false;
