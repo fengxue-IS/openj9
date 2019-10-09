@@ -1498,7 +1498,24 @@ public abstract class VarHandle extends VarHandleInternal
 			return (ClassDesc)args[0];
 		}		
 	}
-/*[ENDIF] Java12 */ 
+/*[ENDIF] Java12 */
 
 	abstract MethodType accessModeTypeUncached(AccessMode accessMode);
+
+/*[IF OPENJDK_METHODHANDLES]*/
+	static final class AccessDescriptor {
+		final MethodType symbolicMethodTypeErased;
+		final MethodType symbolicMethodTypeInvoker;
+		final Class<?> returnType;
+		final int type;
+		final int mode;
+		public AccessDescriptor(MethodType mtype, int type, int mode) {
+			symbolicMethodTypeErased = mtype.erase();
+			symbolicMethodTypeInvoker = mtype.insertParameterTypes(0, new Class<?>[] {VarHandle.class});
+			returnType = mtype.returnType();
+			this.type = type;
+			this.mode = mode;
+		}
+	}
+/*[ENDIF] OPENJDK_METHODHANDLES */
 }
