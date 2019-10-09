@@ -205,6 +205,8 @@ public abstract class MethodHandle
 	@VMCONSTANTPOOL_FIELD
 	int invocationCount; /* used to determine how many times the MH has been invoked*/
 
+	byte customizationCount; /* placeholder required by OpenJDK JCL */
+
 	// {{{ JIT support
 
 	ThunkTuple thunks;
