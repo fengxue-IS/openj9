@@ -66,7 +66,6 @@ public class MutableCallSite extends CallSite {
 	//dynamicInvokerHandleDispatchTarget needs to be modified to remove the 'atomic readBarrier.' from
 	// the mutable callsite case.
 	/*[ENDIF]*/
-	private volatile MethodHandle target;
 	private volatile MethodHandle epoch;  // A previous target that was equivalent to target, in the sense of StructuralComparator.handlesAreEquivalent
 	
 	/**
@@ -78,8 +77,8 @@ public class MutableCallSite extends CallSite {
 	 */
 	public MutableCallSite(MethodHandle mutableTarget) throws NullPointerException {
 		// .type provides the NPE if volatileTarget null
-		super(mutableTarget.type());
-		target = epoch = mutableTarget;
+		super(mutableTarget);
+		epoch = mutableTarget;
 		freeze();
 		globalRefCleaner = new GlobalRefCleaner();
 		Cleaner.create(this, globalRefCleaner);
@@ -94,8 +93,6 @@ public class MutableCallSite extends CallSite {
 	 */
 	public MutableCallSite(MethodType type) throws NullPointerException {
 		super(type);
-		// install a target that throws IllegalStateException
-		target = CallSite.initialTarget(type);
 		epoch = null; // Seems unlikely we really want the jit to commit itself to optimizing a throw
 		freeze();
 		globalRefCleaner = new GlobalRefCleaner();

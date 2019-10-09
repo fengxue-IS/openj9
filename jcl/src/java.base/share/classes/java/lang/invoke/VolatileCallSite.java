@@ -35,7 +35,6 @@ package java.lang.invoke;
  * @since 1.7
  */
 public class VolatileCallSite extends CallSite {
-	private volatile MethodHandle target;
 	
 	/**
 	 * Create a VolatileCallSite with the same type as the volatileTarget 
@@ -45,9 +44,7 @@ public class VolatileCallSite extends CallSite {
 	 * @throws NullPointerException - if the <i>volatileTarget</i> is null.
 	 */
 	public VolatileCallSite(MethodHandle volatileTarget) throws NullPointerException {
-		// .type provides the NPE if volatileTarget null
-		super(volatileTarget.type());
-		target = volatileTarget;
+		super(volatileTarget);
 	}
 	
 	/**
@@ -59,8 +56,6 @@ public class VolatileCallSite extends CallSite {
 	 */
 	public VolatileCallSite(MethodType type) throws NullPointerException {
 		super(type);
-		// install a target that throws IllegalStateException
-		target = CallSite.initialTarget(type);
 	}
 	
 	@Override

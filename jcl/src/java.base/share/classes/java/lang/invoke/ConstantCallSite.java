@@ -29,7 +29,6 @@ package java.lang.invoke;
  * @since 1.7
  */
 public class ConstantCallSite extends CallSite {
-	private final MethodHandle target; 
 
 	/**
 	 * Create a ConstantCallSite with a target MethodHandle that cannot change.
@@ -37,9 +36,7 @@ public class ConstantCallSite extends CallSite {
 	 * @param permanentTarget - the target MethodHandle to permanently associate with this CallSite.
 	 */
 	public ConstantCallSite(MethodHandle permanentTarget) {
-		super(permanentTarget.type());
-		// .type() call ensures non-null
-		target = permanentTarget;
+		super(permanentTarget);
 	}
 	
 	/**
