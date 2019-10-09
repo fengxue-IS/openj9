@@ -97,7 +97,7 @@ abstract class IndirectHandle extends PrimitiveHandle {
 		 * Devirtualize virtual/interface handles.
 		 */
 		try {
-			MethodHandle result = MethodHandles.Lookup.internalPrivilegedLookup.bind(value, name, type().dropFirstParameterType());
+			MethodHandle result = MethodHandles.Lookup.internalPrivilegedLookup.bind(value, name, type().dropParameterTypes(0,1));
 
 			/*
 			 * An interface method must devirtualize to a public method. If the devirtualized method is not public,
