@@ -1286,4 +1286,14 @@ public abstract class VarHandle extends VarHandleInternal
 			this.mode = mode;
 		}
 	}
+
+	final MethodHandle getMethodHandle(int mode) {
+		MethodType mt = accessModeType(AccessMode.values()[mode]);
+		mt = mt.insertParameterTypes(0, new Class<?>[] {VarHandle.class});
+
+		DirectMethodHandle dmh = DirectMethodHandle.make(new MemberName());
+		MethodHandle mh = dmh.copyWith(mt, dmh.form);
+
+		return mh;
+	}
 }
