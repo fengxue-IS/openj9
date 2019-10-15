@@ -2743,6 +2743,8 @@ modifyDllLoadTable(J9JavaVM * vm, J9Pool* loadTable, J9VMInitArgs* j9vm_args)
 	xint = TRUE;
 #endif
 
+	xint = TRUE;
+
 	if (xint) {
 		JVMINIT_VERBOSE_INIT_VM_TRACE(vm, "-Xint set\n");
 	}
