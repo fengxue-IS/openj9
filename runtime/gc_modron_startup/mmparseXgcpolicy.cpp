@@ -180,4 +180,5 @@ gcParseXgcpolicy(MM_GCExtensions *extensions)
 			extensions->configurationOptions._gcPolicy = gc_policy_nogc;
 		}
 	}
+	extensions->configurationOptions._gcPolicy = gc_policy_optthruput;
 }
