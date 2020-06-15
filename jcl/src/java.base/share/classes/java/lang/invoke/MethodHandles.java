@@ -2313,8 +2313,7 @@ public class MethodHandles {
 			ClassDefiner definer = new ClassDefiner(name, template, this);
 			return definer;
 		}
-		/*[ENDIF] Java15 */		
-		/*[ENDIF]*/
+		/*[ENDIF] Java15 */
 		
 		/*[IF OPENJDK_METHODHANDLES]*/
 		MemberName resolveOrFail(byte b, MemberName mn) throws ReflectiveOperationException {
