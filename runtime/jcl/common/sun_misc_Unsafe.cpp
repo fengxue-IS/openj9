@@ -157,7 +157,8 @@ Java_sun_misc_Unsafe_defineAnonymousClass(JNIEnv *env, jobject receiver, jclass 
 					}
 				} else {
 					/* Only J9CPTYPE_STRING is patched, other CP types are not supported */
-					Assert_JCL_unreachable();
+					//Assert_JCL_unreachable();
+					vmFuncs->setCurrentExceptionUTF(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALARGUMENTEXCEPTION, NULL);
 				}
 			}
 		}
