@@ -8241,12 +8241,13 @@ retry:
 		VM_BytecodeAction rc = GOTO_RUN_METHOD;
 		U_16 index = *(U_16*)(_pc + 1);
 		J9ConstantPool *ramConstantPool = J9_CP_FROM_METHOD(_literals);
-		J9RAMMethodRef *ramMethodRef = ((J9RAMMethodRef*)ramConstantPool) + index;
-		UDATA methodTypeIndex = ramMethodRef->methodIndexAndArgCount >> 8;
-		j9object_t volatile type = J9_CLASS_FROM_CP(ramConstantPool)->methodTypes[methodTypeIndex];
-		j9object_t memberNameObject = (j9object_t)ramMethodRef->method;
-		if (J9_EXPECTED(NULL != memberNameObject)) {
-			*--_sp = (UDATA)type;
+		J9RAMConstantPoolItem *ramMethodRef = ((J9RAMMethodRef*)ramConstantPool) + index;
+		UDATA methodTypeIndex = ramMethodRef->slot2;
+		j9object_t volatile resultArray = J9_CLASS_FROM_CP(ramConstantPool)->methodTypes[methodTypeIndex];
+		if (J9_EXPECTED(NULL != resultArray)) {
+			j9object_t appendix = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThreadresultArray, 0);
+			j9object_t memberNameObject = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThreadresultArray, 1);
+			*--_sp = (UDATA)appendix;
 			_sendMethod = (J9Method *)J9OBJECT_ADDRESS_LOAD(_currentThread, memberNameObject, _vm->vmtargetOffset);
 		} else {
 			buildGenericSpecialStackFrame(REGISTER_ARGS, 0);

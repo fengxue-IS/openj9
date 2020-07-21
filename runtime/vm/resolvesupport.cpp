@@ -1364,6 +1364,8 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 		
 #if defined(J9VM_OPT_METHOD_HANDLE) || defined(J9VM_OPT_OPENJDK_METHODHANDLE)
 		J9JavaVM *vm = vmStruct->javaVM;
+		J9RAMMethodRef *ramMethodRef = (J9RAMMethodRef *)&ramCP[cpIndex];
+		UDATA methodTypeIndex = ramMethodRef->methodIndexAndArgCount >> 8;
 
                 /* Stack allocate a byte array for VarHandle method name and signature. The array size is:
                  *  - J9ROMNameAndSignature
@@ -1391,8 +1393,25 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 			|| J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "invokeExact")
 			|| J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "invoke")
 			) {
-				J9RAMMethodRef *ramMethodRef = (J9RAMMethodRef *)&ramCP[cpIndex];
-				UDATA methodTypeIndex = ramMethodRef->methodIndexAndArgCount >> 8;
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+				J9UTF8 *modifiedMethodName = (J9UTF8 *)(nameAndNAS + sizeof(J9ROMNameAndSignature));
+				J9UTF8 *modifiedMethodSig = (J9UTF8 *)(nameAndNAS + sizeof(nameAndNAS) - sizeof(J9UTF8));
+				memset(nameAndNAS, 0, sizeof(nameAndNAS));
+
+				/* Create new J9ROMNameAndSignature */
+				nameAndSig = (J9ROMNameAndSignature *)nameAndNAS;
+				NNSRP_SET(nameAndSig->name, modifiedMethodName);
+				NNSRP_SET(nameAndSig->signature, modifiedMethodSig);
+
+				modifiedMethodName->length = initialMethodNameLength;
+				memcpy(modifiedMethodName->data, initialMethodName, initialMethodNameLength);
+
+				/* Set flag for partial signature lookup. Signature length is already initialized to 0. */
+				lookupOptions |= J9_LOOK_PARTIAL_SIGNATURE;
+
+				/* Ensure visibility passes */
+				cpClass = resolvedClass;
+#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 				j9object_t methodType = NULL;
 
 				/* Return NULL if not allowed to run java code. The only way to resolve
@@ -1447,6 +1466,7 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 				}
 
 				goto done;
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 			}
 		} else if (resolvedClass == J9VMJAVALANGINVOKEVARHANDLE_OR_NULL(vm)) {
 			J9UTF8 *nameUTF = J9ROMNAMEANDSIGNATURE_NAME(nameAndSig);
@@ -1653,6 +1673,9 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 						UDATA argSlotCount = vTableOffset << 8;
 						argSlotCount |= (ramCPEntry->methodIndexAndArgCount & 255);
 						ramCPEntry->methodIndexAndArgCount = argSlotCount;
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+						((J9RAMConstantPoolItem *)ramCPEntry)->slot2 = methodTypeIndex;
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 					}
 					if (NULL != resolvedMethod) {
 						/* save away method for callee */
@@ -1994,8 +2017,8 @@ resolveMethodHandle(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA cpIndex, 
 		return NULL;
 	}
 
-	J9RAMMethodRef *ramCPEntry = (J9RAMConstantDynamicRef*)ramCP + cpIndex;
-	UDATA methodTypeIndex = ramMethodRef->methodIndexAndArgCount >> 8;
+	J9RAMConstantPoolItem *ramCPEntry = (J9RAMConstantPoolItem*)ramCP + cpIndex;
+	UDATA methodTypeIndex = ramMethodRef->slot2;
 	J9Class *ramClass = J9_CLASS_FROM_CP(ramConstantPool);
 	J9ROMMethodRef *romMethodRef = (J9ROMMethodRef *)&ramCP->romConstantPool[cpIndex];
 	J9ROMNameAndSignature *nameAndSig = J9ROMMETHODREF_NAMEANDSIGNATURE(romMethodRef);
@@ -2005,7 +2028,7 @@ resolveMethodHandle(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA cpIndex, 
 	if (resolvedClass != NULL) {
 		/* Create appendix array*/
 		J9Class *arrayClass = fetchArrayClass(vmThread, J9VMJAVALANGOBJECT(vm));
-		j9object_t appendix = vm->memoryManagerFunctions->J9AllocateIndexableObject(vmThread, arrayClass, 1, J9_GC_ALLOCATE_OBJECT_INSTRUMENTABLE);
+		j9object_t appendix = vm->memoryManagerFunctions->J9AllocateIndexableObject(vmThread, arrayClass, 2, J9_GC_ALLOCATE_OBJECT_INSTRUMENTABLE);
 
 		sendResolveMethodHandle(vmThread, ramCP, MH_REF_INVOKEVIRTUAL, resolvedClass, nameAndSig, appendix);
 		memberName = (j9object_t)vmThread->returnValue;
@@ -2019,8 +2042,13 @@ resolveMethodHandle(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA cpIndex, 
 
 		if (memberName != NULL) {
 			/* store result */
-			ramClass->methodTypes[methodTypeIndex] = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(vmThread, appendix, 0);
-			((J9RAMConstantPoolItem *)ramCPEntry)->slot2 = (UDATA)memberName;
+			/* tempary hack which creates the appendix to be size of 2 and
+			 * store memberName as 2nd element so results only use 1 slot in constantpool
+			 * 
+			 * TODO - make the MethodTypes array to use 2 slot elements and avoid having java array object
+			 */
+			J9JAVAARRAYOFOBJECT_STORE(vmThread, appendix, 1, memberName);
+			ramClass->methodTypes[methodTypeIndex] = appendix;
 		}
 	}
 
