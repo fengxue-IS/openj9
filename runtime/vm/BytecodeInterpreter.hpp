@@ -8245,8 +8245,8 @@ retry:
 		UDATA methodTypeIndex = ramMethodRef->slot2;
 		j9object_t volatile resultArray = J9_CLASS_FROM_CP(ramConstantPool)->methodTypes[methodTypeIndex];
 		if (J9_EXPECTED(NULL != resultArray)) {
-			j9object_t appendix = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThreadresultArray, 0);
-			j9object_t memberNameObject = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThreadresultArray, 1);
+			j9object_t appendix = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, resultArray, 0);
+			j9object_t memberNameObject = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, resultArray, 1);
 			*--_sp = (UDATA)appendix;
 			_sendMethod = (J9Method *)J9OBJECT_ADDRESS_LOAD(_currentThread, memberNameObject, _vm->vmtargetOffset);
 		} else {
