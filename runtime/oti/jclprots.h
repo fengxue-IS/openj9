@@ -953,6 +953,7 @@ void JNICALL Java_java_lang_invoke_MethodHandleNatives_copyOutBootstrapArguments
 void JNICALL Java_java_lang_invoke_MethodHandleNatives_clearCallSiteContext(JNIEnv *env, jclass clazz, jobject context);
 jint JNICALL Java_java_lang_invoke_MethodHandleNatives_getNamedCon(JNIEnv *env, jclass clazz, jint which, jobjectArray name);
 void JNICALL Java_java_lang_invoke_MethodHandleNatives_registerNatives(JNIEnv *env, jclass clazz);
+jint JNICALL Java_java_lang_invoke_MethodHandleNatives_getConstant(JNIEnv *env, jclass clazz, jint which);
 
 /* java_lang_invoke_VarHandle.c */
 jlong JNICALL Java_java_lang_invoke_FieldVarHandle_lookupField(JNIEnv *env, jobject handle, jclass lookupClass, jstring name, jstring signature, jclass type, jboolean isStatic, jclass accessClass);

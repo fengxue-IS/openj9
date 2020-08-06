@@ -1463,5 +1463,13 @@ Java_java_lang_invoke_MethodHandleNatives_registerNatives(JNIEnv *env, jclass cl
 	return;
 }
 
+/**
+ * static native int getConstant(int which);
+ */
+jint JNICALL
+Java_java_lang_invoke_MethodHandleNatives_getConstant(JNIEnv *env, jclass clazz, jint which)
+{
+	return 0;
+}
 
 } /* extern "C" */
