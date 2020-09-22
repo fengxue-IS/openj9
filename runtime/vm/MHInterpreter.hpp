@@ -136,7 +136,11 @@ private:
 	VMINLINE U_32
 	getMethodTypeArgSlots(j9object_t methodType) const
 	{
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+		return (U_32)VM_VMHelpers::getArgSlotFromMethodType(_currentThread, methodType);
+#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 		return (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, methodType);
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 	}
 
 	/**

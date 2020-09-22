@@ -540,7 +540,11 @@ done:
 		J9JITConfig *jitConfig = _vm->jitConfig;
 		Assert_VM_false(jitConfig->fsdEnabled);
 		/* Add one to MethodType->argSlots to account for the MethodHandle receiver */
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+		return jitTransition(REGISTER_ARGS, (UDATA)VM_VMHelpers::getArgSlotFromMethodType(_currentThread, methodType) + 1, jitStartAddress);
+#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 		return jitTransition(REGISTER_ARGS, J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, methodType) + 1, jitStartAddress);
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 	}
 
 	VMINLINE VM_BytecodeAction
@@ -945,7 +949,12 @@ obj:
 		j9object_t returnType = J9VMJAVALANGINVOKEMETHODTYPE_RETURNTYPE(_currentThread, methodType);
 		void* const exitPoint = j2iReturnPoint(J9VM_J9CLASS_FROM_HEAPCLASS(_currentThread, returnType));
 		/* Get the argument count from the MethodHandle */
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+		UDATA argCount = (UDATA)VM_VMHelpers::getArgSlotFromMethodType(_currentThread, methodType) + 1; /* argSlots does not include the receiver of the invokeExact */
+#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 		UDATA argCount = J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, methodType) + 1; /* argSlots does not include the receiver of the invokeExact */
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+
 		/* Decrement the MH invocationCount if we are going to run jitted as the shareable
 		 * thunks will increment the count.  We only want shareableThunks called from the
 		 * JIT to modify the MH invocationCount. We will increment the count later if we

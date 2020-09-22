@@ -1697,6 +1697,31 @@ exit:
 		}
 		return method;
 	}
+
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+	/**
+	 * Calculate the MethodType argument slot count
+	 *
+	 * @param currentThread[in] the current J9VMThread
+	 * @param methodType[in] the MethodType object
+	 *
+	 * @returns the argSlot count
+	 */
+	static VMINLINE U_32
+	getArgSlotFromMethodType(J9VMThread *currentThread, j9object_t methodType) {
+		j9object_t methodTypeForm = (j9object_t)J9VMJAVALANGINVOKEMETHODTYPE_FORM(currentThread, methodType);
+		U_32 argCounts = 0;
+
+		if (J2SE_VERSION(currentThread->javaVM) >= J2SE_V14) {
+			argCounts = (U_32)(I_16)J9VMJAVALANGINVOKEMETHODTYPEFORM_PARAMETERSLOTCOUNT(currentThread, methodTypeForm);
+		} else {
+			U_64 packedData = (U_64)J9VMJAVALANGINVOKEMETHODTYPEFORM_PARAMETERSLOTCOUNT(currentThread, methodTypeForm);
+			argCounts = (U_32)((packedData >> 16) & 0xFFFF);
+		}
+
+		return argCounts;
+	}
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 };
 
 #endif /* VMHELPERS_HPP_ */

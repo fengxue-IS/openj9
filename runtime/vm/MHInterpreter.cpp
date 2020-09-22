@@ -725,7 +725,7 @@ VM_MHInterpreter::impdep1()
 		/* [... GWT_Handle args descriptionBytes MethodTypeFrame args GWT_Handle PlaceHolderFrame testHandleReturnValue] */
 		j9object_t guardHandle = *(j9object_t*)_currentThread->arg0EA;
 		j9object_t guardType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, guardHandle);
-		U_32 guardArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, guardType);
+		U_32 guardArgSlots = getMethodTypeArgSlots(guardType);
 
 		/* Locally store the boolean return value from the testHandle */
 		I_32 testReturnValue = *(I_32*)_currentThread->sp;
@@ -766,7 +766,7 @@ VM_MHInterpreter::impdep1()
 
 		j9object_t nextHandle = J9VMJAVALANGINVOKEFILTERARGUMENTSHANDLE_NEXT(_currentThread, parentHandle);
 		j9object_t nextType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, nextHandle);
-		U_32 nextArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, nextType);
+		U_32 nextArgSlots = getMethodTypeArgSlots(nextType);
 		j9object_t nextTypeArguments = J9VMJAVALANGINVOKEMETHODTYPE_ARGUMENTS(_currentThread, nextType);
 
 		U_32 *index = (U_32 *)(_currentThread->arg0EA - 1);
@@ -867,7 +867,7 @@ extern "C" J9SFMethodTypeFrame *
 buildMethodTypeFrame(J9VMThread * currentThread, j9object_t methodType)
 {
 #define ROUND_U32_TO(granularity, number) (((number) + (granularity) - 1) & ~((U_32)(granularity) - 1))
-	U_32 argSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(currentThread, methodType);
+	U_32 argSlots = getMethodTypeArgSlots(methodType);
 	j9object_t stackDescriptionBits = J9VMJAVALANGINVOKEMETHODTYPE_STACKDESCRIPTIONBITS(currentThread, methodType);
 	U_32 descriptionInts = J9INDEXABLEOBJECT_SIZE(currentThread, stackDescriptionBits);
 	U_32 descriptionBytes = ROUND_U32_TO(sizeof(UDATA), descriptionInts * sizeof(I_32));
@@ -911,10 +911,10 @@ VM_MHInterpreter::convertArgumentsForAsType(j9object_t methodHandle)
 
 	j9object_t result = NULL;
 	j9object_t currentType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, methodHandle);
-	U_32 currentArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, currentType);
+	U_32 currentArgSlots = getMethodTypeArgSlots(currentType);
 	j9object_t nextHandle = J9VMJAVALANGINVOKECONVERTHANDLE_NEXT(_currentThread, methodHandle);
 	j9object_t nextType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, nextHandle);
-	U_32 nextArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, nextType);
+	U_32 nextArgSlots = getMethodTypeArgSlots(nextType);
 	UDATA explicitCast = (J9VMJAVALANGINVOKEMETHODHANDLE_KIND(_currentThread, methodHandle) == J9_METHOD_HANDLE_KIND_EXPLICITCAST);
 	UDATA requiresBoxing = (UDATA)J9VMJAVALANGINVOKECONVERTHANDLE_REQUIRESBOXING(_currentThread, methodHandle);
 	UDATA * currentArgs = NULL;
@@ -1001,7 +1001,7 @@ VM_MHInterpreter::doInvokeGeneric(j9object_t methodHandle)
 {
 	j9object_t castType = J9VMJAVALANGINVOKEINVOKEGENERICHANDLE_CASTTYPE(_currentThread, methodHandle);
 	j9object_t currentType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, methodHandle);
-	U_32 currentArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, currentType);
+	U_32 currentArgSlots = getMethodTypeArgSlots(currentType);
 	const U_32 slotsOffsetToTargetHandle = currentArgSlots - 1;
 	j9object_t targetHandle = *(j9object_t*)(_currentThread->sp + slotsOffsetToTargetHandle);
 
@@ -1707,10 +1707,10 @@ VM_MHInterpreter::permuteForPermuteHandle(j9object_t methodHandle)
 	j9object_t currentType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, methodHandle);
 	j9object_t currentTypeArguments = J9VMJAVALANGINVOKEMETHODTYPE_ARGUMENTS(_currentThread, currentType);
 	U_32 currentTypeArgumentsLength = J9INDEXABLEOBJECT_SIZE(_currentThread, currentTypeArguments);
-	U_32 currentArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, currentType);
+	U_32 currentArgSlots = getMethodTypeArgSlots(currentType);
 	j9object_t nextHandle = J9VMJAVALANGINVOKEPERMUTEHANDLE_NEXT(_currentThread, methodHandle);
 	j9object_t nextType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, nextHandle);
-	U_32 nextArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, nextType);
+	U_32 nextArgSlots = getMethodTypeArgSlots(nextType);
 	j9object_t permuteArray = J9VMJAVALANGINVOKEPERMUTEHANDLE_PERMUTE(_currentThread, methodHandle);
 	U_32 permuteArrayLength = J9INDEXABLEOBJECT_SIZE(_currentThread, permuteArray);
 	J9JavaVM *vm = _currentThread->javaVM;
@@ -1804,12 +1804,12 @@ j9object_t
 VM_MHInterpreter::insertArgumentsForInsertHandle(j9object_t methodHandle)
 {
 	j9object_t currentType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, methodHandle);
-	U_32 currentArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, currentType);
+	U_32 currentArgSlots = getMethodTypeArgSlots(currentType);
 	j9object_t currentTypeArguments = J9VMJAVALANGINVOKEMETHODTYPE_ARGUMENTS(_currentThread, currentType);
     U_32 currentTypeArgumentsLength = J9INDEXABLEOBJECT_SIZE(_currentThread, currentTypeArguments);
 	j9object_t nextHandle = J9VMJAVALANGINVOKEINSERTHANDLE_NEXT(_currentThread, methodHandle);
 	j9object_t nextType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, nextHandle);
-	U_32 nextArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, nextType);
+	U_32 nextArgSlots = getMethodTypeArgSlots(nextType);
 	U_32 insertionIndex = (U_32)J9VMJAVALANGINVOKEINSERTHANDLE_INSERTIONINDEX(_currentThread, methodHandle);
 	j9object_t valuesArray = J9VMJAVALANGINVOKEINSERTHANDLE_VALUES(_currentThread, methodHandle);
 	U_32 valuesArrayLength = J9INDEXABLEOBJECT_SIZE(_currentThread, valuesArray);
@@ -2306,7 +2306,7 @@ U_8
 VM_MHInterpreter::doesMHandStackMHMatch(j9object_t methodhandle)
 {
 	j9object_t currentType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, methodhandle);
-	U_32 currentArgSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, currentType);
+	U_32 currentArgSlots = getMethodTypeArgSlots(currentType);
 	if(*((j9object_t *) _currentThread->sp + currentArgSlots) != methodhandle){
 		return 0;
 	}
@@ -2321,7 +2321,7 @@ VM_MHInterpreter::mhStackValidator(j9object_t methodhandle)
 	J9Class * longReflectClass = vm->longReflectClass;
 
 	j9object_t currentType = J9VMJAVALANGINVOKEMETHODHANDLE_TYPE(_currentThread, methodhandle);
-	U_32 argSlots = (U_32)J9VMJAVALANGINVOKEMETHODTYPE_ARGSLOTS(_currentThread, currentType);
+	U_32 argSlots = getMethodTypeArgSlots(currentType);
 	j9object_t arguments = J9VMJAVALANGINVOKEMETHODTYPE_ARGUMENTS(_currentThread, currentType);
 	U_32 argCount = (U_32)J9INDEXABLEOBJECT_SIZE(_currentThread, arguments);
 
