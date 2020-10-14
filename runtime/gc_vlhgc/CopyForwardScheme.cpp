@@ -4656,7 +4656,7 @@ MM_CopyForwardScheme::verifyClassObjectSlots(MM_EnvironmentVLHGC *env, J9Object 
 			 * scan MethodTypes
 			 */
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-			GC_MethodTypesIterator methodTypesIterator(classPtr->romClass->invokeCacheCount * 2, classPtr->invokeCache);
+			GC_MethodTypesIterator methodTypesIterator(classPtr->romClass->invokeCacheCount, classPtr->invokeCache);
 #else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 			GC_MethodTypesIterator methodTypesIterator(classPtr->romClass->methodTypeCount, classPtr->methodTypes);
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */

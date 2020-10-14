@@ -1,6 +1,6 @@
 
 /*******************************************************************************
- * Copyright (c) 1991, 2019 IBM Corp. and others
+ * Copyright (c) 1991, 2020 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -86,7 +86,7 @@ public:
 		, _constantPoolObjectSlotIterator((J9JavaVM *)env->getLanguageVM(), clazz)
 		, _callSitesIterator(clazz)
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-		, _methodTypesIterator(clazz->romClass->invokeCacheCount * 2, clazz->invokeCache)
+		, _methodTypesIterator(clazz->romClass->invokeCacheCount, clazz->invokeCache)
 #else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 		, _methodTypesIterator(clazz->romClass->methodTypeCount, clazz->methodTypes)
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
@@ -103,7 +103,7 @@ public:
 		, _constantPoolObjectSlotIterator((J9JavaVM *)extensions->getOmrVM()->_language_vm, clazz)
 		, _callSitesIterator(clazz)
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-		, _methodTypesIterator(clazz->romClass->invokeCacheCount * 2, clazz->invokeCache)
+		, _methodTypesIterator(clazz->romClass->invokeCacheCount, clazz->invokeCache)
 #else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 		, _methodTypesIterator(clazz->romClass->methodTypeCount, clazz->methodTypes)
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */

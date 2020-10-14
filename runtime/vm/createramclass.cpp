@@ -2208,16 +2208,13 @@ fail:
 		classSize += totalStaticSlots;
 
 		/* add in the call sites */
-#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-		classSize += romClass->callSiteCount * 2;
-#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 		classSize += romClass->callSiteCount;
-#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 
-		/* add in the method types */
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-		classSize += romClass->invokeCacheCount * 2;
+		/* add in the invoke cache entries */
+		classSize += romClass->invokeCacheCount;
 #else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+		/* add in the method types */
 		classSize += romClass->methodTypeCount;
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 
@@ -2447,20 +2444,17 @@ fail:
 			/* call sites fragment */
 			allocationRequests[RAM_CALL_SITES_FRAGMENT].prefixSize = 0;
 			allocationRequests[RAM_CALL_SITES_FRAGMENT].alignment = sizeof(UDATA);
-#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-			allocationRequests[RAM_CALL_SITES_FRAGMENT].alignedSize = romClass->callSiteCount * 2 * sizeof(UDATA);
-#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 			allocationRequests[RAM_CALL_SITES_FRAGMENT].alignedSize = romClass->callSiteCount * sizeof(UDATA);
-#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 			allocationRequests[RAM_CALL_SITES_FRAGMENT].address = NULL;
 
-			/* method types fragment */
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+			/* invoke cache fragment */
 			allocationRequests[RAM_INVOKE_CACHE_FRAGMENT].prefixSize = 0;
 			allocationRequests[RAM_INVOKE_CACHE_FRAGMENT].alignment = sizeof(UDATA);
-			allocationRequests[RAM_INVOKE_CACHE_FRAGMENT].alignedSize = romClass->invokeCacheCount * 2 * sizeof(UDATA);
+			allocationRequests[RAM_INVOKE_CACHE_FRAGMENT].alignedSize = romClass->invokeCacheCount * sizeof(UDATA);
 			allocationRequests[RAM_INVOKE_CACHE_FRAGMENT].address = NULL;
 #else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+			/* method types fragment */
 			allocationRequests[RAM_METHOD_TYPES_FRAGMENT].prefixSize = 0;
 			allocationRequests[RAM_METHOD_TYPES_FRAGMENT].alignment = sizeof(UDATA);
 			allocationRequests[RAM_METHOD_TYPES_FRAGMENT].alignedSize = romClass->methodTypeCount * sizeof(UDATA);
