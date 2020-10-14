@@ -8059,20 +8059,24 @@ retry:
 		VM_BytecodeAction rc = GOTO_RUN_METHOD;
 		U_16 index = *(U_16*)(_pc + 1);
 		J9ConstantPool *ramConstantPool = J9_CP_FROM_METHOD(_literals);
-		J9InvokeCacheEntry *invokeCache = (J9InvokeCacheEntry *)ramConstantPool->ramClass->callSites + index;
-		j9object_t memberName = invokeCache->target;
-		if (J9_EXPECTED(NULL != memberName)) {
-			//U_32 size = J9INDEXABLEOBJECT_SIZE(_currentThread, targetArray);
-			if (J9OBJECT_CLAZZ(_currentThread, memberName) == J9VMJAVALANGINVOKEMEMBERNAME_OR_NULL(_vm)) {
+		j9object_t invokeCacheArray = (ramConstantPool->ramClass->callSites)[index];
+
+		if (J9_EXPECTED(NULL != invokeCacheArray)) {
+			if (J9CLASS_IS_ARRAY(J9OBJECT_CLAZZ(_currentThread, invokeCacheArray))) {
+				j9object_t memberName = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, invokeCacheArray, 0);
 				_sendMethod = (J9Method *)(UDATA)J9OBJECT_U64_LOAD(_currentThread, memberName, _vm->vmtargetOffset);
-				*--_sp = (UDATA)invokeCache->appendix;
+				*--_sp = (UDATA)(j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, invokeCacheArray, 1);
 			} else {
-				VM_VMHelpers::setExceptionPending(_currentThread, memberName);
+				VM_VMHelpers::setExceptionPending(_currentThread, invokeCacheArray);
 				rc = GOTO_THROW_CURRENT_EXCEPTION;
 			}
 		} else {
 			buildGenericSpecialStackFrame(REGISTER_ARGS, 0);
 			updateVMStruct(REGISTER_ARGS);
+			/* The resolution is performed by MethodHandleNatives.linkCallSite(*).
+			 * The resolved values consist of a MemberName object and a MethodHandle object in a Java Object array.
+			 * The resolved values are stored in callSites[index].
+			 */
 			resolveInvokeDynamic(_currentThread, ramConstantPool, index, J9_RESOLVE_FLAG_RUNTIME_RESOLVE);
 			VMStructHasBeenUpdated(REGISTER_ARGS);
 			restoreGenericSpecialStackFrame(REGISTER_ARGS);
@@ -8141,16 +8145,17 @@ retry:
 		J9ConstantPool *ramConstantPool = J9_CP_FROM_METHOD(_literals);
 		J9RAMMethodRef *ramMethodRef = ((J9RAMMethodRef*)ramConstantPool) + index;
 		UDATA invokeCacheIndex = ramMethodRef->methodIndexAndArgCount >> 8;
-		J9InvokeCacheEntry *resultEntry = ((J9InvokeCacheEntry *)J9_CLASS_FROM_CP(ramConstantPool)->invokeCache) + invokeCacheIndex;
-		j9object_t volatile memberNameObject = resultEntry->target;
-		if (J9_EXPECTED(NULL != memberNameObject)) {
-			*--_sp = (UDATA)resultEntry->appendix;
-			_sendMethod = (J9Method *)(UDATA)J9OBJECT_U64_LOAD(_currentThread, memberNameObject, _vm->vmtargetOffset);
+		j9object_t invokeCacheArray = (J9_CLASS_FROM_CP(ramConstantPool)->invokeCache)[invokeCacheIndex];
+
+		if (J9_EXPECTED(NULL != invokeCacheArray)) {
+			j9object_t memberName = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, invokeCacheArray, 0);
+			*--_sp = (UDATA)(j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, invokeCacheArray, 1);
+			_sendMethod = (J9Method *)(UDATA)J9OBJECT_U64_LOAD(_currentThread, memberName, _vm->vmtargetOffset);
 		} else {
 			buildGenericSpecialStackFrame(REGISTER_ARGS, 0);
 			updateVMStruct(REGISTER_ARGS);
 			/* The resolution is performed by MethodHandleNatives.linkMethod(*).
-			 * The resolved values consist of a MemberName object and a MethodHandle object.
+			 * The resolved values consist of a MemberName object and a MethodHandle object in a Java Object array.
 			 * The resolved values are stored in invokeCache[invokeCacheIndex].
 			 */
 			resolveInvokeHandle(_currentThread, ramConstantPool, index, J9_RESOLVE_FLAG_RUNTIME_RESOLVE);
