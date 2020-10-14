@@ -8149,9 +8149,11 @@ retry:
 		} else {
 			buildGenericSpecialStackFrame(REGISTER_ARGS, 0);
 			updateVMStruct(REGISTER_ARGS);
-			// add new resolve code which calls sendResolveInvokeHandle -> MHN.linkMethod()
-			// store the memberName/appendix values in invokeCache[invokeCacheIndex]
-			resolveMethodHandle(_currentThread, ramConstantPool, index, J9_RESOLVE_FLAG_RUNTIME_RESOLVE);
+			/* The resolution is performed by MethodHandleNatives.linkMethod(*).
+			 * The resolved values consist of a MemberName object and a MethodHandle object.
+			 * The resolved values are stored in invokeCache[invokeCacheIndex].
+			 */
+			resolveInvokeHandle(_currentThread, ramConstantPool, index, J9_RESOLVE_FLAG_RUNTIME_RESOLVE);
 			VMStructHasBeenUpdated(REGISTER_ARGS);
 			restoreGenericSpecialStackFrame(REGISTER_ARGS);
 			if (immediateAsyncPending()) {
