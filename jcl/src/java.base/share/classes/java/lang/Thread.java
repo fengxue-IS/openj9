@@ -33,6 +33,7 @@ import jdk.internal.reflect.CallerSensitive;
 /*[ELSE] JAVA_SPEC_VERSION >= 11 */
 import sun.reflect.CallerSensitive;
 /*[ENDIF] JAVA_SPEC_VERSION >= 11 */
+import sun.nio.ch.Interruptible;
 
 /**
  *	A Thread is a unit of concurrent execution in Java. It has its own call stack
@@ -1558,6 +1559,49 @@ void cleanup() {
 protected Object clone() throws CloneNotSupportedException {
 	throw new CloneNotSupportedException();
 }
+
+/**
+ * @return
+ */
+public final boolean isVirtual() {
+	return (this instanceof VirtualThread);
+}
+
+void dispatchUncaughtException(Throwable e) {
+	getUncaughtExceptionHandler().uncaughtException(this, e);
+}
+
+static Thread currentCarrierThread() {
+	return currentThread();
+}
+
+StackTraceElement[] asyncGetStackTrace() {
+	return getStackTrace();
+}
+
+State threadState() {
+	return getState();
+}
+
+final void setInterrupt() {
+	if (!interrupted) {
+		interrupted = true;
+		// TODO native call to vm
+	}
+}
+
+final void clearInterrupt() {
+	if (interrupted) {
+		interrupted = false;
+		// TODO native call to vm
+	}
+}
+
+native void setCurrentThread(Thread thread);
+
+final Object interruptLock = new Object();
+volatile boolean interrupted;
+volatile Interruptible nioBlocker;
 
 public interface VirtualThreadTask extends Runnable {
 	/**
