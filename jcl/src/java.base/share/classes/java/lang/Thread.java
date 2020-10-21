@@ -1561,6 +1561,18 @@ protected Object clone() throws CloneNotSupportedException {
 }
 
 /**
+	 * Initializes a virtual Thread.
+	 *
+	 * @param name thread name, can be null
+	 * @param characteristics thread characteristics
+	 * @throws IllegalArgumentException if invalid characteristics are specified
+	 */
+	Thread(String name, int characteristics) {
+		// TODO properly init Thread object for Virtual Thread
+		this(name);
+	}
+
+/**
  * @return
  */
 public final boolean isVirtual() {
