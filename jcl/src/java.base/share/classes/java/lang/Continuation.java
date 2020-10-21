@@ -1,4 +1,4 @@
-/*[INCLUDE-IF Java11]*/
+/*[INCLUDE-IF Java15]*/
 /*******************************************************************************
  * Copyright (c) 2020, 2020 IBM Corp. and others
  *
@@ -74,9 +74,6 @@ public class Continuation {
 	/**
 	 * 
 	 */
-	/**
-	 * 
-	 */
 	public static void pin() { // not sure if these are used
 	}
 
@@ -100,8 +97,10 @@ public class Continuation {
 
 	ContinuationState state;
 
-	enum PreemptStatus {
+	public enum PreemptStatus {
+	}
 
+	public enum Pinned {
 	}
 
 	//proposed natives
