@@ -1559,4 +1559,40 @@ protected Object clone() throws CloneNotSupportedException {
 	throw new CloneNotSupportedException();
 }
 
+public interface VirtualThreadTask extends Runnable {
+	/**
+	 * Return the virtual thread that this task was submitted to run
+	 * @return the virtual thread
+	 */
+	Thread thread();
+
+	/**
+	 * Attaches the given object to this task.
+	 * @param att the object to attach
+	 * @return the previously-attached object, if any, otherwise {@code null}
+	 */
+	Object attach(Object att);
+
+	/**
+	 * Retrieves the current attachment.
+	 * @return the object currently attached to this task or {@code null} if
+	 *         there is no attachment
+	 */
+	Object attachment();
+
+	/**
+	 * Runs the task on the current thread as the carrier thread.
+	 *
+	 * <p> Invoking this method with the interrupt status set will first
+	 * clear the interrupt status. Interrupting the carrier thread while
+	 * running the task leads to unspecified behavior.
+	 *
+	 * @throws IllegalStateException if the virtual thread is not in a state to
+	 *         run on the current thread
+	 * @throws IllegalCallerException if the current thread is a virtual thread
+	 */
+	@Override
+	void run();
+}
+
 }
