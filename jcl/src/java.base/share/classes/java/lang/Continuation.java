@@ -22,6 +22,8 @@
  *******************************************************************************/
 package java.lang;
 
+import java.util.Set;
+
 public class Continuation {
 	//creation APIs
 	/**
@@ -29,7 +31,6 @@ public class Continuation {
 	 * @param target
 	 */
 	public Continuation(ContinuationScope scope, Runnable target) {
-
 	}
 	
 	/**
@@ -38,7 +39,6 @@ public class Continuation {
 	 * @param target
 	 */
 	public Continuation(ContinuationScope scope, int stackSize, Runnable target) {
-
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class Continuation {
 	 * @return
 	 */
 	public static Continuation getCurrentContinuation(ContinuationScope scope) {
-		
+		return null;
 	}
 	
 	
@@ -62,6 +62,7 @@ public class Continuation {
 	 * @return
 	 */
 	public static boolean yield(ContinuationScope scope) { //unmount Vthread off carrier
+		return false;
 	}
 
 	/**
@@ -84,6 +85,7 @@ public class Continuation {
 	}
 
 	public static boolean isPinned(ContinuationScope scope) { //is pinned
+		return false;
 	}
 
 	//proposed fields - we could just have an enum called ContinuationState
@@ -115,6 +117,7 @@ public class Continuation {
 	 * @return
 	 */
 	public boolean isPreempted() { // is yielded
+		return false;
 	}
 
 	/**
@@ -122,6 +125,7 @@ public class Continuation {
 	 * @return
 	 */
 	public PreemptStatus tryPreempt(Thread thread) { //attempts yield
+		return null;
 	}
 	
 	//Stackwalker APIs
@@ -129,6 +133,7 @@ public class Continuation {
 	 * @return
 	 */
 	public StackWalker stackWalker() {
+		return null;
 	}
 
 	/**
@@ -136,13 +141,15 @@ public class Continuation {
 	 * @return
 	 */
 	public StackWalker stackWalker(StackWalker.Option option) {
+		return null;
 	}
 
 	/**
 	 * @param optionSet
 	 * @return
 	 */
-	public StackWalker stackWalker(java.util.Set<java.lang.StackWalker.Option> optionSet) {
+	public StackWalker stackWalker(Set<StackWalker.Option> optionSet) {
+		return null;
 	}
 
 	/**
@@ -151,11 +158,21 @@ public class Continuation {
 	 * @return
 	 */
 	public StackWalker stackWalker(java.util.Set<java.lang.StackWalker.Option> optionSet, ContinuationScope scope) {
+		return null;
 	}
 
 	/**
 	 * @return
 	 */
 	public StackTraceElement[] getStackTrace() {
+		return null;
 	}
+
+	/**
+	 * @param reason
+	 */
+	protected void onPinned(Pinned reason) {
+		throw new IllegalStateException("Pinned: " + reason); //$NON-NLS-1$
+	}
+
 }
