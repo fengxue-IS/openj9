@@ -1609,6 +1609,15 @@ final void clearInterrupt() {
 	}
 }
 
+boolean getAndClearInterrupt() {
+	boolean oldValue = interrupted;
+	if (oldValue) {
+		interrupted = false;
+		// TODO native call to vm
+	}
+	return oldValue;
+}
+
 native void setCurrentThread(Thread thread);
 
 final Object interruptLock = new Object();
