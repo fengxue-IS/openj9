@@ -432,6 +432,24 @@ final class Access implements JavaLangAccess {
 /*[ENDIF] JAVA_SPEC_VERSION >= 15 */
 
 /*[IF JAVA_SPEC_VERSION >= 16]*/
+
+	/* Project Loom - VirtualThread APIs */
+	public Thread currentCarrierThread() {
+		return Thread.currentCarrierThread();
+	}
+
+	public void parkVirtualThread() {
+		VirtualThread.park();
+	}
+
+	public void parkVirtualThread(long nanos) {
+		VirtualThread.parkNanos(nanos);
+	}
+
+	public void unparkVirtualThread(Thread thread) {
+		((VirtualThread) thread).unpark();
+	}
+
 	public void bindToLoader(ModuleLayer ml, ClassLoader cl) {
 		ml.bindToLoader(cl);
 	}
