@@ -2102,6 +2102,8 @@ resolveInvokeHandle(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA cpIndex, 
 		return NULL;
 	}
 
+	Trc_VM_resolveInvokeHandle_Entry(vmThread, ramCP, cpIndex, resolveFlags);
+
 	J9ROMMethodRef *romMethodRef = (J9ROMMethodRef *)&ramCP->romConstantPool[cpIndex];
 	J9ROMNameAndSignature *nameAndSig = J9ROMMETHODREF_NAMEANDSIGNATURE(romMethodRef);
 
@@ -2127,6 +2129,7 @@ resolveInvokeHandle(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA cpIndex, 
 			}
 		}
 	}
+	Trc_VM_resolveInvokeHandle_Exit(vmThread, result);
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 	return result;
 }
@@ -2272,6 +2275,8 @@ resolveInvokeDynamic(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA callSite
 		return result;
 	}
 
+	Trc_VM_resolveInvokeDynamic_Entry(vmThread, callSiteIndex, bsmIndex, resolveFlags);
+
 	/* Walk bsmData - skip all bootstrap methods before bsmIndex */
 	for (i = 0; i < bsmIndex; i++) {
 		/* increment by size of bsm data plus header */
@@ -2280,6 +2285,8 @@ resolveInvokeDynamic(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA callSite
 
 	sendResolveInvokeDynamic(vmThread, ramCP, callSiteIndex, nameAndSig, bsmData);
 	result = (j9object_t) vmThread->returnValue;
+
+	Trc_VM_resolveInvokeDynamic_Resolved(vmThread, callSiteIndex, result);
 
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
 	/* check if an exception is already pending */
@@ -2327,5 +2334,6 @@ resolveInvokeDynamic(J9VMThread *vmThread, J9ConstantPool *ramCP, UDATA callSite
 		}
 	}
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+	Trc_VM_resolveInvokeDynamic_Exit(vmThread, result);
 	return result;
 }

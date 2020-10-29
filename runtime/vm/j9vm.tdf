@@ -222,6 +222,13 @@ TraceExit=Trc_VM_resolveStaticFieldRef_Exit Overhead=1 Level=3 Template="resolve
 TraceEntry=Trc_VM_resolveInstanceFieldRef_Entry_old Obsolete Overhead=1 Level=3 Template="resolveInstanceFieldRef(ramCP=%p, cpIndex=%zu, flags=%zx, returnAddress=%p)"
 TraceExit=Trc_VM_resolveInstanceFieldRef_Exit Overhead=1 Level=3 Template="resolveInstanceFieldRef --> result=%d"
 
+TraceEntry=Trc_VM_resolveInvokeHandle_Entry Overhead=1 Level=3 Template="resolveInvokeHandle(ramCP=%p, cpIndex=%zu, flags=%zx)"
+TraceExit=Trc_VM_resolveInvokeHandle_Exit Overhead=1 Level=3 Template="resolveInvokeHandle --> result=%p"
+
+TraceEntry=Trc_VM_resolveInvokeDynamic_Entry Overhead=1 Level=3 Template="resolveInvokeDynamic(callSiteIndex=%zu, bsmIndex=%zu, flags=%zx)"
+TraceEvent=Trc_VM_resolveInvokeDynamic_Resolved Overhead=1 Level=3 Template=" callsite %zu resolved to %p"
+TraceExit=Trc_VM_resolveInvokeDynamic_Exit Overhead=1 Level=3 Template="resolveInvokeDynamic --> result=%p"
+
 TraceEntry=Trc_VM_romFieldOffsetsStartDo_Entry Overhead=1 Level=6 Template="romFieldOffsetsStartDo(romClass=%p, ramSuperClass=%p, flags=%x)"
 TraceExit=Trc_VM_romFieldOffsetsStartDo_earlyExit Overhead=1 Level=6 Template="romFieldOffsetsStartDo size calculation only --> field=%p, offset=%zx, index=%zx, instanceSize=%zx, superTotalInstanceSize=%zx"
 TraceExit=Trc_VM_romFieldOffsetsStartDo_Exit Overhead=1 Level=6 Template="romFieldOffsetsStartDo --> field=%p, offset=%zx, index=%zx, instanceSize=%zx, superTotalInstanceSize=%zx"
@@ -533,6 +540,9 @@ TraceEvent=Trc_VM_monitorTableAtCacheMiss Overhead=1 Level=5 Template="monitorTa
 
 TraceEntry=Trc_VM_sendForGenericInvoke_Entry Overhead=1 Level=2 Template="sendAsTypeForGenericInvocation"
 TraceExit=Trc_VM_sendForGenericInvoke_Exit Overhead=1 Level=2 Template="sendAsTypeForGenericInvocation"
+
+TraceEntry=Trc_VM_sendResolveOpenJDKInvokeHandle_Entry Overhead=1 Level=2 Template="sendResolveOpenJDKInvokeHandle"
+TraceExit=Trc_VM_sendResolveOpenJDKInvokeHandle_Exit Overhead=1 Level=2 Template="sendResolveOpenJDKInvokeHandle"
 
 TraceEntry=Trc_VM_JNI_NewDirectByteBuffer_Entry Overhead=1 Level=5 Template="JNI_NewDirectByteBuffer(address = %p, nbyte = %lld)"
 TraceEntry=Trc_VM_JNI_NewDirectByteBuffer_Exit Overhead=1 Level=5 Template="JNI_NewDirectByteBuffer result = %p"
