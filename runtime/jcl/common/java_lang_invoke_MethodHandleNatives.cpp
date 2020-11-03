@@ -539,29 +539,26 @@ resolveRefToObject(J9VMThread *currentThread, J9ConstantPool *ramConstantPool, U
 }
 
 J9Method *
-lookupLinkerMethod(J9VMThread *currentThread, J9Class *resolvedClass, J9JNINameAndSignature *nas, J9Class *callerClass, UDATA lookupOptions)
+lookupMethod(J9VMThread *currentThread, J9Class *resolvedClass, J9JNINameAndSignature *nas, J9Class *callerClass, UDATA lookupOptions)
 {
 	J9Method *result = NULL;
-	if ((0 == strcmp(nas->name, "linkToVirtual"))
-	 || (0 == strcmp(nas->name, "linkToStatic"))
-	 || (0 == strcmp(nas->name, "linkToSpecial"))
-	 || (0 == strcmp(nas->name, "linkToInterface"))
-	 || (0 == strcmp(nas->name, "invokeBasic"))
-	) {
-		const char * new_sig = "([Ljava/lang/Object;)Ljava/lang/Object;";
-		nas->signature = new_sig;
-		nas->signatureLength = (U_32)strlen(new_sig);
+	if (resolvedClass == J9VMJAVALANGINVOKEMETHODHANDLE(currentThread->javaVM)) {
+		if ((0 == strcmp(nas->name, "linkToVirtual"))
+		|| (0 == strcmp(nas->name, "linkToStatic"))
+		|| (0 == strcmp(nas->name, "linkToSpecial"))
+		|| (0 == strcmp(nas->name, "linkToInterface"))
+		|| (0 == strcmp(nas->name, "invokeBasic"))
+		) {
+			nas->signature = NULL;
+			nas->signatureLength = 0;
 
-		j9object_t exception = NULL;
-		if (VM_VMHelpers::exceptionPending(currentThread)) {
-			exception = currentThread->currentException;
-			VM_VMHelpers::clearException(currentThread);
-		}
-		result = (J9Method*)currentThread->javaVM->internalVMFunctions->javaLookupMethod(currentThread, resolvedClass, (J9ROMNameAndSignature*)nas, callerClass, lookupOptions | J9_LOOK_NO_THROW);
-		if ((NULL == result) && (NULL != exception)) {
-			VM_VMHelpers::setExceptionPending(currentThread, exception);
+			/* Set flag for partial signature lookup. Signature length is already initialized to 0. */
+			lookupOptions |= J9_LOOK_PARTIAL_SIGNATURE;
 		}
 	}
+
+	result = (J9Method*)currentThread->javaVM->internalVMFunctions->javaLookupMethod(currentThread, resolvedClass, (J9ROMNameAndSignature*)nas, callerClass, lookupOptions);
+
 	return result;
 }
 
@@ -772,11 +769,8 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 				nas.nameLength = (U_32)strlen(name);
 				nas.signatureLength = (U_32)strlen(signature);
 
-				J9Method *method = (J9Method*)vmFuncs->javaLookupMethod(currentThread, resolvedClass, (J9ROMNameAndSignature*)&nas, callerClass, lookupOptions);
-				if (NULL == method) {
-					/* Check if signature polymorphic native calls */
-					method = lookupLinkerMethod(currentThread, resolvedClass, &nas, callerClass, lookupOptions);
-				}
+				/* Check if signature polymorphic native calls */
+				J9Method *method = lookupMethod(currentThread, resolvedClass, &nas, callerClass, lookupOptions);
 
 				if (NULL != method) {
 					J9JNIMethodID *methodID = vmFuncs->getJNIMethodID(currentThread, method);
@@ -859,6 +853,7 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 			}
 
 			if ((0 != vmindex) && (0 != target)) {
+				membernameObject = J9_JNI_UNWRAP_REFERENCE(self);
 				J9VMJAVALANGINVOKEMEMBERNAME_SET_FLAGS(currentThread, membernameObject, new_flags);
 				J9VMJAVALANGINVOKEMEMBERNAME_SET_CLAZZ(currentThread, membernameObject, new_clazz);
 				J9OBJECT_U64_STORE(currentThread, membernameObject, vm->vmindexOffset, (U_64)vmindex);
