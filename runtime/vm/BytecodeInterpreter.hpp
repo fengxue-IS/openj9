@@ -8062,7 +8062,19 @@ retry:
 		j9object_t invokeCacheArray = (ramConstantPool->ramClass->callSites)[index];
 
 		if (J9_EXPECTED(NULL != invokeCacheArray)) {
-			if (J9CLASS_IS_ARRAY(J9OBJECT_CLAZZ(_currentThread, invokeCacheArray))) {
+			J9Class *clazz = J9OBJECT_CLAZZ(_currentThread, invokeCacheArray);
+			if (J9CLASS_IS_ARRAY(clazz)) {
+				/* Fetch target method and appendix from invokeCacheArray (2 element array)
+				 * Stack transitions from:
+				 * 		args <- SP
+				 * 		MH
+				 * To:
+				 * 		invokeCacheArray[1] "appendix" <- SP
+				 * 		args
+				 * 		MH
+				 *
+				 * and sendMethod is ((J9Method *)((j.l.MemberName)invokeCacheArray[0]) + vmtargetOffset)
+				 */
 				j9object_t memberName = (j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, invokeCacheArray, 0);
 				_sendMethod = (J9Method *)(UDATA)J9OBJECT_U64_LOAD(_currentThread, memberName, _vm->vmtargetOffset);
 				*--_sp = (UDATA)(j9object_t)J9JAVAARRAYOFOBJECT_LOAD(_currentThread, invokeCacheArray, 1);
