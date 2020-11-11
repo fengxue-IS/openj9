@@ -2076,8 +2076,8 @@ old_slow_jitResolveHandleMethod(J9VMThread *currentThread)
 	J9RAMMethodRef *ramMethodRef = ((J9RAMMethodRef*)ramConstantPool) + cpIndex;
 	UDATA invokeCacheIndex = ramMethodRef->methodIndexAndArgCount >> 8;
 retry:
-	j9object_t invokeCacheArray = (J9_CLASS_FROM_CP(ramConstantPool)->invokeCache)[invokeCacheIndex];
-	if (NULL == invokeCacheArray) {
+	j9object_t *invokeCacheArray = &((J9_CLASS_FROM_CP(ramConstantPool)->invokeCache)[invokeCacheIndex]);
+	if (NULL == *invokeCacheArray) {
 		buildJITResolveFrameWithPC(currentThread, J9_SSF_JIT_RESOLVE_DATA, parmCount, true, 0, jitEIP);
 		// add new resolve code which calls sendResolveInvokeHandle -> MHN.linkMethod()
 		// store the memberName/appendix values in invokeCache[invokeCacheIndex]
