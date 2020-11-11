@@ -291,13 +291,25 @@ public:
 	void markMethodRefAsUsedByInvokeSpecial(U_16 methodRefCfrCPIndex)       { mark(methodRefCfrCPIndex, INVOKE_SPECIAL); }
 	void markMethodRefAsUsedByInvokeStatic(U_16 methodRefCfrCPIndex)        { mark(methodRefCfrCPIndex, INVOKE_STATIC); }
 	void markMethodRefAsUsedByInvokeInterface(U_16 methodRefCfrCPIndex)     { mark(methodRefCfrCPIndex, INVOKE_INTERFACE); }
+
+	void markMethodRefAsUsedByInvokeHandle(U_16 methodRefCfrCPIndex) {
+		mark(methodRefCfrCPIndex, INVOKE_HANDLEEXACT);
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-	void markMethodRefAsUsedByInvokeHandle(U_16 methodRefCfrCPIndex)        { mark(methodRefCfrCPIndex, INVOKE_HANDLEEXACT); _invokeCacheCount++; }
-	void markMethodRefAsUsedByInvokeHandleGeneric(U_16 methodRefCfrCPIndex) { mark(methodRefCfrCPIndex, INVOKE_HANDLEGENERIC); _invokeCacheCount++; }
+		_invokeCacheCount++;
 #else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
-	void markMethodRefAsUsedByInvokeHandle(U_16 methodRefCfrCPIndex)        { mark(methodRefCfrCPIndex, INVOKE_HANDLEEXACT); _methodTypeCount++; }
-	void markMethodRefAsUsedByInvokeHandleGeneric(U_16 methodRefCfrCPIndex) { mark(methodRefCfrCPIndex, INVOKE_HANDLEGENERIC); _methodTypeCount++; }
+		_methodTypeCount++;
 #endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+	}
+
+	void markMethodRefAsUsedByInvokeHandleGeneric(U_16 methodRefCfrCPIndex) {
+		mark(methodRefCfrCPIndex, INVOKE_HANDLEGENERIC);
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+		_invokeCacheCount++;
+#else /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+		_methodTypeCount++;
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+	}
+
 
 	void markInvokeDynamicInfoAsUsedByInvokeDynamic(U_16 cfrCPIndex)
 	{
