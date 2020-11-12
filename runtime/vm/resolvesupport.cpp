@@ -490,6 +490,12 @@ tryAgain:
 
 	checkForDecompile(vmStruct, romMethodRef, jitCompileTimeResolve);
 
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+	/* Stack allocate a J9NameAndSignature structure for polymorphic signature methods */
+	J9NameAndSignature onStackNAS = {NULL, NULL};
+	J9UTF8 nullSignature = {0};
+#endif
+
 	/* Resolve the class. */
 	resolvedClass = resolveClassRef(vmStruct, ramCP, romMethodRef->classRefCPIndex, resolveFlags);
 	if (resolvedClass == NULL) {
@@ -534,10 +540,6 @@ tryAgain:
 	}
 
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-	/* Stack allocate a J9NameAndSignature structure for polymorphic signature methods */
-	J9NameAndSignature onStackNAS = {NULL, NULL};
-	J9UTF8 nullSignature = {0};
-
 	if (resolvedClass == J9VMJAVALANGINVOKEMETHODHANDLE(vmStruct->javaVM)) {
 		J9UTF8 *nameUTF = J9ROMNAMEANDSIGNATURE_NAME(nameAndSig);
 		/**
@@ -1745,9 +1747,9 @@ resolveVirtualMethodRefInto(J9VMThread *vmStruct, J9ConstantPool *ramCP, UDATA c
 		}
 	}
 
-#if defined(J9VM_OPT_METHOD_HANDLE) || defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+#if defined(J9VM_OPT_METHOD_HANDLE)
 done:
-#endif /* defined(J9VM_OPT_METHOD_HANDLE) || defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
+#endif /* defined(J9VM_OPT_METHOD_HANDLE) */
 	Trc_VM_resolveVirtualMethodRef_Exit(vmStruct, vTableOffset);
 	return vTableOffset;
 }
