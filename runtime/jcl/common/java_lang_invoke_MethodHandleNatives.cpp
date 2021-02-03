@@ -629,6 +629,8 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 	J9JavaVM *vm = currentThread->javaVM;
 	const J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
 	jobject result = NULL;
+	char *name = NULL;
+	char *signature = NULL;
 	vmFuncs->internalEnterVMFromJNI(currentThread);
 
 	Trc_JCL_java_lang_invoke_MethodHandleNatives_resolve_Entry(env, self, caller, (speculativeResolve ? "true" : "false"));
@@ -658,9 +660,7 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 
 			PORT_ACCESS_FROM_JAVAVM(vm);
 			UDATA nameLength = 0;
-			char *name = NULL;
 			UDATA signatureLength = 0;
-			char *signature = NULL;
 			J9Class *typeClass = J9OBJECT_CLAZZ(currentThread, typeObject);
 
 			/* The type field of a MemberName could be in:
@@ -840,9 +840,6 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 				}
 			}
 
-			j9mem_free_memory(name);
-			j9mem_free_memory(signature);
-
 			if ((0 != vmindex) && (0 != target)) {
 				/* Refetch reference after GC point */
 				membernameObject = J9_JNI_UNWRAP_REFERENCE(self);
@@ -869,6 +866,9 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 	}
 
 done:
+	j9mem_free_memory(name);
+	j9mem_free_memory(signature);
+
 	if ((JNI_TRUE == speculativeResolve) && VM_VMHelpers::exceptionPending(currentThread)) {
 		VM_VMHelpers::clearException(currentThread);
 	}
