@@ -1659,6 +1659,10 @@ boolean getAndClearInterrupt() {
 	return oldValue;
 }
 
+void clearReferences() {
+	return;
+}
+
 native void setCurrentThread(Thread thread);
 
 final Object interruptLock = new Object();

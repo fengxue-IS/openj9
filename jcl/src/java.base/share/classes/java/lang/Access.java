@@ -455,15 +455,18 @@ final class Access implements JavaLangAccess {
 	}
 
 	public void parkVirtualThread() {
-		VirtualThread.park();
+		VirtualThread t = (VirtualThread)Thread.currentThread();
+		t.park();
 	}
 
 	public void parkVirtualThread(long nanos) {
-		VirtualThread.parkNanos(nanos);
+		VirtualThread t = (VirtualThread)Thread.currentThread();
+		t.parkNanos(nanos);
 	}
 
 	public void unparkVirtualThread(Thread thread) {
-		((VirtualThread) thread).unpark();
+		VirtualThread t = (VirtualThread)thread;
+		t.unpark();
 	}
 
 	public void bindToLoader(ModuleLayer ml, ClassLoader cl) {
