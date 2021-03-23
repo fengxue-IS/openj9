@@ -1,4 +1,4 @@
-/*[INCLUDE-IF Java15]*/
+/*[INCLUDE-IF JAVA_SPEC_VERSION >= 16]*/
 /*******************************************************************************
  * Copyright (c) 2020, 2020 IBM Corp. and others
  *
