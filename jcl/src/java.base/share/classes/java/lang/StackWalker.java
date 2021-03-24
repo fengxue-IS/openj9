@@ -60,6 +60,8 @@ public final class StackWalker {
 	private final int bufferSize;
 	private int flags;
 
+	private final boolean retainClassRef;
+
 	private StackWalker(Set<Option> options, int estimatedDepth) {
 		super();
 		/* Caller is responsible for copying the client set (if any) */
@@ -79,6 +81,9 @@ public final class StackWalker {
 		flags = 0;
 		if (walkerOptions.contains(Option.RETAIN_CLASS_REFERENCE)) {
 			flags |= J9_RETAIN_CLASS_REFERENCE;
+			retainClassRef = true;
+		} else {
+			retainClassRef = false;
 		}
 		if (walkerOptions.contains(Option.SHOW_REFLECT_FRAMES)) {
 			flags |= J9_SHOW_REFLECT_FRAMES;
@@ -142,6 +147,18 @@ public final class StackWalker {
 	 */
 	public static StackWalker getInstance(Set<Option> options, int estimatedDepth) {
 		return new StackWalker(new HashSet<>(options), estimatedDepth);
+	}
+
+	/* Project Loom API - TO BE IMPLEMENTED */
+	static StackWalker newInstance(Set<Option> options, ExtendedOption extendedOption) {
+		return newInstance(options, extendedOption, null, null);
+	}
+
+	static StackWalker newInstance(Set<Option> options, ExtendedOption extendedOption, ContinuationScope contScope) {
+		return newInstance(options, extendedOption, contScope, null);
+	}
+	static StackWalker newInstance(Set<Option> options, ExtendedOption extendedOption, ContinuationScope contScope, Continuation continuation) {
+		return getInstance(options);
 	}
 
 	/**

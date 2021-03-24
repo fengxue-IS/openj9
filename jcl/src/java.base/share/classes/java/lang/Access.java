@@ -454,6 +454,10 @@ final class Access implements JavaLangAccess {
 		return Thread.currentCarrierThread();
 	}
 
+	public <T> void setCarrierThreadLocal(ThreadLocal<T> local, T value) {
+		local.setCarrierThreadLocal(value);
+	}
+
 	public void parkVirtualThread() {
 		VirtualThread t = (VirtualThread)Thread.currentThread();
 		t.park();
