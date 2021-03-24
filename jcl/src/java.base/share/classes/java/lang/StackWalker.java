@@ -60,7 +60,7 @@ public final class StackWalker {
 	private final int bufferSize;
 	private int flags;
 
-	private final boolean retainClassRef;
+	final boolean retainClassRef;
 
 	private StackWalker(Set<Option> options, int estimatedDepth) {
 		super();

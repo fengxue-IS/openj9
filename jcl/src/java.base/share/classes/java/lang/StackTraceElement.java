@@ -333,4 +333,9 @@ public String toString() {
 	return buf.toString();
 }
 
+static StackTraceElement of(StackFrameInfo s) {
+	// TODO: initialize StackTraceElement with StackFrameInfo data
+	return new StackTraceElement();
+}
+
 }
