@@ -98,6 +98,11 @@ public class Continuation {
 	}
 
 	ContinuationState state;
+	private ContinuationScope scope;
+
+	ContinuationScope getScope() {
+		return scope;
+	}
 
 	public enum PreemptStatus {
 	}
