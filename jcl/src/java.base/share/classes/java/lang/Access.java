@@ -464,8 +464,9 @@ final class Access implements JavaLangAccess {
 		t.parkNanos(nanos);
 	}
 
-	public void unparkVirtualThread(Thread thread) {
-		VirtualThread.unpark(thread);
+	public void unparkVirtualThread(Thread thread, boolean tryPush) {
+		VirtualThread t = (VirtualThread)thread;
+		t.unpark(tryPush);
 	}
 
 	public void bindToLoader(ModuleLayer ml, ClassLoader cl) {

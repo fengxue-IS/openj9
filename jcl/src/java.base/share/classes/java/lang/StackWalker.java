@@ -247,6 +247,10 @@ public final class StackWalker {
 		SHOW_HIDDEN_FRAMES;
 	}
 
+	static enum ExtendedOption {
+		LOCALS_AND_OPERANDS;
+	}
+
 	/**
 	 * Contains information about the StackWalker's current stack frame.
 	 */
