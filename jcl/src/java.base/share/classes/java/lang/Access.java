@@ -462,6 +462,10 @@ final class Access implements JavaLangAccess {
 		local.setCarrierThreadLocal(value);
 	}
 
+	public <V> V executeOnCarrierThread(Callable<V> task) throws Exception {
+		// TODO
+	}
+
 	public void parkVirtualThread() {
 		VirtualThread t = (VirtualThread)Thread.currentThread();
 		t.park();

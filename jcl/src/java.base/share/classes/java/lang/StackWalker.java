@@ -346,6 +346,13 @@ public final class StackWalker {
 		}
 
 		/*[ENDIF] JAVA_SPEC_VERSION >= 10 */
+
+		/**
+		 * @return
+		 */
+		public default String getContinuationScopeName() {
+			return null;
+		}
 	}
 
 	final static class StackFrameImpl implements StackFrame {
