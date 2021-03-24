@@ -48,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 /*[IF JAVA_SPEC_VERSION >= 15]*/
 import java.util.Set;
+import java.util.concurrent.*;
 /*[ENDIF] JAVA_SPEC_VERSION >= 15 */
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -464,6 +465,7 @@ final class Access implements JavaLangAccess {
 
 	public <V> V executeOnCarrierThread(Callable<V> task) throws Exception {
 		// TODO
+		return null;
 	}
 
 	public void parkVirtualThread() {
