@@ -456,7 +456,7 @@ final class Access implements JavaLangAccess {
 	}
 
 	public <T> T getCarrierThreadLocal(ThreadLocal<T> local) {
-		local.getCarrierThreadLocal();
+		return local.getCarrierThreadLocal();
 	}
 
 	public <T> void setCarrierThreadLocal(ThreadLocal<T> local, T value) {
