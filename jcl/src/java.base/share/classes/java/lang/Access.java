@@ -449,8 +449,7 @@ final class Access implements JavaLangAccess {
 	}
 
 	public void unparkVirtualThread(Thread thread) {
-		VirtualThread t = (VirtualThread)thread;
-		t.unpark();
+		VirtualThread.unpark(thread);
 	}
 
 	public void bindToLoader(ModuleLayer ml, ClassLoader cl) {
