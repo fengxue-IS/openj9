@@ -746,6 +746,11 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 				}
 
 #if JAVA_SPEC_VERSION >= 16
+				/* Check CL constraint only for lookup that is not trusted (with caller) and not public (UNCONDITIONAL mode not set)
+				 * Note: UNCONDITIONAL lookupMode can only access unconditionally exported public members which assumes readablity
+				 * ie lookup class not used to determine lookup context
+				 * See java.lang.invoke.MethodHandles$Lookup.publicLookup()
+				 */
 				if ((NULL != callerClass) && J9_ARE_NO_BITS_SET(lookupMode, MN_UNCONDITIONAL_MODE)) {
 					lookupOptions |= J9_LOOK_CLCONSTRAINTS;
 				}
@@ -848,22 +853,21 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 #endif
 					) {
 						if (callerClass->classLoader != declaringClass->classLoader) {
-							J9BytecodeVerificationData *verifyData = vm->bytecodeVerificationData;
 							omrthread_monitor_enter(vm->classTableMutex);
-							if(0 != verifyData->checkClassLoadingConstraintForNameFunction(
-								currentThread,
-								declaringClass->classLoader,
-								callerClass->classLoader,
-								J9UTF8_DATA(signature),
-								J9UTF8_DATA(signature),
-								J9UTF8_LENGTH(signature),
-								true)
-							) {
-								omrthread_monitor_exit(vm->classTableMutex);
+							J9BytecodeVerificationData *verifyData = vm->bytecodeVerificationData;
+							UDATA clConstraintResult = verifyData->checkClassLoadingConstraintForNameFunction(
+															currentThread,
+															declaringClass->classLoader,
+															callerClass->classLoader,
+															J9UTF8_DATA(signature),
+															J9UTF8_DATA(signature),
+															J9UTF8_LENGTH(signature),
+															true);
+							omrthread_monitor_exit(vm->classTableMutex);
+							if (0 != clConstraintResult) {
 								vmFuncs->setCurrentExceptionUTF(currentThread, J9VMCONSTANTPOOL_JAVALANGLINKAGEERROR, NULL);
 								goto done;
 							}
-							omrthread_monitor_exit(vm->classTableMutex);
 						}
 					}
 
