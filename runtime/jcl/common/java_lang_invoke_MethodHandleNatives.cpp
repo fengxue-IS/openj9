@@ -316,7 +316,7 @@ getJ9UTF8SignatureFromMethodType(J9VMThread *currentThread, j9object_t typeObjec
 	if (NULL == methodDescriptor) {
 		goto done;
 	}
-	J9UTF8_SET_LENGTH(methodDescriptor, signatureLength);
+	J9UTF8_SET_LENGTH(methodDescriptor, (U_16)signatureLength);
 	cursor = (char*)J9UTF8_DATA(methodDescriptor);
 	*cursor++ = '(';
 
@@ -706,11 +706,11 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 				J9Class *rclass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, typeObject);
 				char *classSignature = getClassSignature(currentThread, rclass);
 				if (NULL != classSignature) {
-					U_32 signatureLength = strlen(classSignature);
+					UDATA signatureLength = strlen(classSignature);
 					PORT_ACCESS_FROM_JAVAVM(vm);
 					signature = (J9UTF8*)j9mem_allocate_memory(signatureLength + sizeof(J9UTF8), OMRMEM_CATEGORY_VM);
 					if (NULL != signature) {
-						J9UTF8_SET_LENGTH(signature, signatureLength);
+						J9UTF8_SET_LENGTH(signature, (U_16)signatureLength);
 						memcpy(J9UTF8_DATA(signature), classSignature, signatureLength);
 					}
 					j9mem_free_memory(classSignature);
