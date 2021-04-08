@@ -854,20 +854,29 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 #endif
 					) {
 						if (callerClass->classLoader != declaringClass->classLoader) {
-							omrthread_monitor_enter(vm->classTableMutex);
 							J9BytecodeVerificationData *verifyData = vm->bytecodeVerificationData;
-							UDATA clConstraintResult = verifyData->checkClassLoadingConstraintForNameFunction(
-															currentThread,
-															declaringClass->classLoader,
-															callerClass->classLoader,
-															J9UTF8_DATA(signature),
-															J9UTF8_DATA(signature),
-															J9UTF8_LENGTH(signature),
-															true);
-							omrthread_monitor_exit(vm->classTableMutex);
-							if (0 != clConstraintResult) {
-								vmFuncs->setCurrentExceptionUTF(currentThread, J9VMCONSTANTPOOL_JAVALANGLINKAGEERROR, NULL);
-								goto done;
+							U_16 sigOffset = 0;
+
+							/* Skip the '[', 'L' prefix */
+							while ('[' == J9UTF8_DATA(signature)[sigOffset]) {
+								sigOffset += 1;
+							}
+							if ('L' == J9UTF8_DATA(signature)[sigOffset]) {
+								sigOffset += 1;
+								omrthread_monitor_enter(vm->classTableMutex);
+								UDATA clConstraintResult = verifyData->checkClassLoadingConstraintForNameFunction(
+																currentThread,
+																declaringClass->classLoader,
+																callerClass->classLoader,
+																J9UTF8_DATA(signature) + sigOffset,
+																J9UTF8_DATA(signature) + sigOffset,
+																J9UTF8_LENGTH(signature) - sigOffset - 1, /* -1 to remove the trailing ;*/
+																true);
+								omrthread_monitor_exit(vm->classTableMutex);
+								if (0 != clConstraintResult) {
+									vmFuncs->setCurrentExceptionUTF(currentThread, J9VMCONSTANTPOOL_JAVALANGLINKAGEERROR, NULL);
+									goto done;
+								}
 							}
 						}
 					}
