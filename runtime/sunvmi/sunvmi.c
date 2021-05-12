@@ -170,12 +170,33 @@ static UDATA
 getCallerClassIterator(J9VMThread * currentThread, J9StackWalkState * walkState)
 {
 	J9JavaVM * vm = currentThread->javaVM;
-	
 
 	if ((J9_ROM_METHOD_FROM_RAM_METHOD(walkState->method)->modifiers & J9AccMethodFrameIteratorSkip) == J9AccMethodFrameIteratorSkip) {
 		/* Skip methods with java.lang.invoke.FrameIteratorSkip annotation */
 		return J9_STACKWALK_KEEP_ITERATING;
 	}
+
+	if (J9ROMMETHOD_HAS_EXTENDED_MODIFIERS(J9_ROM_METHOD_FROM_RAM_METHOD(walkState->method))) {
+		UDATA extraModifiers = getExtendedModifiersDataFromROMMethod(J9_ROM_METHOD_FROM_RAM_METHOD(walkState->method));
+		if (J9ROMMETHOD_HAS_LAMBDAFROM_HIDDEN_ANNOTATION(extraModifiers)) {
+			/* Skip methods with java.lang.invoke.LambdaForm$Hidden annotation */
+			return J9_STACKWALK_KEEP_ITERATING;
+		}
+	}
+
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+	{
+		J9Class *methodClass = J9_CLASS_FROM_METHOD(walkState->method);
+		if (J9_ARE_ANY_BITS_SET(methodClass->classFlags, J9ClassIsAnonymous) || J9ROMCLASS_IS_HIDDEN(methodClass->romClass)) {
+			J9Class *lambdaFormClass = J9VMJAVALANGINVOKELAMBDAFORM_OR_NULL(currentThread->javaVM);
+			if (methodClass->hostClass == lambdaFormClass) {
+				/* Skip generated java.lang.invoke.LambdaForm methods */
+				return J9_STACKWALK_KEEP_ITERATING;
+			}
+		}
+		
+	}
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 
 	if ((walkState->method != vm->jlrMethodInvoke) && (walkState->method != vm->jliMethodHandleInvokeWithArgs) && (walkState->method != vm->jliMethodHandleInvokeWithArgsList)) {
 		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
@@ -216,6 +237,28 @@ getCallerClassJEP176Iterator(J9VMThread * currentThread, J9StackWalkState * walk
 		/* Skip methods with java.lang.invoke.FrameIteratorSkip annotation */
 		return J9_STACKWALK_KEEP_ITERATING;
 	}
+
+	if (J9ROMMETHOD_HAS_EXTENDED_MODIFIERS(J9_ROM_METHOD_FROM_RAM_METHOD(walkState->method))) {
+		UDATA extraModifiers = getExtendedModifiersDataFromROMMethod(J9_ROM_METHOD_FROM_RAM_METHOD(walkState->method));
+		if (J9ROMMETHOD_HAS_LAMBDAFROM_HIDDEN_ANNOTATION(extraModifiers)) {
+			/* Skip methods with java.lang.invoke.LambdaForm$Hidden annotation */
+			return J9_STACKWALK_KEEP_ITERATING;
+		}
+	}
+
+#if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
+	{
+		J9Class *methodClass = J9_CLASS_FROM_METHOD(walkState->method);
+		if (J9_ARE_ANY_BITS_SET(methodClass->classFlags, J9ClassIsAnonymous) || J9ROMCLASS_IS_HIDDEN(methodClass->romClass)) {
+			J9Class *lambdaFormClass = J9VMJAVALANGINVOKELAMBDAFORM_OR_NULL(currentThread->javaVM);
+			if (methodClass->hostClass == lambdaFormClass) {
+				/* Skip generated java.lang.invoke.LambdaForm methods */
+				return J9_STACKWALK_KEEP_ITERATING;
+			}
+		}
+		
+	}
+#endif /* defined(J9VM_OPT_OPENJDK_METHODHANDLE) */
 
 	switch((UDATA)walkState->userData1) {
 	case 1:
