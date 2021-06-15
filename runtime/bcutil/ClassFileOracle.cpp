@@ -857,7 +857,7 @@ ClassFileOracle::walkMethodAttributes(U_16 methodIndex)
 					}
 				}
 #if defined(J9VM_OPT_OPENJDK_METHODHANDLE)
-				if (containsKnownAnnotation(foundAnnotations, HIDDEN_ANNOTATION)) {
+				if (_context->isClassHidden() || containsKnownAnnotation(foundAnnotations, HIDDEN_ANNOTATION)) {
 					/* J9AccMethodFrameIteratorSkip is reused for Hidden Annotation when OpenJDK MH is enabled
 					 * Hidden annotation is used by OpenJDK to tag LambdaForm generated methods which is similar
 					 * to the thunkArchetype methods as they both need to be skipped during stackwalk when
