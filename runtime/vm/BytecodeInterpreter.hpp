@@ -1565,7 +1565,7 @@ obj:
 			if (_sendMethod == _currentThread->makeIntrinsicMethod && receiverSlot != NULL) {
 				_currentThread->receiverSlot = _sp - 1;
 			}
-			_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength,
+			_currentThread->debugLength += sprintf(_currentThread->debugbuffer,
 				"calling method %p, SP = %p, Arg0EA = %p\n", _sendMethod, _sp, _arg0EA);
 /*			for (int i = 0; i < romMethod->argCount; i++) {
 				_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength,
@@ -1573,7 +1573,7 @@ obj:
 				i++;
 			}
 */			if (_currentThread->receiverSlot != NULL) {
-				_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength,
+				_currentThread->debugLength += sprintf(_currentThread->debugbuffer,
 					"\tmakeIntrinsic stack (%p):\t[0]: %p\t[1]: %p\t[2]: %p\n", _currentThread->receiverSlot,
 					*((j9object_t*)_currentThread->receiverSlot),
 					*((j9object_t*)_currentThread->receiverSlot-1),
@@ -1974,13 +1974,13 @@ done:
 				if (_currentThread->debugbuffer == NULL) {
 					_currentThread->debugbuffer = (char *)j9mem_allocate_memory(sizeof(char) * 1048576, OMRMEM_CATEGORY_VM);
 				}
-				_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength,
+				_currentThread->debugLength += sprintf(_currentThread->debugbuffer ,
 					"invokestatic on %.*s.makeIntrinsic %.*s\nArgCount = %d, SP Top = %p, Args:\n",
 					(int)J9UTF8_LENGTH(classUTF), (char*)J9UTF8_DATA(classUTF),
 					(int)J9UTF8_LENGTH(sigUTF), (char*)J9UTF8_DATA(sigUTF), (int)argCount, _sp);
 
 				for (int i = 0; i < argCount; i++) {
-					_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength, "\t[%d] %p : %p\n", i, _sp+i, ((j9object_t*)_sp)[i]);
+					_currentThread->debugLength += sprintf(_currentThread->debugbuffer, "\t[%d] %p : %p\n", i, _sp+i, ((j9object_t*)_sp)[i]);
 				}
 			}
 		}
@@ -6462,7 +6462,9 @@ done:
 			if (_literals == _currentThread->makeIntrinsicMethod) {
 				_currentThread->makeIntrinsicMethod = NULL;
 				_currentThread->receiverSlot = NULL;
-				//printf("Total length = %d\n", (int)_currentThread->debugLength);
+				if (_currentThread->debugLength >= 524288) {
+					printf("***Total length = %d > 524288***\n", (int)_currentThread->debugLength);
+				}
 				_currentThread->debugLength = 0;
 			}
 			J9SFStackFrame *frame = (J9SFStackFrame*)(_sp + slots);
@@ -7190,13 +7192,13 @@ done:
 					_currentThread->debugbuffer = (char *)j9mem_allocate_memory(sizeof(char) * 1048576, OMRMEM_CATEGORY_VM);
 					//printf("Allocate 131072 chars\n");
 				}
-				_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength,
+				_currentThread->debugLength += sprintf(_currentThread->debugbuffer,
 					"invokestatic on %.*s.makeIntrinsic %.*s\nArgCount = %d, SP Top = %p, Args:\n",
 					(int)J9UTF8_LENGTH(classUTF), (char*)J9UTF8_DATA(classUTF),
 					(int)J9UTF8_LENGTH(sigUTF), (char*)J9UTF8_DATA(sigUTF), (int)argCount, _sp);
 
 				for (int i = 0; i < argCount; i++) {
-					_currentThread->debugLength += sprintf(_currentThread->debugbuffer + _currentThread->debugLength, "\t[%d] %p : %p\n", i, _sp+i, ((j9object_t*)_sp)[i]);
+					_currentThread->debugLength += sprintf(_currentThread->debugbuffer, "\t[%d] %p : %p\n", i, _sp+i, ((j9object_t*)_sp)[i]);
 				}
 			}
 		}
