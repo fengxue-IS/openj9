@@ -1885,6 +1885,9 @@ done:
 		UDATA preCount = 0;
 		UDATA postCount = 0;
 		UDATA result = 0;
+		if (NULL != _currentThread->makeIntrinsicMethod) {
+			return runMethodCompiled;
+		}
 		do {
 			preCount = (UDATA)_sendMethod->extra;
 			postCount = preCount - _currentThread->jitCountDelta;
@@ -1943,6 +1946,15 @@ done:
 			rc = GOTO_ASYNC_CHECK;
 		} else if (VM_VMHelpers::exceptionPending(_currentThread)) {
 			rc = GOTO_THROW_CURRENT_EXCEPTION;
+		} else {
+			// check if MethodHandleImpl.makeIntrinsic, print args on sp
+			J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(_sendMethod);
+			J9UTF8 * nameUTF = J9ROMMETHOD_NAME(romMethod);
+			J9UTF8 *sigUTF = J9ROMMETHOD_SIGNATURE(romMethod);
+			if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
+			&& (J9UTF8_LENGTH(sigUTF) == 136)) {
+				_currentThread->makeIntrinsicMethod = _sendMethod;
+			}
 		}
 		return rc;
 	}
@@ -6418,6 +6430,9 @@ done:
 		if (_sp[slots] & J9_STACK_FLAGS_J2_IFRAME) {
 			rc = j2iReturn(REGISTER_ARGS);
 		} else {
+			if (_literals == _currentThread->makeIntrinsicMethod) {
+				_currentThread->makeIntrinsicMethod = NULL;
+			}
 			J9SFStackFrame *frame = (J9SFStackFrame*)(_sp + slots);
 			UDATA returnValue0 = 0;
 			UDATA returnValue1 = 0;
@@ -7098,6 +7113,16 @@ done:
 		profileCallingMethod(REGISTER_ARGS);
 		J9RAMStaticMethodRef *ramMethodRef = ((J9RAMStaticMethodRef*)J9_CP_FROM_METHOD(_literals)) + index;
 		_sendMethod = ramMethodRef->method;
+		if (_sendMethod != (J9Method*)_vm->initialMethods.initialStaticMethod) {
+			// check if MethodHandleImpl.makeIntrinsic, print args on sp
+			J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(_sendMethod);
+			J9UTF8 * nameUTF = J9ROMMETHOD_NAME(romMethod);
+			J9UTF8 *sigUTF = J9ROMMETHOD_SIGNATURE(romMethod);
+			if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
+			&& (J9UTF8_LENGTH(sigUTF) == 136)) {
+				_currentThread->makeIntrinsicMethod = _sendMethod;
+			}
+		}
 		return GOTO_RUN_METHOD;
 	}
 

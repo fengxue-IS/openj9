@@ -5047,6 +5047,7 @@ typedef struct J9VMThread {
 	U_64 *ffiArgs;
 	UDATA ffiArgCount;
 #endif /* JAVA_SPEC_VERSION >= 16 */
+	J9Method *makeIntrinsicMethod;
 } J9VMThread;
 
 #define J9VMTHREAD_ALIGNMENT  0x100
