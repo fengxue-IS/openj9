@@ -1557,6 +1557,11 @@ obj:
 			*--_sp = (UDATA)_arg0EA;
 			*--_sp = (UDATA)_pc;
 			*--_sp = (UDATA)_literals;
+
+			if (_sendMethod == _currentThread->makeIntrinsicMethod && _currentThread->receiverSlot == NULL) {
+				_currentThread->receiverSlot = _sp - 2;
+				*_currentThread->receiverSlot = 1;
+			}
 		}
 		_arg0EA = newA0;
 		_literals = _sendMethod;
@@ -1943,6 +1948,14 @@ done:
 			rc = GOTO_ASYNC_CHECK;
 		} else if (VM_VMHelpers::exceptionPending(_currentThread)) {
 			rc = GOTO_THROW_CURRENT_EXCEPTION;
+		} else {
+			J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(_sendMethod);
+			J9UTF8 * nameUTF = J9ROMMETHOD_NAME(romMethod);
+			J9UTF8 *sigUTF = J9ROMMETHOD_SIGNATURE(romMethod);
+			if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
+			&& (J9UTF8_LENGTH(sigUTF) == 136)) {
+				_currentThread->makeIntrinsicMethod = _sendMethod;
+			}
 		}
 		return rc;
 	}
@@ -6415,6 +6428,19 @@ done:
 			*bp &= ~(UDATA)J9SF_A0_REPORT_FRAME_POP_TAG;
 		}
 #endif
+		if (NULL != _currentThread->makeIntrinsicMethod) {
+			if (_literals == _currentThread->makeIntrinsicMethod) {
+				_currentThread->makeIntrinsicMethod = NULL;
+				_currentThread->receiverSlot = NULL;
+			} else {
+				if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+					printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+					fflush(stdout);
+					updateVMStruct(REGISTER_ARGS);
+					abort();
+				}
+			}
+		}
 		if (_sp[slots] & J9_STACK_FLAGS_J2_IFRAME) {
 			rc = j2iReturn(REGISTER_ARGS);
 		} else {
@@ -7036,6 +7062,33 @@ done:
 			 */
 			if (!fromBytecode || ((J9Method *)_vm->initialMethods.initialSpecialMethod != _sendMethod)) {
 				rc = THROW_NPE;
+								J9ROMMethodRef *romMethodRef = (J9ROMMethodRef *)&ramConstantPool->romConstantPool[cpIndex];
+				J9ROMNameAndSignature *nameAndSig = J9ROMFIELDREF_NAMEANDSIGNATURE(romMethodRef);
+				J9UTF8 *nameUTF = J9ROMNAMEANDSIGNATURE_NAME(nameAndSig);
+				U_8 *name = J9UTF8_DATA(nameUTF);
+				UDATA nameLength = J9UTF8_LENGTH(nameUTF);
+
+				if (name[0] == '<') {
+					J9UTF8 *sigUTF = J9ROMNAMEANDSIGNATURE_SIGNATURE(nameAndSig);
+					U_8 *sig = J9UTF8_DATA(sigUTF);
+					UDATA sigLength = J9UTF8_LENGTH(sigUTF);
+
+					J9ROMClassRef *romClassRef = (J9ROMClassRef *)&ramConstantPool->romConstantPool[romMethodRef->classRefCPIndex];
+					J9UTF8 *classNameWrapper = J9ROMCLASSREF_NAME(romClassRef);
+					U_16 classNameLength = J9UTF8_LENGTH(classNameWrapper);
+					U_8 *className = J9UTF8_DATA(classNameWrapper);
+					printf("\nNPE on invokespecial receiver, calling %.*s.%.*s %.*s\n", (int)classNameLength, (char*)className,
+						(int)nameLength, (char*)name, (int)sigLength, (char*)sig);
+
+					U_16 argCount = ramMethodRef->methodIndexAndArgCount & 0xFF;
+					printf("\tMethod Arg Count: %d\n\tSP pointer: %p, Arg0EA: %p\n\tStack data:\n", (int)argCount, _sp, _arg0EA);
+					for (int i = 0; i <= argCount; i++) {
+						printf("\t\tsp[%d]: %p\n", i, ((j9object_t*)_sp)[i]);
+					}
+					fflush(stdout);
+					updateVMStruct(REGISTER_ARGS);
+					abort();
+				}
 			}
 		} else {
 			if (fromBytecode) {
@@ -7098,6 +7151,15 @@ done:
 		profileCallingMethod(REGISTER_ARGS);
 		J9RAMStaticMethodRef *ramMethodRef = ((J9RAMStaticMethodRef*)J9_CP_FROM_METHOD(_literals)) + index;
 		_sendMethod = ramMethodRef->method;
+		if (_sendMethod != (J9Method*)_vm->initialMethods.initialStaticMethod) {
+			J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(_sendMethod);
+			J9UTF8 * nameUTF = J9ROMMETHOD_NAME(romMethod);
+			J9UTF8 *sigUTF = J9ROMMETHOD_SIGNATURE(romMethod);
+			if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
+			&& (J9UTF8_LENGTH(sigUTF) == 136)) {
+				_currentThread->makeIntrinsicMethod = _sendMethod;
+			}
+		}
 		return GOTO_RUN_METHOD;
 	}
 
