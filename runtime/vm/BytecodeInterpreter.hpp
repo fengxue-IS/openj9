@@ -8225,6 +8225,19 @@ done:
 			isObjectConstructor = TRUE;
 			VM_VMHelpers::checkIfFinalizeObject(_currentThread, finalizeObject);
 		}
+		if (NULL != _currentThread->makeIntrinsicMethod) {
+			if (_literals == _currentThread->makeIntrinsicMethod) {
+				_currentThread->makeIntrinsicMethod = NULL;
+				_currentThread->receiverSlot = NULL;
+			} else {
+				if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+					printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+					fflush(stdout);
+					updateVMStruct(REGISTER_ARGS);
+					abort();
+				}
+			}
+		}
 		if (bp == _currentThread->j2iFrame) {
 			J9SFJ2IFrame *j2iFrame = ((J9SFJ2IFrame*)(bp + 1)) - 1;
 			/* Don't overwrite the breakpoint bytecode or the return from the Object constructor */
