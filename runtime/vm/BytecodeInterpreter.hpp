@@ -1557,21 +1557,25 @@ obj:
 			*--_sp = (UDATA)_arg0EA;
 			*--_sp = (UDATA)_pc;
 			*--_sp = (UDATA)_literals;
+		}
+		_arg0EA = newA0;
+		_literals = _sendMethod;
+		_pc = _sendMethod->bytecodes;
 
-			if (_sendMethod == _currentThread->makeIntrinsicMethod && _currentThread->receiverSlot == NULL) {
-				_currentThread->receiverSlot = _sp - 2;
-				*_currentThread->receiverSlot = 1;
-			}
-			if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+		if (_sendMethod == _currentThread->makeIntrinsicMethod && _currentThread->receiverSlot == NULL) {
+			_currentThread->receiverSlot = _sp - 2;
+			*_currentThread->receiverSlot = 1;
+			Trc_VM_makeIntrinsic_SetSlot(_currentThread, _sp, _currentThread->receiverSlot);
+		}
+		if (_currentThread->receiverSlot != NULL) {
+			Trc_VM_makeIntrinsic_methodEnter(_currentThread, _sendMethod, _sp, _arg0EA, _currentThread->receiverSlot, *((j9object_t*)_currentThread->receiverSlot));
+			if (*((j9object_t *)_currentThread->receiverSlot) == NULL) {
 				printf("NULL pointer at receiverSlot (%p) of dup!!! during inlineSendTarget\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
 				fflush(stdout);
 				updateVMStruct(REGISTER_ARGS);
 				abort();
 			}
 		}
-		_arg0EA = newA0;
-		_literals = _sendMethod;
-		_pc = _sendMethod->bytecodes;
 		UDATA volatile stackOverflowMark = (UDATA)_currentThread->stackOverflowMark;
 		if ((UDATA)_sp >= stackOverflowMark) {
 			if (methodIsSynchronized) {
@@ -1961,6 +1965,7 @@ done:
 			if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
 			&& (J9UTF8_LENGTH(sigUTF) == 136)) {
 				_currentThread->makeIntrinsicMethod = _sendMethod;
+				Trc_VM_makeIntrinsic_Entry(_currentThread, _sendMethod);
 			}
 		}
 		return rc;
@@ -6434,22 +6439,25 @@ done:
 			*bp &= ~(UDATA)J9SF_A0_REPORT_FRAME_POP_TAG;
 		}
 #endif
+		if (NULL != _currentThread->makeIntrinsicMethod) {
+			Trc_VM_makeIntrinsic_methodReturn(_currentThread, _literals, _sp, _currentThread->receiverSlot, *((j9object_t*)_currentThread->receiverSlot));
+
+			if (_literals == _currentThread->makeIntrinsicMethod) {
+				_currentThread->makeIntrinsicMethod = NULL;
+				_currentThread->receiverSlot = NULL;
+				Trc_VM_makeIntrinsic_Exit(_currentThread, _literals);
+			} else {
+				if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+					printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+					fflush(stdout);
+					updateVMStruct(REGISTER_ARGS);
+					abort();
+				}
+			}
+		}
 		if (_sp[slots] & J9_STACK_FLAGS_J2_IFRAME) {
 			rc = j2iReturn(REGISTER_ARGS);
 		} else {
-			if (NULL != _currentThread->makeIntrinsicMethod) {
-				if (_literals == _currentThread->makeIntrinsicMethod) {
-					_currentThread->makeIntrinsicMethod = NULL;
-					_currentThread->receiverSlot = NULL;
-				} else {
-					if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
-						printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
-						fflush(stdout);
-						updateVMStruct(REGISTER_ARGS);
-						abort();
-					}
-				}
-			}
 			J9SFStackFrame *frame = (J9SFStackFrame*)(_sp + slots);
 			UDATA returnValue0 = 0;
 			UDATA returnValue1 = 0;
@@ -7164,6 +7172,7 @@ done:
 			if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
 			&& (J9UTF8_LENGTH(sigUTF) == 136)) {
 				_currentThread->makeIntrinsicMethod = _sendMethod;
+				Trc_VM_makeIntrinsic_Entry(_currentThread, _sendMethod);
 			}
 		}
 		return GOTO_RUN_METHOD;
@@ -8231,6 +8240,21 @@ done:
 			isObjectConstructor = TRUE;
 			VM_VMHelpers::checkIfFinalizeObject(_currentThread, finalizeObject);
 		}
+		if (NULL != _currentThread->makeIntrinsicMethod) {
+			Trc_VM_makeIntrinsic_methodReturn(_currentThread, _literals, _sp, _currentThread->receiverSlot, *((j9object_t*)_currentThread->receiverSlot));
+			if (_literals == _currentThread->makeIntrinsicMethod) {
+				_currentThread->makeIntrinsicMethod = NULL;
+				_currentThread->receiverSlot = NULL;
+				Trc_VM_makeIntrinsic_Exit(_currentThread, _literals);
+			} else {
+				if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+					printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+					fflush(stdout);
+					updateVMStruct(REGISTER_ARGS);
+					abort();
+				}
+			}
+		}
 		if (bp == _currentThread->j2iFrame) {
 			J9SFJ2IFrame *j2iFrame = ((J9SFJ2IFrame*)(bp + 1)) - 1;
 			/* Don't overwrite the breakpoint bytecode or the return from the Object constructor */
@@ -8258,19 +8282,6 @@ done:
 			rc = j2iReturn(REGISTER_ARGS);
 			goto done;
 		} else {
-			if (NULL != _currentThread->makeIntrinsicMethod) {
-				if (_literals == _currentThread->makeIntrinsicMethod) {
-					_currentThread->makeIntrinsicMethod = NULL;
-					_currentThread->receiverSlot = NULL;
-				} else {
-					if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
-						printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
-						fflush(stdout);
-						updateVMStruct(REGISTER_ARGS);
-						abort();
-					}
-				}
-			}
 			UDATA returnValue0 = _sp[0];
 			UDATA returnValue1 = _sp[1];
 			J9SFStackFrame *frame = ((J9SFStackFrame*)(bp + 1)) - 1;

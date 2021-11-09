@@ -881,3 +881,11 @@ TraceException=Trc_VM_CreateRAMClassFromROMClass_sealedSuperFromDifferentPackage
 TraceEvent=Trc_VM_callin_stackFree Overhead=1 Level=5 Template="OS Stack free=%zi, current native sp=%p"
 
 TraceEvent=Trc_VM_classLoaderRegisterLibrary_newNativeLibrary Overhead=1 Level=5 Template="classLoaderRegisterLibrary -- newNativeLibrary (0x%p) handle (0x%zx) logicalName (%s) name (%s) rc (0x%zx)"
+
+
+TraceEntry=Trc_VM_makeIntrinsic_Entry Overhead=1 Level=1 Template="makeIntrinsic method=%p entry"
+TraceEvent=Trc_VM_makeIntrinsic_SetSlot Overhead=1 Level=1 Template="makeIntrinsic sp=%p, receiverSlot=%p"
+TraceExit=Trc_VM_makeIntrinsic_Exit Overhead=1 Level=1 Template="makeIntrinsic method=%p exit"
+
+TraceEvent=Trc_VM_makeIntrinsic_methodEnter Overhead=1 Level=1 Template="method dispatch %p, sp=%p, Arg0EA = %p, receiverSlot = %p, slotValue = %p"
+TraceEvent=Trc_VM_makeIntrinsic_methodReturn Overhead=1 Level=1 Template="method return %p, sp=%p, receiverSlot = %p, slotValue = %p"
