@@ -6428,22 +6428,22 @@ done:
 			*bp &= ~(UDATA)J9SF_A0_REPORT_FRAME_POP_TAG;
 		}
 #endif
-		if (NULL != _currentThread->makeIntrinsicMethod) {
-			if (_literals == _currentThread->makeIntrinsicMethod) {
-				_currentThread->makeIntrinsicMethod = NULL;
-				_currentThread->receiverSlot = NULL;
-			} else {
-				if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
-					printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
-					fflush(stdout);
-					updateVMStruct(REGISTER_ARGS);
-					abort();
-				}
-			}
-		}
 		if (_sp[slots] & J9_STACK_FLAGS_J2_IFRAME) {
 			rc = j2iReturn(REGISTER_ARGS);
 		} else {
+			if (NULL != _currentThread->makeIntrinsicMethod) {
+				if (_literals == _currentThread->makeIntrinsicMethod) {
+					_currentThread->makeIntrinsicMethod = NULL;
+					_currentThread->receiverSlot = NULL;
+				} else {
+					if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+						printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+						fflush(stdout);
+						updateVMStruct(REGISTER_ARGS);
+						abort();
+					}
+				}
+			}
 			J9SFStackFrame *frame = (J9SFStackFrame*)(_sp + slots);
 			UDATA returnValue0 = 0;
 			UDATA returnValue1 = 0;
@@ -8225,19 +8225,6 @@ done:
 			isObjectConstructor = TRUE;
 			VM_VMHelpers::checkIfFinalizeObject(_currentThread, finalizeObject);
 		}
-		if (NULL != _currentThread->makeIntrinsicMethod) {
-			if (_literals == _currentThread->makeIntrinsicMethod) {
-				_currentThread->makeIntrinsicMethod = NULL;
-				_currentThread->receiverSlot = NULL;
-			} else {
-				if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
-					printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
-					fflush(stdout);
-					updateVMStruct(REGISTER_ARGS);
-					abort();
-				}
-			}
-		}
 		if (bp == _currentThread->j2iFrame) {
 			J9SFJ2IFrame *j2iFrame = ((J9SFJ2IFrame*)(bp + 1)) - 1;
 			/* Don't overwrite the breakpoint bytecode or the return from the Object constructor */
@@ -8265,6 +8252,19 @@ done:
 			rc = j2iReturn(REGISTER_ARGS);
 			goto done;
 		} else {
+			if (NULL != _currentThread->makeIntrinsicMethod) {
+				if (_literals == _currentThread->makeIntrinsicMethod) {
+					_currentThread->makeIntrinsicMethod = NULL;
+					_currentThread->receiverSlot = NULL;
+				} else {
+					if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+						printf("NULL pointer at receiverSlot (%p) of dup!!!\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+						fflush(stdout);
+						updateVMStruct(REGISTER_ARGS);
+						abort();
+					}
+				}
+			}
 			UDATA returnValue0 = _sp[0];
 			UDATA returnValue1 = _sp[1];
 			J9SFStackFrame *frame = ((J9SFStackFrame*)(bp + 1)) - 1;
