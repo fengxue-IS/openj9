@@ -1562,6 +1562,12 @@ obj:
 				_currentThread->receiverSlot = _sp - 2;
 				*_currentThread->receiverSlot = 1;
 			}
+			if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL) ) {
+				printf("NULL pointer at receiverSlot (%p) of dup!!! during inlineSendTarget\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
+				fflush(stdout);
+				updateVMStruct(REGISTER_ARGS);
+				abort();
+			}
 		}
 		_arg0EA = newA0;
 		_literals = _sendMethod;
