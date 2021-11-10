@@ -1567,9 +1567,9 @@ obj:
 			*_currentThread->receiverSlot = 1;
 			Trc_VM_makeIntrinsic_SetSlot(_currentThread, _sp, _currentThread->receiverSlot);
 		}
-		if (_currentThread->receiverSlot != NULL) {
-			Trc_VM_makeIntrinsic_methodEnter(_currentThread, _sendMethod, _sp, _arg0EA, _currentThread->receiverSlot, *((j9object_t*)_currentThread->receiverSlot));
-			if (*((j9object_t *)_currentThread->receiverSlot) == NULL) {
+		if (_currentThread->makeIntrinsicMethod != NULL) {
+			Trc_VM_makeIntrinsic_methodEnter(_currentThread, _sendMethod, _sp, _arg0EA, _currentThread->receiverSlot, (_currentThread->receiverSlot == NULL ? NULL : *((j9object_t*)_currentThread->receiverSlot)));
+			if ( (_currentThread->receiverSlot != NULL) && (*((j9object_t *)_currentThread->receiverSlot) == NULL)) {
 				printf("NULL pointer at receiverSlot (%p) of dup!!! during inlineSendTarget\nCurrent Method = %p, Current SP = %p\n", _currentThread->receiverSlot, _literals, _sp);
 				fflush(stdout);
 				updateVMStruct(REGISTER_ARGS);
@@ -6440,7 +6440,7 @@ done:
 		}
 #endif
 		if (NULL != _currentThread->makeIntrinsicMethod) {
-			Trc_VM_makeIntrinsic_methodReturn(_currentThread, _literals, _sp, _currentThread->receiverSlot, *((j9object_t*)_currentThread->receiverSlot));
+			Trc_VM_makeIntrinsic_methodReturn(_currentThread, _literals, _sp, _currentThread->receiverSlot, (_currentThread->receiverSlot == NULL ? NULL : *((j9object_t*)_currentThread->receiverSlot)));
 
 			if (_literals == _currentThread->makeIntrinsicMethod) {
 				_currentThread->makeIntrinsicMethod = NULL;
@@ -8241,7 +8241,7 @@ done:
 			VM_VMHelpers::checkIfFinalizeObject(_currentThread, finalizeObject);
 		}
 		if (NULL != _currentThread->makeIntrinsicMethod) {
-			Trc_VM_makeIntrinsic_methodReturn(_currentThread, _literals, _sp, _currentThread->receiverSlot, *((j9object_t*)_currentThread->receiverSlot));
+			Trc_VM_makeIntrinsic_methodReturn(_currentThread, _literals, _sp, _currentThread->receiverSlot, (_currentThread->receiverSlot == NULL ? NULL : *((j9object_t*)_currentThread->receiverSlot)));
 			if (_literals == _currentThread->makeIntrinsicMethod) {
 				_currentThread->makeIntrinsicMethod = NULL;
 				_currentThread->receiverSlot = NULL;
