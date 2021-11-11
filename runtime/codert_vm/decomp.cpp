@@ -688,9 +688,19 @@ buildBytecodeFrame(J9VMThread *currentThread, J9OSRFrame *osrFrame)
 	stackFrame->savedCP = literals;
 	stackFrame->savedA0 = a0;
 
+	Trc_Decomp_performDecompile_buildBytecodeFrame(currentThread, method, stackFrame, pendingStackHeight);
 	/* Push the pendings */
 	sp = (UDATA*)stackFrame - pendingStackHeight;
 	memcpy(sp, pending, pendingStackHeight * sizeof(UDATA));
+
+	if (currentThread->makeIntrinsicMethod != NULL) {
+		if (method == currentThread->makeIntrinsicMethod) {
+			Trc_Decomp_performDecompile_receiverSlot(currentThread, (UDATA *)stackFrame - 1, (UDATA*)((UDATA *)stackFrame - 1), (UDATA *)stackFrame - 2, (UDATA*)((UDATA *)stackFrame - 2));
+			currentThread->receiverSlot = (UDATA *)stackFrame - 2;
+		} else if (currentThread->receiverSlot != NULL) {
+			Trc_Decomp_performDecompile_receiverSlot(currentThread, currentThread->receiverSlot + 1, (UDATA*)(currentThread->receiverSlot + 1), currentThread->receiverSlot, (UDATA*)(currentThread->receiverSlot));
+		}
+	}
 
 	/* Update the root values in the J9VMThread */
 	currentThread->arg0EA = newA0;
@@ -715,6 +725,7 @@ buildInlineStackFrames(J9VMThread *currentThread, J9JITDecompileState *decompile
 	J9JavaVM *vm = currentThread->javaVM;
 	J9MonitorEnterRecord *firstEnterRecord = osrFrame->monitorEnterRecords;
 	J9Method *method = osrFrame->method;
+	Trc_Decomp_performDecompile_buildInlineStackFrames(currentThread, method, inlineDepth);
 	if (0 == inlineDepth) {
 		decompileOuterFrame(currentThread, decompileState, decompRecord, osrFrame);
 	} else {
@@ -865,6 +876,7 @@ decompileOuterFrame(J9VMThread * currentThread, J9JITDecompileState * decompileS
 	oldPendingBase = oldTempBase - pendingStackHeight;
 	newSP = newPendingBase;
 
+	Trc_Decomp_performDecompile_decompileOuterFrame(currentThread, method, stackFrame, pendingStackHeight);
 	/* If the JIT stack frame has not been constructed, don't attempt to read from it */
 
 	UDATA resolveFrameType = decompileState->resolveFrameFlags & J9_STACK_FLAGS_JIT_FRAME_SUB_TYPE_MASK;
@@ -893,6 +905,12 @@ decompileOuterFrame(J9VMThread * currentThread, J9JITDecompileState * decompileS
 
 	memcpy(newPendingBase, oldPendingBase, pendingStackHeight * sizeof(UDATA));
 
+	if (currentThread->makeIntrinsicMethod != NULL) {
+		if (method == currentThread->makeIntrinsicMethod) {
+			Trc_Decomp_performDecompile_receiverSlot(currentThread, stackFrame - 1, (UDATA*)(stackFrame - 1), stackFrame - 2, (UDATA*)(stackFrame - 2));
+			currentThread->receiverSlot = (UDATA *)stackFrame - 2;
+		}
+	}
 	/* Create the stack frame, either a pure bytecode frame or a J2I frame, depending on the previous frame. */
 
 	if (decompileState->previousFrameBytecodes) {
