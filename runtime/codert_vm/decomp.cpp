@@ -678,6 +678,14 @@ buildBytecodeFrame(J9VMThread *currentThread, J9OSRFrame *osrFrame)
 	UDATA *newA0 = sp - 1;
 	J9SFStackFrame *stackFrame = NULL;
 
+	J9ROMMethod * romMethod = J9_ROM_METHOD_FROM_RAM_METHOD(method);
+	J9UTF8 * nameUTF = J9ROMMETHOD_NAME(romMethod);
+	J9UTF8 *sigUTF = J9ROMMETHOD_SIGNATURE(romMethod);
+	if (J9UTF8_LITERAL_EQUALS(J9UTF8_DATA(nameUTF), J9UTF8_LENGTH(nameUTF), "makeIntrinsic")
+	&& (J9UTF8_LENGTH(sigUTF) == 136)) {
+		currentThread->makeIntrinsicMethod = method;
+	}
+
 	/* Push the locals */
 	sp -= numberOfLocals;
 	memcpy(sp, locals, numberOfLocals * sizeof(UDATA));
@@ -695,10 +703,10 @@ buildBytecodeFrame(J9VMThread *currentThread, J9OSRFrame *osrFrame)
 
 	if (currentThread->makeIntrinsicMethod != NULL) {
 		if (method == currentThread->makeIntrinsicMethod) {
-			Trc_Decomp_performDecompile_receiverSlot(currentThread, (UDATA *)stackFrame - 1, (UDATA*)((UDATA *)stackFrame - 1), (UDATA *)stackFrame - 2, (UDATA*)((UDATA *)stackFrame - 2));
+			Trc_Decomp_performDecompile_receiverSlot(currentThread, (UDATA *)stackFrame - 1, *((j9object_t *)stackFrame - 1), (UDATA *)stackFrame - 2, *((j9object_t *)stackFrame - 2));
 			currentThread->receiverSlot = (UDATA *)stackFrame - 2;
 		} else if (currentThread->receiverSlot != NULL) {
-			Trc_Decomp_performDecompile_receiverSlot(currentThread, currentThread->receiverSlot + 1, (UDATA*)(currentThread->receiverSlot + 1), currentThread->receiverSlot, (UDATA*)(currentThread->receiverSlot));
+			Trc_Decomp_performDecompile_receiverSlot(currentThread, currentThread->receiverSlot + 1, *((j9object_t *)currentThread->receiverSlot + 1), currentThread->receiverSlot, *((j9object_t *)currentThread->receiverSlot));
 		}
 	}
 
@@ -907,7 +915,7 @@ decompileOuterFrame(J9VMThread * currentThread, J9JITDecompileState * decompileS
 
 	if (currentThread->makeIntrinsicMethod != NULL) {
 		if (method == currentThread->makeIntrinsicMethod) {
-			Trc_Decomp_performDecompile_receiverSlot(currentThread, stackFrame - 1, (UDATA*)(stackFrame - 1), stackFrame - 2, (UDATA*)(stackFrame - 2));
+			Trc_Decomp_performDecompile_receiverSlot(currentThread, stackFrame - 1, *((j9object_t *)stackFrame - 1), stackFrame - 2, *((j9object_t *)stackFrame - 2));
 			currentThread->receiverSlot = (UDATA *)stackFrame - 2;
 		}
 	}
