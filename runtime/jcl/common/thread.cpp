@@ -156,7 +156,7 @@ Java_java_lang_Thread_setNameImpl(JNIEnv *env, jobject thread, jlong threadRef, 
 }
 
 void JNICALL
-Java_java_lang_Thread_yield(JNIEnv *env, jclass threadClass)
+Java_java_lang_Thread_yield0(JNIEnv *env, jclass threadClass)
 {
 	J9VMThread *currentThread = (J9VMThread*)env;
 	/* Check whether Thread.Stop has been called */
