@@ -741,9 +741,15 @@ Java_java_lang_invoke_MethodHandleNatives_resolve(JNIEnv *env, jclass clazz, job
 		} else {
 			/* Initialize nameObject after creating typeString which could trigger GC */
 			j9object_t nameObject = NULL;
-			j9object_t typeObject = J9VMJAVALANGINVOKEMEMBERNAME_TYPE(currentThread, membernameObject);
 			j9object_t clazzObject = J9VMJAVALANGINVOKEMEMBERNAME_CLAZZ(currentThread, membernameObject);
 			J9Class *resolvedClass = J9VM_J9CLASS_FROM_HEAPCLASS(currentThread, clazzObject);
+			if (VM_VMHelpers::classRequiresInitialization(currentThread, resolvedClass)) {
+				vmFuncs->initializeClass(currentThread, resolvedClass);
+				if (VM_VMHelpers::exceptionPending(currentThread)) {
+					goto done;
+				}
+			}
+			j9object_t typeObject = J9VMJAVALANGINVOKEMEMBERNAME_TYPE(currentThread, membernameObject);
 
 			jint ref_kind = (flags >> MN_REFERENCE_KIND_SHIFT) & MN_REFERENCE_KIND_MASK;
 
