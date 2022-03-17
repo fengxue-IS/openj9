@@ -633,6 +633,7 @@ Java_com_ibm_java_lang_management_internal_ThreadMXBeanImpl_getMultiThreadInfoIm
 	} else {
 		threadIDs = (*env)->GetLongArrayElements(env, ids, &isCopy);
 		if (!threadIDs) {
+			printf("null threadIDs: mgmtthread.c:636\n");
 			return NULL;
 		}
 
@@ -819,6 +820,7 @@ getArrayOfThreadInfo(JNIEnv *env,
 	}
 
 	if (initIDCache(env) != JNI_OK) {
+		printf("null initIDCache: mgmtthread.c:823\n");
 		return NULL;
 	}
 
@@ -900,6 +902,7 @@ getArrayOfThreadInfo(JNIEnv *env,
 			if (!allinfo[i].stackTrace) {
 				freeThreadInfos(currentThread, allinfo, numThreads);
 				vmfns->internalExitVMToJNI(currentThread);
+				printf("createStackTrace failed: mgmtthread.c:905\n");
 				return NULL;
 			}
 		}
@@ -2024,6 +2027,7 @@ pruneStackTrace(JNIEnv *env, jobjectArray stackTrace, jsize maxStackDepth)
 	}
 	(*env)->CallStaticVoidMethod(env, systemClass, mid, stackTrace, 0, prunedTrace, 0, maxStackDepth);
 	if ((*env)->ExceptionCheck(env) == JNI_TRUE) {
+		printf("arraycopy failed: mgmtthread.c:2030\n");
 		return NULL;
 	}
 	return prunedTrace;

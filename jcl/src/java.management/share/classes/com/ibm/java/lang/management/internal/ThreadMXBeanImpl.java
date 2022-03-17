@@ -351,8 +351,8 @@ public class ThreadMXBeanImpl implements ThreadMXBean {
 		}
 
 		// Create an array and populate with individual ThreadInfos
-		return makeThreadInfos(getMultiThreadInfoImpl(ids, maxDepth,
-				lockedMonitors, lockedSynchronizers));
+		ThreadInfoBase[] infoBases = getMultiThreadInfoImpl(ids, maxDepth, lockedMonitors, lockedSynchronizers);
+		return makeThreadInfos(infoBases);
 	}
 
 	/**
