@@ -144,7 +144,7 @@ Fast_java_lang_System_arraycopy(J9VMThread *currentThread, j9object_t src, jint 
 						VM_BytecodeAction rc = doPrimitiveArrayCopy(currentThread, src, srcPos, dest, destPos, ((J9ROMArrayClass*)srcClass->romClass)->arrayShape & 0x0000FFFF, length, &aiobIndex);
 						if (rc == THROW_AIOB) {
 throwAIOB:
-							setArrayIndexOutOfBoundsException(currentThread, aiobIndex);
+							setArrayIndexOutOfBoundsException(currentThread, aiobIndex + 400);
 						}
 					}
 				}

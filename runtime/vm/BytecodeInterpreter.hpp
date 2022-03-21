@@ -1157,18 +1157,18 @@ obj:
 
 		if (elementCount < 0) {
 			buildInternalNativeStackFrame(REGISTER_ARGS);
-			_currentThread->tempSlot = (UDATA)elementCount;
+			_currentThread->tempSlot = (UDATA)elementCount + 900;
 			rc = THROW_AIOB;
 		} else {
 			I_32 invalidIndex = 0;
 			if (!VM_ArrayCopyHelpers::rangeCheck(_currentThread, srcObject, srcStart, elementCount, &invalidIndex)) {
 				buildInternalNativeStackFrame(REGISTER_ARGS);
-				_currentThread->tempSlot = (UDATA)invalidIndex;
+				_currentThread->tempSlot = (UDATA)invalidIndex + 800;
 				rc = THROW_AIOB;
 			} else {
 				if (!VM_ArrayCopyHelpers::rangeCheck(_currentThread, destObject, destStart, elementCount, &invalidIndex)) {
 					buildInternalNativeStackFrame(REGISTER_ARGS);
-					_currentThread->tempSlot = (UDATA)invalidIndex;
+					_currentThread->tempSlot = (UDATA)invalidIndex + 700;
 					rc = THROW_AIOB;
 				} else {
 					I_32 value = VM_ArrayCopyHelpers::referenceArrayCopy(_currentThread, srcObject, srcStart, destObject, destStart, elementCount);
@@ -6320,7 +6320,7 @@ done:
 			 * greater than the maximum array size (31 bits unsigned).
 			 */
 			if (index >= arrayLength) {
-				_currentThread->tempSlot = (UDATA)index;
+				_currentThread->tempSlot = (UDATA)index + 600;
 				rc = THROW_AIOB;
 			} else {
 				j9object_t value = VM_ValueTypeHelpers::loadFlattenableArrayElement(_currentThread, _objectAccessBarrier, _objectAllocate, arrayref, index, true);
@@ -6362,7 +6362,7 @@ done:
 			 * greater than the maximum array size (31 bits unsigned).
 			 */
 			if (index >= arrayLength) {
-				_currentThread->tempSlot = (UDATA)index;
+				_currentThread->tempSlot = (UDATA)index + 500;
 				rc = THROW_AIOB;
 			} else {
 				j9object_t value = *(j9object_t*)_sp;

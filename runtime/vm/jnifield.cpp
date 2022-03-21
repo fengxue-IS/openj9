@@ -937,7 +937,7 @@ getObjectArrayElement(JNIEnv *env, jobjectArray arrayRef, jsize index)
 	arrayBound = J9INDEXABLEOBJECT_SIZE(currentThread, array);
 	/* unsigned comparison includes index < 0 case */
 	if ((UDATA)arrayBound <= (UDATA)index) {
-		setArrayIndexOutOfBoundsException(currentThread, index);
+		setArrayIndexOutOfBoundsException(currentThread, index + 300);
 		goto done;
 	}
 
@@ -963,7 +963,7 @@ setObjectArrayElement(JNIEnv *env, jobjectArray arrayRef, jsize index, jobject v
 
 	arrayBound = J9INDEXABLEOBJECT_SIZE(currentThread, array);
 	if ((UDATA)arrayBound <= (UDATA)index) {
-		setArrayIndexOutOfBoundsException(currentThread, index);
+		setArrayIndexOutOfBoundsException(currentThread, index + 200);
 		goto done;
 	}
 
