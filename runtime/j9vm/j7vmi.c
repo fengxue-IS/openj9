@@ -441,6 +441,10 @@ JVM_FillInStackTrace(JNIEnv* env, jobject throwable)
 			flags |= J9_STACKWALK_HIDE_EXCEPTION_FRAMES;
 			walkState->restartException = unwrappedThrowable;
 		}
+		/* If -XX:+ShowHiddenFrames option has not been set, skip hidden method frames */
+		if (J9_ARE_NO_BITS_SET(javaVM->runtimeFlags, J9_RUNTIME_SHOW_HIDDEN_FRAMES)) {
+			flags |= J9_STACKWALK_SKIP_HIDDEN_FRAMES;
+		}
 		walkState->skipCount = 1; /* skip the INL frame -- TODO revisit this */
 #if JAVA_SPEC_VERSION >= 15
 		{
@@ -1366,11 +1370,9 @@ JVM_GetStackTraceDepth(JNIEnv* env, jobject throwable)
 	J9InternalVMFunctions * vmfns = vm->internalVMFunctions;
 	jint numberOfFrames;
 	UDATA pruneConstructors = 0;
-	/* If -XX:+ShowHiddenFrames option has not been set, skip hidden method frames */
-	UDATA skipHiddenFrames = J9_ARE_NO_BITS_SET(vm->runtimeFlags, J9_RUNTIME_SHOW_HIDDEN_FRAMES);
 
 	vmfns->internalEnterVMFromJNI(currentThread);
-	numberOfFrames = (jint)vmfns->iterateStackTrace(currentThread, (j9object_t*)throwable, NULL, NULL, pruneConstructors, skipHiddenFrames);
+	numberOfFrames = (jint)vmfns->iterateStackTrace(currentThread, (j9object_t*)throwable, NULL, NULL, pruneConstructors);
 	vmfns->internalExitVMToJNI(currentThread);
 
 	return numberOfFrames;
@@ -1459,14 +1461,12 @@ JVM_GetStackTraceElement(JNIEnv* env, jobject throwable, jint index)
 	jobject methodName = NULL;
 	jobject fileName = NULL;
 	jint lineNumber = -1;
-	/* If -XX:+ShowHiddenFrames option has not been set, skip hidden method frames */
-	UDATA skipHiddenFrames = J9_ARE_NO_BITS_SET(vm->runtimeFlags, J9_RUNTIME_SHOW_HIDDEN_FRAMES);
 
 	memset(&userData,0, sizeof(userData));
 	userData.seekFrameIndex = index;
 
 	vmfns->internalEnterVMFromJNI(currentThread);
-	vmfns->iterateStackTrace(currentThread, (j9object_t*)throwable, getStackTraceElementIterator, &userData, pruneConstructors, skipHiddenFrames);
+	vmfns->iterateStackTrace(currentThread, (j9object_t*)throwable, getStackTraceElementIterator, &userData, pruneConstructors);
 	vmfns->internalExitVMToJNI(currentThread);
 
 	/* Bail if we couldn't find the frame */
