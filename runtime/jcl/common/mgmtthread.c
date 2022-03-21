@@ -1458,9 +1458,7 @@ getStackFramePCs(J9VMThread *currentThread, J9VMThread *targetThread, ThreadInfo
 	walkState.flags = J9_STACKWALK_CACHE_PCS | J9_STACKWALK_WALK_TRANSLATE_PC
 		| J9_STACKWALK_SKIP_INLINES 
 		| J9_STACKWALK_INCLUDE_NATIVES 
-		| J9_STACKWALK_VISIBLE_ONLY
-		| J9_STACKWALK_COUNT_SPECIFIED;
-		walkState.maxFrames = maxStackDepth;
+		| J9_STACKWALK_VISIBLE_ONLY;
 	walkState.skipCount = 0;
 
 	rc = vm->walkStackFrames(currentThread, &walkState);
