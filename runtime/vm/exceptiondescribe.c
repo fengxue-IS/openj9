@@ -423,8 +423,8 @@ foundROMMethod: ;
 					break;
 				}
 
-#ifdef J9VM_INTERP_NATIVE_SUPPORT
 nextInline:
+#ifdef J9VM_INTERP_NATIVE_SUPPORT
 				if (inlineDepth != 0) {
 					/* Check for metadata unload */
 					if (NULL == metaData->ramMethod) {
