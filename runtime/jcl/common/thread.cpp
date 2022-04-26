@@ -358,12 +358,19 @@ Java_java_lang_Thread_startImpl(JNIEnv *env, jobject rcv, jlong millis, jint nan
 	if (J9VMJAVALANGTHREAD_STARTED(currentThread, receiverObject)) {
 		vmFuncs->setCurrentExceptionNLS(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALTHREADSTATEEXCEPTION, J9NLS_JCL_THREAD_ALREADY_STARTED);
 	} else {
+#if defined(J9VM_OPT_LOOM)
+		j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(currentThread, receiverObject);
+		UDATA priority = J9VMJAVALANGTHREADFIELDHOLDER_PRIORITY(currentThread, threadHolder);
+		UDATA isDaemon = J9VMJAVALANGTHREADFIELDHOLDER_DAEMON(currentThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
 		UDATA priority = J9VMJAVALANGTHREAD_PRIORITY(currentThread, receiverObject);
+		UDATA isDaemon = J9VMJAVALANGTHREAD_ISDAEMON(currentThread, receiverObject);
+#endif /* J9VM_OPT_LOOM */
 		if (vm->runtimeFlags & J9_RUNTIME_NO_PRIORITIES) {
 			priority = J9THREAD_PRIORITY_NORMAL;
 		}
 		UDATA privateFlags = 0;
-		if (J9VMJAVALANGTHREAD_ISDAEMON(currentThread, receiverObject)) {
+		if (isDaemon) {
 			privateFlags |= J9_PRIVATE_FLAGS_DAEMON_THREAD;
 		}
 		UDATA startRC = vmFuncs->startJavaThread(currentThread, receiverObject, privateFlags, vm->defaultOSStackSize, priority, (omrthread_entrypoint_t)vmFuncs->javaThreadProc, (void*)vm, NULL);

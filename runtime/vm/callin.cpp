@@ -549,8 +549,10 @@ oom:
 				*--currentThread->sp = (UDATA)threadObject;
 #ifdef J9VM_IVE_RAW_BUILD /* J9VM_IVE_RAW_BUILD is not enabled by default */
 				/* Oracle constructor takes thread group, thread name */
+#if !defined(J9VM_OPT_LOOM)
 				J9VMJAVALANGTHREAD_SET_PRIORITY(currentThread, threadObject, priority);
 				J9VMJAVALANGTHREAD_SET_ISDAEMON(currentThread, threadObject, (I_32)daemon);
+#endif /* !defined(J9VM_OPT_LOOM) */
 				*--currentThread->sp = (UDATA)threadGroup;
 				*--currentThread->sp = (UDATA)threadName;
 #else /* J9VM_IVE_RAW_BUILD */

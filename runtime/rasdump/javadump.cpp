@@ -5224,11 +5224,17 @@ void
 JavaCoreDumpWriter::writeJavaLangThreadInfo(J9VMThread *vmThread)
 {
 	I_64 threadID = J9VMJAVALANGTHREAD_TID(vmThread, vmThread->threadObject);
+#if defined(J9VM_OPT_LOOM)
+	j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(vmThread, vmThread->threadObject);
+	UDATA isDaemon = J9VMJAVALANGTHREADFIELDHOLDER_DAEMON(vmThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
+	UDATA isDaemon = J9VMJAVALANGTHREAD_ISDAEMON(vmThread, vmThread->threadObject);
+#endif /* J9VM_OPT_LOOM */
 
 	_OutputStream.writeCharacters("3XMJAVALTHREAD            (java/lang/Thread getId:");
 	_OutputStream.writeInteger64(threadID);
 	_OutputStream.writeCharacters(", isDaemon:");
-	_OutputStream.writeCharacters(J9VMJAVALANGTHREAD_ISDAEMON(vmThread, vmThread->threadObject) ? "true" : "false");
+	_OutputStream.writeCharacters(isDaemon ? "true" : "false");
 	_OutputStream.writeCharacters(")\n");
 
 	j9object_t contextClassLoader = J9VMJAVALANGTHREAD_CONTEXTCLASSLOADER(vmThread, vmThread->threadObject);

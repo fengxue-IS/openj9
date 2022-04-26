@@ -453,6 +453,9 @@ jvmtiGetThreadInfo(jvmtiEnv* env,
 			j9object_t threadObject = (NULL == thread) ? targetThread->threadObject : *((j9object_t*) thread);
 			jobject threadGroup = NULL;
 			jobject contextClassLoader;
+#if defined(J9VM_OPT_LOOM)
+			j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(currentThread, threadObject);
+#endif /* J9VM_OPT_LOOM */
 
 			if (NULL == targetThread) {
 				/* java.lang.thread may not have a ref to vm thread. for example, after it gets terminated.
@@ -493,7 +496,12 @@ jvmtiGetThreadInfo(jvmtiEnv* env,
 				releaseOMRVMThreadName(targetThread->omrVMThread);
 
 				if (JAVAVM_FROM_ENV(env)->jclFlags & J9_JCL_FLAG_THREADGROUPS) {
-					threadGroup = vm->internalVMFunctions->j9jni_createLocalRef((JNIEnv *) currentThread, (j9object_t)J9VMJAVALANGTHREAD_GROUP(currentThread, threadObject));
+#if defined(J9VM_OPT_LOOM)
+					j9object_t group = (j9object_t)J9VMJAVALANGTHREADFIELDHOLDER_GROUP(currentThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
+					j9object_t group = (j9object_t)J9VMJAVALANGTHREAD_GROUP(currentThread, threadObject)
+#endif /* J9VM_OPT_LOOM */
+					threadGroup = vm->internalVMFunctions->j9jni_createLocalRef((JNIEnv *) currentThread, );
 				}
 			}
 
@@ -501,10 +509,18 @@ jvmtiGetThreadInfo(jvmtiEnv* env,
 
 			rv_name = name;
 			{
+#if defined(J9VM_OPT_LOOM)
+				rv_priority = J9VMJAVALANGTHREADFIELDHOLDER_PRIORITY(currentThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
 				rv_priority = J9VMJAVALANGTHREAD_PRIORITY(currentThread, threadObject);
+#endif /* J9VM_OPT_LOOM */
 			}
 
+#if defined(J9VM_OPT_LOOM)
+			rv_is_daemon = J9VMJAVALANGTHREADFIELDHOLDER_DAEMON(currentThread, threadHolder) ? JNI_TRUE : JNI_FALSE;
+#else /* J9VM_OPT_LOOM */
 			rv_is_daemon = J9VMJAVALANGTHREAD_ISDAEMON(currentThread, threadObject) ? JNI_TRUE : JNI_FALSE;
+#endif /* J9VM_OPT_LOOM */
 			rv_thread_group = (jthreadGroup) threadGroup;
 			rv_context_class_loader = contextClassLoader;
 		}
@@ -806,8 +822,17 @@ jvmtiRunAgentThread(jvmtiEnv* env,
 
 			/* Run the thread */
 
+#if defined(J9VM_OPT_LOOM)
+			j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(currentThread, threadObject);
+			if (threadHolder != NULL) {
+				J9VMJAVALANGTHREADFIELDHOLDER_SET_PRIORITY(currentThread, threadHolder, priority);
+				J9VMJAVALANGTHREADFIELDHOLDER_SET_DAEMON(currentThread, threadHolder, TRUE);
+			}
+			// Loom todo
+#else /* J9VM_OPT_LOOM */
 			J9VMJAVALANGTHREAD_SET_PRIORITY(currentThread, threadObject, priority);
 			J9VMJAVALANGTHREAD_SET_ISDAEMON(currentThread, threadObject, TRUE);
+#endif /* J9VM_OPT_LOOM */
 			result = vm->internalVMFunctions->startJavaThread(currentThread, threadObject,
 				J9_PRIVATE_FLAGS_DAEMON_THREAD | J9_PRIVATE_FLAGS_NO_EXCEPTION_IN_START_JAVA_THREAD,
 				vm->defaultOSStackSize, (UDATA) priority, agentThreadStart, args, NULL);

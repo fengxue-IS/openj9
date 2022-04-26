@@ -373,7 +373,9 @@ final class J9VMInternals {
 		try {
 			// Leave the ThreadGroup. This is why remove can't be private
 			/*[IF OPENJDK_THREAD_SUPPORT]*/
+			/*[IF !LOOM_SUPPORT]*/
 			thread.group.threadTerminated(thread);
+			/*[ENDIF] LOOM_SUPPORT */
 			/*[ELSE] OPENJDK_THREAD_SUPPORT */
 			thread.group.remove(thread);
 			/*[ENDIF] OPENJDK_THREAD_SUPPORT */
