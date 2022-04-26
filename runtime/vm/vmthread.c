@@ -2367,7 +2367,12 @@ findDeadlock_fail:
 UDATA
 getJavaThreadPriority(struct J9JavaVM *vm, J9VMThread* thread )
 {
+#if defined(J9VM_OPT_LOOM)
+	j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(thread, thread->threadObject);
+	return J9VMJAVALANGTHREADFIELDHOLDER_PRIORITY(thread, threadHolder);
+#else /* J9VM_OPT_LOOM */
 	return J9VMJAVALANGTHREAD_PRIORITY(thread, thread->threadObject);
+#endif /* J9VM_OPT_LOOM */
 }
 
 

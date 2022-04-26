@@ -223,8 +223,14 @@ gpThreadDump(struct J9JavaVM *vm, struct J9VMThread *currentThread)
 		do {
 			if (currentThread->threadObject) {
 				j9object_t threadObject = currentThread->threadObject;
+#if defined(J9VM_OPT_LOOM)
+				j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(currentThread, threadObject);
+				UDATA priority = J9VMJAVALANGTHREADFIELDHOLDER_PRIORITY(currentThread, threadHolder);
+				UDATA isDaemon = J9VMJAVALANGTHREADFIELDHOLDER_DAEMON(currentThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
 				UDATA priority = vm->internalVMFunctions->getJavaThreadPriority(vm, currentThread);
 				UDATA isDaemon = J9VMJAVALANGTHREAD_ISDAEMON(currentThread, threadObject);
+#endif /* J9VM_OPT_LOOM */
 				char* name = getOMRVMThreadName(currentThread->omrVMThread);
 
 				j9tty_printf(

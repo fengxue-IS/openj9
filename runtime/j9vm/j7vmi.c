@@ -2264,14 +2264,25 @@ JVM_StartThread(JNIEnv* jniEnv, jobject newThread)
 	javaVM->internalVMFunctions->internalEnterVMFromJNI(currentThread);
 
 	newThreadObject = J9_JNI_UNWRAP_REFERENCE(newThread);
+#if defined(J9VM_OPT_LOOM)
+	j9object_t threadHolder = J9VMJAVALANGTHREAD_HOLDER(currentThread, newThreadObject);
+#endif /* J9VM_OPT_LOOM */
 
 	if (0 != (javaVM->runtimeFlags & J9RuntimeFlagNoPriorities)) {
 		priority = J9THREAD_PRIORITY_NORMAL;
 	} else {
+#if defined(J9VM_OPT_LOOM)
+		priority = J9VMJAVALANGTHREADFIELDHOLDER_PRIORITY(currentThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
 		priority = J9VMJAVALANGTHREAD_PRIORITY(currentThread, newThreadObject);
+#endif /* J9VM_OPT_LOOM */
 	}
 
+#if defined(J9VM_OPT_LOOM)
+	isDaemon = J9VMJAVALANGTHREADFIELDHOLDER_DAEMON(currentThread, threadHolder);
+#else /* J9VM_OPT_LOOM */
 	isDaemon = J9VMJAVALANGTHREAD_ISDAEMON(currentThread, newThreadObject);
+#endif /* J9VM_OPT_LOOM */
 	if (isDaemon) {
 		privateFlags = J9_PRIVATE_FLAGS_DAEMON_THREAD;
 	} else {
