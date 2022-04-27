@@ -499,9 +499,9 @@ jvmtiGetThreadInfo(jvmtiEnv* env,
 #if defined(J9VM_OPT_LOOM)
 					j9object_t group = (j9object_t)J9VMJAVALANGTHREADFIELDHOLDER_GROUP(currentThread, threadHolder);
 #else /* J9VM_OPT_LOOM */
-					j9object_t group = (j9object_t)J9VMJAVALANGTHREAD_GROUP(currentThread, threadObject)
+					j9object_t group = (j9object_t)J9VMJAVALANGTHREAD_GROUP(currentThread, threadObject);
 #endif /* J9VM_OPT_LOOM */
-					threadGroup = vm->internalVMFunctions->j9jni_createLocalRef((JNIEnv *) currentThread, );
+					threadGroup = vm->internalVMFunctions->j9jni_createLocalRef((JNIEnv *) currentThread, group);
 				}
 			}
 
