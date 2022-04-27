@@ -171,7 +171,11 @@ public Reference<? extends T> remove(long timeout) throws IllegalArgumentExcepti
  *					true if reference is enqueued.
  *					false if reference failed to enqueue.
  */	
+/*[IF LOOM_SUPPORT]*/
+boolean enqueue (Reference<? extends T> reference) {
+/*[ELSE] LOOM_SUPPORT */
 boolean enqueue (Reference reference) {
+/*[ENDIF] LOOM_SUPPORT */
 	/*[PR CMVC 96472] deadlock loading sun.misc.Cleaner */
 	/*[PR 102259] call Cleaner.clean(), do not enqueue */
 	if (reference instanceof Cleaner) {
@@ -236,6 +240,14 @@ final Reference<? extends T> remove0() throws IllegalArgumentException, Interrup
 
 final boolean enqueue0(Reference reference) {
 	return enqueue(reference);
+}
+
+void signal() {}
+void await() {}
+void await(long timeout) {}
+
+ReferenceQueue(int value) {
+	this();
 }
 /*[ENDIF] LOOM_SUPPORT */
 
