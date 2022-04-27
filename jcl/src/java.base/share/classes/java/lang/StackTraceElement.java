@@ -332,5 +332,9 @@ public String toString() {
 	Util.printStackTraceElement(this, source, buf, includeExtendedInfo);
 	return buf.toString();
 }
-
+/*[IF LOOM_SUPPORT]*/
+static StackTraceElement[] of(StackTraceElement[] stackTrace) {
+	return stackTrace;
+}
+/*[ENDIF] LOOM_SUPPORT */
 }

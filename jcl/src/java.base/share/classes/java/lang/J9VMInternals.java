@@ -144,7 +144,7 @@ final class J9VMInternals {
 		if (Boolean.getBoolean("ibm.java9.forceCommonCleanerShutdown")) { //$NON-NLS-1$
 			Runnable runnable = () -> {
 				CleanerShutdown.shutdownCleaner();
-				ThreadGroup threadGroup = Thread.currentThread().group; // the system ThreadGroup
+				ThreadGroup threadGroup = Thread.currentThread().getThreadGroup(); // the system ThreadGroup
 				/*[IF OPENJDK_THREAD_SUPPORT]*/
 				ThreadGroup threadGroups[] = new ThreadGroup[threadGroup.ngroups];
 				/*[ELSE] OPENJDK_THREAD_SUPPORT
