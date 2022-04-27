@@ -141,6 +141,7 @@ final class J9VMInternals {
 		/*[IF Sidecar19-SE]*/
 		System.initGPUAssist();
 
+		/*[IF !LOOM_SUPPORT]*/
 		if (Boolean.getBoolean("ibm.java9.forceCommonCleanerShutdown")) { //$NON-NLS-1$
 			Runnable runnable = () -> {
 				CleanerShutdown.shutdownCleaner();
@@ -185,6 +186,7 @@ final class J9VMInternals {
 			};
 			Runtime.getRuntime().addShutdownHook(new Thread(runnable, "CommonCleanerShutdown", true, false, false, null)); //$NON-NLS-1$
 		}
+		/*[ENDIF] !LOOM_SUPPORT */
 		/*[ENDIF] Sidecar19-SE */
 	}
 
