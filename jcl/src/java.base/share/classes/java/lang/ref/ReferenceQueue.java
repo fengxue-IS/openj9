@@ -217,6 +217,28 @@ boolean enqueue (Reference reference) {
 void forEach(java.util.function.Consumer<? super Reference<? extends T>> consumer) {
 }
 
+/*[IF LOOM_SUPPORT]*/
+final boolean headIsNull() {
+	return empty;
+}
+
+final Reference<? extends T> poll0() {
+	return poll();
+}
+
+final Reference<? extends T> remove0(long timeout) throws IllegalArgumentException, InterruptedException {
+	return remove(timeout);
+}
+
+final Reference<? extends T> remove0() throws IllegalArgumentException, InterruptedException {
+	return remove(0L);
+}
+
+final boolean enqueue0(Reference reference) {
+	return enqueue(reference);
+}
+/*[ENDIF] LOOM_SUPPORT */
+
 /**
  * Constructs a new instance of this class.
  */
