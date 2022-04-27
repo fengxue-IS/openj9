@@ -118,6 +118,9 @@ public class ThreadMXBeanImpl implements ThreadMXBean {
 	/**
 	 * {@inheritDoc}
 	 */
+/*[IF LOOM_SUPPORT]*/
+	@SuppressWarnings("deprecation")
+/*[ENDIF] LOOM_SUPPORT*/
 	@Override
 	public long getCurrentThreadCpuTime() {
 		long result = -1;
@@ -135,6 +138,9 @@ public class ThreadMXBeanImpl implements ThreadMXBean {
 	/**
 	 * {@inheritDoc}
 	 */
+/*[IF LOOM_SUPPORT]*/
+	@SuppressWarnings("deprecation")
+/*[ENDIF] LOOM_SUPPORT*/
 	@Override
 	public long getCurrentThreadUserTime() {
 		long result = -1;
