@@ -1,4 +1,4 @@
-/*[INCLUDE-IF Sidecar19-SE && !LOOM_SUPPORT]*/
+/*[INCLUDE-IF Sidecar19-SE & !LOOM_SUPPORT]*/
 
 /*******************************************************************************
  * Copyright (c) 2017, 2018 IBM Corp. and others
