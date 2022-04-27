@@ -78,6 +78,12 @@ public abstract class Reference<T> extends Object {
 				Finalizer.runFinalization();
 			}
 			/*[ENDIF] JAVA_SPEC_VERSION >= 11 */
+
+			/*[IF LOOM_SUPPORT]*/
+			public <T> ReferenceQueue<T> newNativeReferenceQueue() {
+				return new NativeReferenceQueue<T>();
+			}
+			/*[ENDIF] LOOM_SUPPORT */
 		});
 	}
 
