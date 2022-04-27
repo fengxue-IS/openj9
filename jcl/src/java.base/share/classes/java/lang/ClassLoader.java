@@ -2529,4 +2529,15 @@ public final boolean isRegisteredAsParallelCapable() {
 }
 
 /*[ENDIF] Sidecar19-SE*/
+static void checkClassLoaderPermission(ClassLoader classLoader, Class<?> caller) {
+	@SuppressWarnings("removal")
+	SecurityManager security = System.getSecurityManager();
+	if (security != null) {	
+		ClassLoader callersClassLoader = caller.getClassLoaderImpl();
+		/*[PR JAZZ103 76960] permission check is needed against the parent instead of this classloader */
+		if (needsClassLoaderPermissionCheck(callersClassLoader, classLoader)) {
+			security.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
+		}
+	}
+}
 }
