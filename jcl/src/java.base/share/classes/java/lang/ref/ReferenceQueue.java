@@ -243,8 +243,8 @@ final boolean enqueue0(Reference reference) {
 }
 
 void signal() {}
-void await() {}
-void await(long timeout) {}
+void await() throws InterruptedException {}
+void await(long timeout) throws InterruptedException {}
 
 ReferenceQueue(int value) {
 	this();
