@@ -2530,6 +2530,8 @@ public final boolean isRegisteredAsParallelCapable() {
 }
 
 /*[ENDIF] Sidecar19-SE*/
+
+/*[IF LOOM_SUPPORT]*/
 static void checkClassLoaderPermission(ClassLoader classLoader, Class<?> caller) {
 	@SuppressWarnings("removal")
 	SecurityManager security = System.getSecurityManager();
@@ -2541,4 +2543,5 @@ static void checkClassLoaderPermission(ClassLoader classLoader, Class<?> caller)
 		}
 	}
 }
+/*[ENDIF] LOOM_SUPPORT */
 }
