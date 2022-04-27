@@ -39,6 +39,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+/*[IF LOOM_SUPPORT]*/
+import jdk.internal.vm.Continuation;
+import jdk.internal.vm.ContinuationScope;
+/*[ENDIF] LOOM_SUPPORT */
 
 /**
  * This provides a facility for iterating over the call stack of the current
@@ -79,6 +83,11 @@ public final class StackWalker {
 		flags = 0;
 		if (walkerOptions.contains(Option.RETAIN_CLASS_REFERENCE)) {
 			flags |= J9_RETAIN_CLASS_REFERENCE;
+/*[IF LOOM_SUPPORT]*/
+			retainClassRef = true;
+		} else {
+			retainClassRef = false;
+/*[ENDIF] LOOM_SUPPORT */
 		}
 		if (walkerOptions.contains(Option.SHOW_REFLECT_FRAMES)) {
 			flags |= J9_SHOW_REFLECT_FRAMES;
@@ -225,6 +234,21 @@ public final class StackWalker {
 	public <T> T walk(Function<? super Stream<StackFrame>, ? extends T> function) {
 		return walkWrapperImpl(flags, "walk", function); //$NON-NLS-1$
 	}
+
+	/*[IF LOOM_SUPPORT]*/
+	final boolean retainClassRef;
+
+	static StackWalker newInstance(Set<Option> options, ExtendedOption extendedOption) {
+		return newInstance(options, extendedOption, null, null);
+	}
+
+	static StackWalker newInstance(Set<Option> options, ExtendedOption extendedOption, ContinuationScope contScope) {
+		return newInstance(options, extendedOption, contScope, null);
+	}
+	static StackWalker newInstance(Set<Option> options, ExtendedOption extendedOption, ContinuationScope contScope, Continuation continuation) {
+		return getInstance(options);
+	}
+	/*[ENDIF] LOOM_SUPPORT */
 
 	/**
 	 * Selects what type of stack and method information is provided by the
