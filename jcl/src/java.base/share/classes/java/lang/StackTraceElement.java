@@ -336,5 +336,10 @@ public String toString() {
 static StackTraceElement[] of(StackTraceElement[] stackTrace) {
 	return stackTrace;
 }
+
+static StackTraceElement of(StackFrameInfo s) {
+	// TODO: initialize StackTraceElement with StackFrameInfo data
+	return new StackTraceElement();
+}
 /*[ENDIF] LOOM_SUPPORT */
 }
