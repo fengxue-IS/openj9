@@ -83,6 +83,10 @@ public abstract class Reference<T> extends Object {
 			public <T> ReferenceQueue<T> newNativeReferenceQueue() {
 				return new NativeReferenceQueue<T>();
 			}
+
+			public void startThreads() {
+				// todo - determine usage and functionality
+			}
 			/*[ENDIF] LOOM_SUPPORT */
 		});
 	}
