@@ -457,7 +457,7 @@ struct JNINativeInterface_ {
 	jlong (JNICALL * GetDirectBufferCapacity)(JNIEnv *env, jobject buf);
 	jobjectRefType (JNICALL * GetObjectRefType)(JNIEnv* env, jobject obj);
 ifelse(eval(JAVA_SPEC_VERSION >= 9), 1, `	jobject (JNICALL * GetModule)(JNIEnv *env, jclass clazz);', `dnl')
-ifdef(J9VM_OPT_LOOM, `	jboolean (JNICALL * IsVirtualThread)(JNIEnv *env, jobject obj);', `dnl')
+ifdef(LOOM_SUPPORT, `	jboolean (JNICALL * IsVirtualThread)(JNIEnv *env, jobject obj);', `dnl')
 };
 struct JNIEnv_ {
 	const struct JNINativeInterface_ *functions;
@@ -694,7 +694,7 @@ struct JNIEnv_ {
 	jlong GetDirectBufferCapacity(jobject buf) { return functions->GetDirectBufferCapacity(this, buf); }
 	jobjectRefType GetObjectRefType(jobject obj) { return functions->GetObjectRefType(this, obj); }
 ifelse(eval(JAVA_SPEC_VERSION >= 9), 1, `	jobject GetModule(jclass clazz) { return functions->GetModule(this, clazz); }', `dnl')
-ifdef(J9VM_OPT_LOOM, `	jboolean IsVirtualThread(JNIEnv *env, jobject obj) { return functions->IsVirtualThread(this, obj); }', `dnl')
+ifdef(LOOM_SUPPORT, `	jboolean IsVirtualThread(JNIEnv *env, jobject obj) { return functions->IsVirtualThread(this, obj); }', `dnl')
 #endif
 };
 
