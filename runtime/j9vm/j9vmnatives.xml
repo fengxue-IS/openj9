@@ -396,4 +396,13 @@ SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-excepti
 		<export name="JVM_LoadZipLibrary"/>
 	</exports>
 
+	<exports group="loom">
+		<export name="JVM_RegisterContinuationMethods"/>
+		<export name="JVM_IsPreviewEnabled"/>
+		<export name="JVM_VirtualThreadMountBegin"/>
+		<export name="JVM_VirtualThreadMountEnd"/>
+		<export name="JVM_VirtualThreadUnmountBegin"/>
+		<export name="JVM_VirtualThreadUnmountEnd"/>
+	</exports>
+
 </exportlists>
