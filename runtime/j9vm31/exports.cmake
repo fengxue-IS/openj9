@@ -263,3 +263,7 @@ omr_add_exports(jvm31
 if(NOT JAVA_SPEC_VERSION LESS 11)
 	omr_add_exports(jvm31 GetModule)
 endif()
+
+if(J9VM_OPT_LOOM)
+	omr_add_exports(jvm31 IsVirtualThread)
+endif()

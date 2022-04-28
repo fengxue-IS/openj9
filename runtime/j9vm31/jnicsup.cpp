@@ -313,6 +313,9 @@ struct JNINativeInterface_ EsJNIFunctions = {
 #if JAVA_SPEC_VERSION >= 9
 	GetModule,
 #endif /* JAVA_SPEC_VERSION >= 9 */
+#if defined(J9VM_OPT_LOOM)
+	IsVirtualThread,
+#endif /* J9VM_OPT_LOOM */
 };
 
 static void initializeJNIEnv31(JNIEnv31 * jniEnv31, jlong jniEnv64);
@@ -844,6 +847,20 @@ GetModule(JNIEnv *env, jclass clazz)
 	return returnValue;
 }
 #endif /* JAVA_SPEC_VERSION >= 9 */
+
+#if defined(J9VM_OPT_LOOM)
+jboolean JNICALL
+IsVirtualThread(JNIEnv *env, jobject obj)
+{
+	const jint NUM_ARGS = 2;
+	J9_CEL4RO64_ArgType argTypes[NUM_ARGS] = { CEL4RO64_type_JNIEnv64, CEL4RO64_type_jobject };
+	uint64_t argValues[NUM_ARGS] = { JNIENV64_FROM_JNIENV31(env), obj };
+	jobjectRefType returnValue;
+	FUNCTION_DESCRIPTOR_FROM_JNIENV31(env, IsVirtualThread);
+	j9_cel4ro64_call_function(functionDescriptor, argTypes, argValues, NUM_ARGS, CEL4RO64_type_jboolean, &returnValue);
+	return returnValue;
+}
+#endif /* J9VM_OPT_LOOM */
 
 /**
  * Following set of functions are JNIEnv31 utility routines.

@@ -488,7 +488,7 @@ ifelse(eval(JAVA_SPEC_VERSION >= 9), 1, [	unsigned int can_generate_early_vmstar
 	unsigned int can_generate_early_class_hook_events : 1;
 ifelse(eval(JAVA_SPEC_VERSION >= 11), 1, [    unsigned int can_generate_sampled_object_alloc_events : 1;
 	unsigned int : 4;], [    unsigned int : 5;])], [	unsigned int : 7;])
-	unsigned int : 16;
+ifelse(defined(J9VM_OPT_LOOM), 1, [	unsigned int can_support_virtual_threads : 1;], [	unsigned int : 16;])
 	unsigned int : 16;
 	unsigned int : 16;
 	unsigned int : 16;
