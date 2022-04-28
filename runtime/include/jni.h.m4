@@ -457,7 +457,7 @@ struct JNINativeInterface_ {
 	jlong (JNICALL * GetDirectBufferCapacity)(JNIEnv *env, jobject buf);
 	jobjectRefType (JNICALL * GetObjectRefType)(JNIEnv* env, jobject obj);
 ifelse(eval(JAVA_SPEC_VERSION >= 9), 1, `	jobject (JNICALL * GetModule)(JNIEnv *env, jclass clazz);', `dnl')
-ifdef(J9VM_OPT_LOOM, `	jboolean IsVirtualThread(JNIEnv *env, jobject obj);', `dnl')
+ifdef(J9VM_OPT_LOOM, `	jboolean (JNICALL * IsVirtualThread)(JNIEnv *env, jobject obj);', `dnl')
 };
 struct JNIEnv_ {
 	const struct JNINativeInterface_ *functions;

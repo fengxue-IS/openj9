@@ -337,7 +337,7 @@ jobjectRefType JNICALL GetObjectRefType(JNIEnv* env, jobject obj);
 jobject JNICALL GetModule(JNIEnv *env, jclass clazz);
 #endif /* JAVA_SPEC_VERSION >= 9 */
 #if defined(J9VM_OPT_LOOM)
-jboolean IsVirtualThread(JNIEnv *env, jobject obj);
+jboolean JNICALL IsVirtualThread(JNIEnv *env, jobject obj);
 #endif /* J9VM_OPT_LOOM */
 
 /* The JNI convert functions that the shim library will implement. */
