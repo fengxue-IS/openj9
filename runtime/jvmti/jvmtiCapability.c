@@ -98,6 +98,10 @@ dumpCapabilities(J9JavaVM * vm, const jvmtiCapabilities *capabilities, const cha
 #if JAVA_SPEC_VERSION >= 11
 	PRINT_CAPABILITY(can_generate_sampled_object_alloc_events);
 #endif /* JAVA_SPEC_VERSION >= 11 */
+
+#if defined(J9VM_OPT_LOOM)
+	PRINT_CAPABILITY(can_support_virtual_threads);
+#endif /* defined(J9VM_OPT_LOOM) */
 #undef PRINT_CAPABILITY
 }
 
