@@ -141,6 +141,10 @@ static void JNICALL releaseStringCritical(JNIEnv *env, jstring str, const jchar 
 static jobject JNICALL getModule(JNIEnv *env, jclass clazz);
 #endif /* JAVA_SPEC_VERSION >= 9 */
 
+#if defined(J9VM_OPT_LOOM)
+static jboolean JNICALL isVirtualThread(JNIEnv *env, jobject obj);
+#endif /* defined(J9VM_OPT_LOOM) */
+
 #define FIND_CLASS gpCheckFindClass
 #define TO_REFLECTED_METHOD gpCheckToReflectedMethod
 #define TO_REFLECTED_FIELD gpCheckToReflectedField
@@ -1560,6 +1564,9 @@ struct JNINativeInterface_ EsJNIFunctions = {
 #if JAVA_SPEC_VERSION >= 9
 	getModule,
 #endif /* JAVA_SPEC_VERSION >= 9 */
+#if defined(J9VM_OPT_LOOM)
+	isVirtualThread,
+#endif /* defined(J9VM_OPT_LOOM) */
 };
 
 void  initializeJNITable(J9JavaVM *vm)
@@ -2463,6 +2470,13 @@ getModule(JNIEnv *env, jclass clazz)
 }
 #endif /* JAVA_SPEC_VERSION >= 9 */
 
+#if defined(J9VM_OPT_LOOM)
+static jboolean JNICALL
+isVirtualThread(JNIEnv *env, jobject obj)
+{
+	return JNI_FALSE;
+}
+#endif /* defined(J9VM_OPT_LOOM) */
 
 IDATA
 jniParseArguments(J9JavaVM *vm, char *optArg)
