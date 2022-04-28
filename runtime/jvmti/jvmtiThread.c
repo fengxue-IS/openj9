@@ -1101,5 +1101,23 @@ done:
 	TRACE_JVMTI_RETURN(jvmtiGetCurrentThread);
 }
 
+#if defined(J9VM_OPT_LOOM)
+jvmtiError JNICALL
+jvmtiSuspendAllVirtualThreads(jvmtiEnv* env,
+	jint except_count,
+	const jthread* except_list)
+{
+	// todo
+	return JVMTI_ERROR_NONE;
+}
 
 
+jvmtiError JNICALL
+jvmtiResumeAllVirtualThreads(jvmtiEnv* env,
+	jint except_count,
+	const jthread* except_list)
+{
+	// todo
+	return JVMTI_ERROR_NONE;
+}
+#endif /* defined(J9VM_OPT_LOOM) */

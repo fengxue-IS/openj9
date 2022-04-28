@@ -346,6 +346,8 @@ typedef enum jvmtiError {
 	JVMTI_ERROR_UNSUPPORTED_REDEFINITION_METHOD_MODIFIERS_CHANGED = 71,
 ifelse(eval(JAVA_SPEC_VERSION >= 11), 1,
 [	JVMTI_ERROR_UNSUPPORTED_REDEFINITION_CLASS_ATTRIBUTE_CHANGED = 72,], [dnl])
+ifelse(defined(J9VM_OPT_LOOM), 1,
+[	JVMTI_ERROR_UNSUPPORTED_OPERATION = 73,], [dnl])
 	JVMTI_ERROR_UNMODIFIABLE_CLASS = 79,
 	JVMTI_ERROR_UNMODIFIABLE_MODULE = 80,
 	JVMTI_ERROR_NOT_AVAILABLE = 98,
@@ -738,6 +740,8 @@ typedef enum jvmtiEvent {
 	JVMTI_EVENT_OBJECT_FREE = 83,
 	JVMTI_EVENT_VM_OBJECT_ALLOC = 84,
 ifelse(eval(JAVA_SPEC_VERSION >= 11), 1, [	JVMTI_EVENT_SAMPLED_OBJECT_ALLOC = 86,], [dnl])
+ifelse(defined(J9VM_OPT_LOOM), 1, [	JVMTI_EVENT_VIRTUAL_THREAD_START = 87,], [dnl])
+ifelse(defined(J9VM_OPT_LOOM), 1, [	JVMTI_EVENT_VIRTUAL_THREAD_END = 88,], [dnl])
 
 	JVMTI_MAX_EVENT_TYPE_VAL = 86,
 	jvmtiEventEnsureWideEnum = 0x1000000						/* ensure 4-byte enum */
@@ -1133,8 +1137,10 @@ ifelse(eval(JAVA_SPEC_VERSION >= 9), 1, [	jvmtiError (JNICALL * AddModuleReads)(
 	jvmtiError (JNICALL * FollowReferences)(jvmtiEnv* env, jint heap_filter, jclass klass, jobject initial_object, const jvmtiHeapCallbacks* callbacks, const void* user_data);
 	jvmtiError (JNICALL * IterateThroughHeap)(jvmtiEnv* env, jint heap_filter, jclass klass, const jvmtiHeapCallbacks* callbacks, const void* user_data);
 	void *reserved117;
-	void *reserved118;
-	void *reserved119;
+ifelse(defined(J9VM_OPT_LOOM), 1, [	jvmtiError (JNICALL * SuspendAllVirtualThreads)(jvmtiEnv* env, jint except_count, const jthread* except_list);
+	jvmtiError (JNICALL * ResumeAllVirtualThreads)(jvmtiEnv* env, jint except_count, const jthread* except_list);],
+[	void *reserved118;
+	void *reserved119;])
 	jvmtiError (JNICALL * SetJNIFunctionTable)(jvmtiEnv* env,	const jniNativeInterface* function_table);
 	jvmtiError (JNICALL * GetJNIFunctionTable)(jvmtiEnv* env,	jniNativeInterface** function_table);
 	jvmtiError (JNICALL * SetEventCallbacks)(jvmtiEnv* env,	const jvmtiEventCallbacks* callbacks,	jint size_of_callbacks);
@@ -1290,6 +1296,8 @@ ifelse(eval(JAVA_SPEC_VERSION >= 9), 1, [	jvmtiError AddModuleReads(jvmtiEnv* en
 	jvmtiError GetObjectsWithTags (jint tag_count,	const jlong* tags,	jint* count_ptr,	jobject** object_result_ptr,	jlong** tag_result_ptr) { return functions->GetObjectsWithTags(this, tag_count, tags, count_ptr, object_result_ptr, tag_result_ptr); }
 	jvmtiError FollowReferences (jint heap_filter, jclass klass, jobject initial_object, const jvmtiHeapCallbacks* callbacks, const void* user_data) { return functions->FollowReferences(this, heap_filter, klass, initial_object, callbacks, user_data); }
 	jvmtiError IterateThroughHeap (jint heap_filter, jclass klass, const jvmtiHeapCallbacks* callbacks, const void* user_data) { return functions->IterateThroughHeap(this, heap_filter, klass, callbacks, user_data); }
+ifelse(defined(J9VM_OPT_LOOM), 1, [	jvmtiError SuspendAllVirtualThreads (jint except_count, const jthread* except_list) { return functions->SuspendAllVirtualThreads(this, except_count, except_list); }
+	jvmtiError ResumeAllVirtualThreads (jint except_count, const jthread* except_list) { return functions->ResumeAllVirtualThreads(this, except_count, except_list); }], [dnl])
 	jvmtiError SetJNIFunctionTable (const jniNativeInterface* function_table) { return functions->SetJNIFunctionTable(this, function_table); }
 	jvmtiError GetJNIFunctionTable (jniNativeInterface** function_table) { return functions->GetJNIFunctionTable(this, function_table); }
 	jvmtiError SetEventCallbacks (const jvmtiEventCallbacks* callbacks,	jint size_of_callbacks) { return functions->SetEventCallbacks(this, callbacks, size_of_callbacks); }

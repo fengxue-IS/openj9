@@ -35,6 +35,12 @@
 #define JVMTI_11_ENTRY(name) NULL
 #endif /* JAVA_SPEC_VERSION >= 11*/
 
+#if defined(J9VM_OPT_LOOM)
+#define JVMTI_LOOM_ENTRY(name) name
+#else /* defined(J9VM_OPT_LOOM) */
+#define JVMTI_LOOM_ENTRY(name) NULL
+#endif /* defined(J9VM_OPT_LOOM) */
+
 jvmtiNativeInterface jvmtiFunctionTable = {
 	NULL,
 	jvmtiSetEventNotificationMode,
@@ -153,8 +159,8 @@ jvmtiNativeInterface jvmtiFunctionTable = {
 	jvmtiFollowReferences,
 	jvmtiIterateThroughHeap,
 	NULL,
-	NULL,
-	NULL,
+	JVMTI_LOOM_ENTRY(jvmtiSuspendAllVirtualThreads),
+	JVMTI_LOOM_ENTRY(jvmtiResumeAllVirtualThreads),
 	jvmtiSetJNIFunctionTable,
 	jvmtiGetJNIFunctionTable,
 	jvmtiSetEventCallbacks,

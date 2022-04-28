@@ -2260,6 +2260,35 @@ jvmtiResumeThreadList(jvmtiEnv* env,
 	jvmtiError* results);
 
 
+#if defined(J9VM_OPT_LOOM)
+/**
+* @brief
+* @param env
+* @param except_count
+* @param except_list
+* @return jvmtiError
+*/
+jvmtiError JNICALL
+jvmtiSuspendAllVirtualThreads(jvmtiEnv* env,
+	jint except_count,
+	const jthread* except_list);
+
+
+/**
+* @brief
+* @param env
+* @param except_count
+* @param except_list
+* @return jvmtiError
+*/
+jvmtiError JNICALL
+jvmtiResumeAllVirtualThreads(jvmtiEnv* env,
+	jint except_count,
+	const jthread* except_list);
+
+#endif /* defined(J9VM_OPT_LOOM) */
+
+
 /**
 * @brief
 * @param env
