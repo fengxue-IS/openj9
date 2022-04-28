@@ -203,3 +203,42 @@ JVM_LoadZipLibrary(void)
 	assert(!"JVM_LoadZipLibrary unimplemented");
 }
 #endif /* JAVA_SPEC_VERSION >= 18 */
+
+#if defined(J9VM_OPT_LOOM)
+JNIEXPORT void JNICALL
+JVM_RegisterContinuationMethods(JNIEnv *env, jclass clz)
+{
+	// todo
+}
+
+JNIEXPORT jboolean JNICALL
+JVM_IsPreviewEnabled(JNIEnv *env)
+{
+	// todo
+	return JNI_TRUE;
+}
+
+JNIEXPORT void JNICALL
+JVM_VirtualThreadMountBegin(JNIEnv *env)
+{
+	// todo
+}
+
+JNIEXPORT void JNICALL
+JVM_VirtualThreadMountEnd(JNIEnv *env)
+{
+	// todo
+}
+
+JNIEXPORT void JNICALL
+JVM_VirtualThreadUnmountBegin(JNIEnv *env)
+{
+	// todo
+}
+
+JNIEXPORT void JNICALL
+JVM_VirtualThreadUnmountEnd(JNIEnv *env)
+{
+	// todo
+}
+#endif /* defined(J9VM_OPT_LOOM) */

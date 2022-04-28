@@ -402,3 +402,14 @@ if(J9VM_OPT_JITSERVER)
 		JITServer_CreateServer
 	)
 endif()
+
+if(J9VM_OPT_LOOM)
+	jvm_add_exports(jvm
+		JVM_RegisterContinuationMethods
+		JVM_IsPreviewEnabled
+		JVM_VirtualThreadMountBegin
+		JVM_VirtualThreadMountEnd
+		JVM_VirtualThreadUnmountBegin
+		JVM_VirtualThreadUnmountEnd
+	)
+endif()
