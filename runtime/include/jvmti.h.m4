@@ -965,6 +965,16 @@ ifelse(eval(JAVA_SPEC_VERSION >= 11), 1, [typedef void (JNICALL *jvmtiEventSampl
 	jclass object_klass,
 	jlong size);], [dnl])
 
+ifelse(LOOM_SUPPORT, ON, [typedef void (JNICALL *jvmtiEventVirtualThreadStart) (
+	jvmtiEnv *jvmti_env,
+	JNIEnv *env,
+	jthread vthread);
+
+typedef void (JNICALL *jvmtiEventVirtualThreadEnd) (
+	jvmtiEnv *jvmti_env,
+	JNIEnv *env,
+	jthread vthread);], [dnl])
+
 typedef void * jvmtiEventReserved;
 
 typedef struct {
@@ -1005,6 +1015,8 @@ typedef struct {
 	jvmtiEventVMObjectAlloc VMObjectAlloc;
 ifelse(eval(JAVA_SPEC_VERSION >= 11), 1, [	jvmtiEventReserved reserved85;
 	jvmtiEventSampledObjectAlloc SampledObjectAlloc;], [dnl])
+ifelse(LOOM_SUPPORT, ON, [	jvmtiEventVirtualThreadStart VirtualThreadStart;
+	jvmtiEventVirtualThreadEnd VirtualThreadEnd;], [dnl])
 } jvmtiEventCallbacks;
 
 /*
