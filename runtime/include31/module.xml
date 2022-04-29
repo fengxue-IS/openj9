@@ -50,7 +50,7 @@ SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-excepti
 			<dependency name="../include/jni.h.m4"/>
 		</dependencies>
 		<commands>
-			<command type="all" line="m4 -D J9_ZOS_3164_INTEROPERABILITY=1 -D JAVA_SPEC_VERSION=$(VERSION_MAJOR) ../include/jni.h.m4 > jni.h $(call CONVERT_ASCII_TO_NATIVE, jni.h)"/>
+			<command type="all" line="m4 -D J9_ZOS_3164_INTEROPERABILITY=1 -D LOOM_SUPPORT=${LOOM_SUPPORT} -D JAVA_SPEC_VERSION=$(VERSION_MAJOR) ../include/jni.h.m4 > jni.h $(call CONVERT_ASCII_TO_NATIVE, jni.h)"/>
 			<command type="clean" line="$(RM) jni.h"/>
 		</commands>
 	</artifact>
