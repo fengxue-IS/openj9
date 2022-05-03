@@ -392,4 +392,74 @@ Java_java_lang_Thread_startImpl(JNIEnv *env, jobject rcv, jlong millis, jint nan
 	vmFuncs->internalExitVMToJNI(currentThread);
 }
 
+#if defined(J9VM_OPT_LOOM)
+/* private static native void registerNatives(); */
+void JNICALL
+Java_java_lang_Thread_registerNatives(JNIEnv *env, jclass clazz)
+{
+	return;
+}
+
+/* static native Thread currentCarrierThread(); */
+jobject JNICALL
+Java_java_lang_Thread_currentCarrierThread(JNIEnv *env, jclass clazz)
+{
+	J9VMThread *currentThread = (J9VMThread*)env;
+	J9InternalVMFunctions *vmFuncs = currentThread->javaVM->internalVMFunctions;
+
+	vmFuncs->internalEnterVMFromJNI(currentThread);
+	jobject result = vmFuncs->j9jni_createLocalRef(env, currentThread->threadObject);
+	vmFuncs->internalExitVMToJNI(currentThread);
+	return result;
+}
+
+/* native void setCurrentThread(Thread thread); */
+void JNICALL
+Java_java_lang_Thread_setCurrentThread(JNIEnv *env, jclass clazz, jobject thread)
+{
+	// todo
+	return;
+}
+
+/* static native Object[] extentLocalCache(); */
+jobject JNICALL
+Java_java_lang_Thread_extentLocalCache(JNIEnv *env, jclass clazz)
+{
+	// todo
+	return NULL;
+}
+
+/* static native void setExtentLocalCache(Object[] cache); */
+void JNICALL
+Java_java_lang_Thread_setExtentLocalCache(JNIEnv *env, jclass clazz, jobjectArray cache)
+{
+	// todo
+	return;
+}
+
+/* private static native StackTraceElement[][] dumpThreads(Thread[] threads); */
+jobjectArray JNICALL
+Java_java_lang_Thread_dumpThreads(JNIEnv *env, jclass clazz, jobjectArray threads)
+{
+	// todo
+	return NULL;
+}
+
+/* private static native Thread[] getThreads(); */
+jobjectArray JNICALL
+Java_java_lang_Thread_getThreads(JNIEnv *env, jclass clazz)
+{
+	// todo
+	return NULL;
+}
+
+/* private static native long getNextThreadIdOffset(); */
+jlong JNICALL
+Java_java_lang_Thread_getNextThreadIdOffset(JNIEnv *env, jclass clazz)
+{
+	J9JavaVM *vm = ((J9VMThread *)env)->javaVM;
+	return (U_64)&(vm->nextTID);
+}
+#endif /* defined(J9VM_OPT_LOOM) */
+
 }
