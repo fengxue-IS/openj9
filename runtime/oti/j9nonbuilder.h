@@ -5627,6 +5627,9 @@ typedef struct J9JavaVM {
 	omrthread_monitor_t cifArgumentTypesCacheMutex;
 #endif /* JAVA_SPEC_VERSION >= 16 */
 	struct J9HashTable* ensureHashedClasses;
+#if defined(J9VM_OPT_LOOM)
+	U_64 nextTID;
+#endif /* defined(J9VM_OPT_LOOM) */
 } J9JavaVM;
 
 #define J9VM_PHASE_NOT_STARTUP  2
