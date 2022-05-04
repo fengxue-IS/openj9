@@ -653,3 +653,16 @@ if(J9VM_OPT_CRIU_SUPPORT)
 		Java_openj9_internal_criu_InternalCRIUSupport_isCRIUSupportEnabledImpl
 	)
 endif()
+
+# J9VM_OPT_LOOM
+if(J9VM_OPT_LOOM)
+	omr_add_exports(jclse
+		Java_java_lang_Thread_registerNatives
+		Java_java_lang_Thread_currentCarrierThread
+		Java_java_lang_Thread_setCurrentThread
+		Java_java_lang_Thread_extentLocalCache
+		Java_java_lang_Thread_setExtentLocalCache
+		Java_java_lang_Thread_dumpThreads
+		Java_java_lang_Thread_getNextThreadIdOffset
+	)
+endif()
