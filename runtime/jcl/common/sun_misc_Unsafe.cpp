@@ -833,7 +833,11 @@ Java_jdk_internal_misc_Unsafe_objectFieldOffset1(JNIEnv *env, jobject receiver, 
 		if (NULL == romField) {
 			vmFuncs->setCurrentExceptionUTF(currentThread, J9VMCONSTANTPOOL_JAVALANGINTERNALERROR, NULL);
 		} else if (J9_ARE_ANY_BITS_SET(romField->modifiers, J9AccStatic)) {
-			vmFuncs->setCurrentExceptionUTF(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALARGUMENTEXCEPTION, NULL);
+			offset = fieldID->offset | J9_SUN_STATIC_FIELD_OFFSET_TAG;
+
+			if (J9_ARE_ANY_BITS_SET(romField->modifiers, J9AccFinal)) {
+				offset |= J9_SUN_FINAL_FIELD_OFFSET_TAG;
+			}
 		} else {
 			offset = (jlong)fieldID->offset + J9VMTHREAD_OBJECT_HEADER_SIZE(currentThread);
 		}
