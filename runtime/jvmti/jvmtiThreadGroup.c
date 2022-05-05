@@ -152,6 +152,7 @@ jvmtiGetThreadGroupChildren(jvmtiEnv* env,
 
 	Trc_JVMTI_jvmtiGetThreadGroupChildren_Entry(env);
 	if (J9_ARE_ANY_BITS_SET(vm->jclFlags, J9_JCL_FLAG_THREADGROUPS)) {
+#if !defined(J9VM_OPT_LOOM)
 		J9VMThread *currentThread = NULL;
 		J9InternalVMFunctions const * const vmFuncs = vm->internalVMFunctions;
 		PORT_ACCESS_FROM_JAVAVM(vm);
@@ -267,6 +268,7 @@ jvmtiGetThreadGroupChildren(jvmtiEnv* env,
 done:
 			vmFuncs->internalExitVMToJNI(currentThread);
 		}
+#endif /* !defined(J9VM_OPT_LOOM) */
 	}
 
 	if (NULL != thread_count_ptr) {
