@@ -91,6 +91,15 @@ Java_sun_misc_Perf_highResFrequency(JNIEnv *env, jobject perf)
 	return j9time_hires_frequency();
 }
 
+#if defined(J9VM_OPT_LOOM)
+/* private native ByteBuffer attach0(String user, int lvmid) throws IllegalArgumentException, IOException; */
+jobject JNICALL
+Java_jdk_internal_perf_Perf_attach(JNIEnv *env, jobject perf, jstring user, jint lvmid)
+{
+	return NULL;
+}
+#endif
+
 void
 registerJdkInternalPerfPerfNatives(JNIEnv *env, jclass clazz) {
 	/* clazz can't be null */
@@ -106,9 +115,15 @@ registerJdkInternalPerfPerfNatives(JNIEnv *env, jclass clazz) {
 			(void *)&Java_sun_misc_Perf_createByteArray
 		},
 		{
+#if defined(J9VM_OPT_LOOM)
+			(char*)"attach0",
+			(char*)"(Ljava/lang/String;I)Ljava/nio/ByteBuffer;",
+			(void *)&Java_jdk_internal_perf_Perf_attach
+#else
 			(char*)"attach",
 			(char*)"(Ljava/lang/String;II)Ljava/nio/ByteBuffer;",
 			(void *)&Java_sun_misc_Perf_attach
+#endif
 		},
 		{
 			(char*)"detach",
