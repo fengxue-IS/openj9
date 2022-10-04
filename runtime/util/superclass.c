@@ -29,6 +29,10 @@
 UDATA 
 isSameOrSuperClassOf(J9Class *superClass, J9Class *baseClass)
 {
+	/* In the case where superClass has not been loaded, it cannot be same or super of the baseClass. */
+	if (NULL == superClass) {
+		return FALSE;
+	}
 	UDATA superClassDepth = J9RAMCLASS_DEPTH(superClass);
 	
 	return ((baseClass == superClass)
