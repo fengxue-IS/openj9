@@ -339,17 +339,23 @@ Java_java_lang_Thread_getStackTraceImpl(JNIEnv *env, jobject rcv)
 #if JAVA_SPEC_VERSION >= 19
 	BOOLEAN releaseInspector = FALSE;
 	if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, receiverObject)) {
-		omrthread_monitor_enter(vm->liveVirtualThreadListMutex);
-		j9object_t carrierThread = (j9object_t)J9VMJAVALANGVIRTUALTHREAD_CARRIERTHREAD(currentThread, receiverObject);
+		MM_ObjectAccessBarrierAPI objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
 		I_64 vthreadInspectorCount = J9OBJECT_I64_LOAD(currentThread, receiverObject, vm->virtualThreadInspectorCountOffset);
-
-		/* Ensure virtual thread is mounted and not during transition. */
-		if ((NULL != carrierThread) && (vthreadInspectorCount >= 0)) {
-			J9OBJECT_I64_STORE(currentThread, receiverObject, vm->virtualThreadInspectorCountOffset, vthreadInspectorCount + 1);
-			releaseInspector = TRUE;
+		if ((vthreadInspectorCount < 0)
+		|| !objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(currentThread,
+																	receiverObject,
+																	vm->virtualThreadInspectorCountOffset,
+																	(U_64)vthreadInspectorCount,
+																	((U_64)vthreadInspectorCount + 1))
+		) {
+			goto done;
 		}
-		omrthread_monitor_exit(vm->liveVirtualThreadListMutex);
-		if (!releaseInspector) {
+		j9object_t carrierThread = (j9object_t)J9VMJAVALANGVIRTUALTHREAD_CARRIERTHREAD(currentThread, receiverObject);
+		/* Ensure virtual thread is mounted and not during transition. */
+		if (NULL != carrierThread) {
+			releaseInspector = TRUE;
+		} else {
+			vmFuncs->releaseVThreadInspector(currentThread, rcv);
 			goto done;
 		}
 		/* Gets targetThread from the carrierThread object. */
@@ -370,16 +376,7 @@ Java_java_lang_Thread_getStackTraceImpl(JNIEnv *env, jobject rcv)
 	if (releaseInspector) {
 		receiverObject = J9_JNI_UNWRAP_REFERENCE(rcv);
 		/* Release the virtual thread (allow it to die) now that we are no longer inspecting it. */
-		omrthread_monitor_enter(vm->liveVirtualThreadListMutex);
-		I_64 vthreadInspectorCount = J9OBJECT_I64_LOAD(currentThread, receiverObject, vm->virtualThreadInspectorCountOffset);
-		Assert_JCL_true(vthreadInspectorCount > 0);
-		vthreadInspectorCount -= 1;
-		J9OBJECT_I64_STORE(currentThread, receiverObject, vm->virtualThreadInspectorCountOffset, vthreadInspectorCount);
-
-		if (!vm->inspectingLiveVirtualThreadList && (0 == vthreadInspectorCount)) {
-			omrthread_monitor_notify_all(vm->liveVirtualThreadListMutex);
-		}
-		omrthread_monitor_exit(vm->liveVirtualThreadListMutex);
+		vmFuncs->releaseVThreadInspector(currentThread, rcv);
 	}
 done:
 #endif /* JAVA_SPEC_VERSION >= 19 */

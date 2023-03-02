@@ -4959,6 +4959,10 @@ typedef struct J9InternalVMFunctions {
 	void (*freeTLS)(struct J9VMThread *currentThread, j9object_t threadObj);
 	UDATA (*walkContinuationStackFrames)(struct J9VMThread *currentThread, struct J9VMContinuation *continuation, J9StackWalkState *walkState);
 	UDATA (*walkAllStackFrames)(struct J9VMThread *currentThread, J9StackWalkState *walkState);
+	void (*acquireVThreadInspector)(struct J9VMThread *currentThread, jobject thread);
+	void (*releaseVThreadInspector)(struct J9VMThread *currentThread, jobject thread);
+	void (*enterVThreadListInspection)(struct J9VMThread *currentThread);
+	void (*exitVThreadListInspection)(struct J9VMThread *currentThread);
 #endif /* JAVA_SPEC_VERSION >= 19 */
 	UDATA (*checkArgsConsumed)(struct J9JavaVM * vm, struct J9PortLibrary* portLibrary, struct J9VMInitArgs* j9vm_args);
 } J9InternalVMFunctions;
@@ -5050,6 +5054,7 @@ typedef struct J9VMContinuation {
 	struct J9VMEntryLocalStorage* oldEntryLocalStorage;
 	volatile UDATA state; /* it's a bit-wise struct of CarrierThread ID and ConcurrentlyScanned flag bit0:localConcurrentScan-J9_GC_CONTINUATION_STATE_CONCURRENT_SCAN_LOCAL, bit1:globalConcurrentScan-J9_GC_CONTINUATION_STATE_CONCURRENT_SCAN_GLOBAL */
 	UDATA dropFlags;
+	volatile IDATA inspectorCount;
 } J9VMContinuation;
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
@@ -5828,11 +5833,8 @@ typedef struct J9JavaVM {
 	struct J9HashTable* ensureHashedClasses;
 #if JAVA_SPEC_VERSION >= 19
 	U_64 nextTID;
-	j9object_t *liveVirtualThreadList;
-	omrthread_monitor_t liveVirtualThreadListMutex;
-	volatile BOOLEAN inspectingLiveVirtualThreadList;
-	UDATA virtualThreadLinkNextOffset;
-	UDATA virtualThreadLinkPreviousOffset;
+	volatile UDATA inspectingLiveVirtualThreadList;
+	volatile UDATA vThreadTransitionCount;
 	UDATA virtualThreadInspectorCountOffset;
 	UDATA isSuspendedByJVMTIOffset;
 	UDATA tlsOffset;
