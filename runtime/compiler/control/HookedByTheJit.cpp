@@ -34,6 +34,7 @@
 #include "mmhook.h"
 #include "mmomrhook.h"
 #include "vmaccess.h"
+#include "HeapIteratorAPI.h"
 #include "codegen/CodeGenerator.hpp"
 #include "compile/CompilationTypes.hpp"
 #include "compile/Method.hpp"
@@ -6597,9 +6598,11 @@ static UDATA jitReleaseCodeStackWalkFrame(J9VMThread *vmThread, J9StackWalkState
    }
 
 static jvmtiIterationControl jitWalkContinuationCallBack(J9VMThread *vmThread, J9MM_IterateObjectDescriptor *object, void *userData) {
-	J9VMContinuation *continuation = J9VMJDKINTERNALVMCONTINUATION_VMREF(vmThread, object->object);
-	if (NULL != continuation)
+   J9InternalVMFunctions *vmFuncs = vmThread->javaVM->internalVMFunctions;
+   J9VMContinuation *continuation = J9VMJDKINTERNALVMCONTINUATION_VMREF(vmThread, object->object);
+   if (NULL != continuation)
       {
+      bool yieldHappened = false;
       if ((continuation->dropFlags & 0x1) ? false : true)
          {
          J9StackWalkState walkState;
@@ -6607,8 +6610,9 @@ static jvmtiIterationControl jitWalkContinuationCallBack(J9VMThread *vmThread, J
          walkState.skipCount = 0;
          walkState.frameWalkFunction = jitReleaseCodeStackWalkFrame;
          vmFuncs->walkContinuationStackFrames(vmThread, continuation, &walkState);
-         continuation->dropFlags |= 0x1;
-         yieldHappened = condYield((OMR_VMThread*)userData, J9_GC_METRONOME_UTILIZATION_COMPONENT_JIT);
+         continuation->dropFlags = 0x1;
+         condYieldFromGCFunctionPtr condYield = (condYieldFromGCFunctionPtr)userData;
+         yieldHappened = condYield(vmThread->omrVMThread, J9_GC_METRONOME_UTILIZATION_COMPONENT_JIT);
          }
 
       if (yieldHappened)
@@ -6616,18 +6620,18 @@ static jvmtiIterationControl jitWalkContinuationCallBack(J9VMThread *vmThread, J
          /* Stop the iteration, will resume later. */
          return JVMTI_ITERATION_ABORT;
          }
-	   }
-	return JVMTI_ITERATION_CONTINUE;
+      }
+   return JVMTI_ITERATION_CONTINUE;
 }
 
 static jvmtiIterationControl jitResetContinuationFlag(J9VMThread *vmThread, J9MM_IterateObjectDescriptor *object, void *userData) {
-	J9VMContinuation *continuation = J9VMJDKINTERNALVMCONTINUATION_VMREF(vmThread, object->object);
-	if (NULL != continuation)
+   J9VMContinuation *continuation = J9VMJDKINTERNALVMCONTINUATION_VMREF(vmThread, object->object);
+   if (NULL != continuation)
       {
       continuation->dropFlags = 0;
       }
 
-	return JVMTI_ITERATION_CONTINUE;
+   return JVMTI_ITERATION_CONTINUE;
 }
 
 static void jitReleaseCodeStackWalk(OMR_VMThread *omrVMThread, condYieldFromGCFunctionPtr condYield = NULL)
@@ -6646,6 +6650,7 @@ static void jitReleaseCodeStackWalk(OMR_VMThread *omrVMThread, condYieldFromGCFu
 #if JAVA_SPEC_VERSION >= 19
    J9JavaVM *vm = vmThread->javaVM;
    J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
+   PORT_ACCESS_FROM_VMC(vmThread);
    if (isRealTimeGC && !TR::Options::getCmdLineOptions()->getOption(TR_DisableIncrementalCCR))
       {
       bool yieldHappened = false;
@@ -6686,10 +6691,9 @@ static void jitReleaseCodeStackWalk(OMR_VMThread *omrVMThread, condYieldFromGCFu
          }
       while (yieldHappened);
 
-      PORT_ACCESS_FROM_VMC(vmThread);
       do
          {
-         jvmtiIterationControl rc = vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(vmThread, PORTLIB, 0, jitWalkContinuationCallBack, (void*)omrVMThread);
+         jvmtiIterationControl rc = vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(vmThread, PORTLIB, 0, jitWalkContinuationCallBack, (void*)condYield);
          if (rc == JVMTI_ITERATION_ABORT)
             yieldHappened = true;
          }
