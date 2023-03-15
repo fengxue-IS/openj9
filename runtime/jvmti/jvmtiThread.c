@@ -1385,9 +1385,9 @@ jvmtiSuspendAllVirtualThreads(jvmtiEnv *env,
 		}
 
 		/* Walk all virtual threads. */
-		vmFuncs->enterVThreadListInspection(currentThread);
-		vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, privatePortLibrary, 0, jvmtiSuspendResumeCallBack, (void*)&data);
-		vmFuncs->exitVThreadListInspection(currentThread);
+		vmFuncs->acquireExclusiveVMAccess(currentThread);
+		vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, PORTLIB, 0, jvmtiSuspendResumeCallBack, (void*)&data);
+		vmFuncs->releaseExclusiveVMAccess(currentThread);
 
 		/* If the current thread appeared in the list (and was marked as suspended), block now until the thread is resumed. */
 		if (data.suspend_current_thread) {
@@ -1441,9 +1441,9 @@ jvmtiResumeAllVirtualThreads(jvmtiEnv *env,
 		}
 
 		/* Walk all virtual threads. */
-		vmFuncs->enterVThreadListInspection(currentThread);
-		vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, privatePortLibrary, 0, jvmtiSuspendResumeCallBack, (void*)&data);
-		vmFuncs->exitVThreadListInspection(currentThread);
+		vmFuncs->acquireExclusiveVMAccess(currentThread);
+		vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, PORTLIB, 0, jvmtiSuspendResumeCallBack, (void*)&data);
+		vmFuncs->releaseExclusiveVMAccess(currentThread);
 done:
 		vmFuncs->internalExitVMToJNI(currentThread);
 	}

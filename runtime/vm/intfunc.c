@@ -437,8 +437,6 @@ J9InternalVMFunctions J9InternalFunctions = {
 	walkAllStackFrames,
 	acquireVThreadInspector,
 	releaseVThreadInspector,
-	enterVThreadListInspection,
-	exitVThreadListInspection,
 #endif /* JAVA_SPEC_VERSION >= 19 */
 	checkArgsConsumed,
 };

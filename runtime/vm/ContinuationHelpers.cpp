@@ -357,11 +357,12 @@ retry:
 		vmFuncs->internalEnterVMFromJNI(currentThread);
 		threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
 		goto retry;
-	} else if (!objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(currentThread,
-																		threadObj,
-																		vm->virtualThreadInspectorCountOffset,
-																		(U_64)vthreadInspectorCount,
-																		((U_64)(vthreadInspectorCount + 1)))
+	} else if (!objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(
+															currentThread,
+															threadObj,
+															vm->virtualThreadInspectorCountOffset,
+															(U_64)vthreadInspectorCount,
+															((U_64)(vthreadInspectorCount + 1)))
 	) {
 		/* Field updated by another thread, try again. */
 		goto retry;
@@ -375,42 +376,17 @@ releaseVThreadInspector(J9VMThread *currentThread, jobject thread)
 	MM_ObjectAccessBarrierAPI objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
 	j9object_t threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
 	I_64 vthreadInspectorCount = J9OBJECT_I64_LOAD(currentThread, threadObj, vm->virtualThreadInspectorCountOffset);
-	while (!objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(currentThread,
-																		threadObj,
-																		vm->virtualThreadInspectorCountOffset,
-																		(U_64)vthreadInspectorCount,
-																		((U_64)(vthreadInspectorCount - 1)))
+	while (!objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(
+														currentThread,
+														threadObj,
+														vm->virtualThreadInspectorCountOffset,
+														(U_64)vthreadInspectorCount,
+														((U_64)(vthreadInspectorCount - 1)))
 	) {
 		/* Field updated by another thread, try again. */
 		vthreadInspectorCount = J9OBJECT_I64_LOAD(currentThread, threadObj, vm->virtualThreadInspectorCountOffset);
 	}
 	/* vthreadInspectorCount must be greater than 0 before decrement. */
 	Assert_VM_true(vthreadInspectorCount > 0);
-}
-
-void
-enterVThreadListInspection(J9VMThread *currentThread)
-{
-	J9JavaVM *vm = currentThread->javaVM;
-	J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
-
-	while (VM_AtomicSupport::lockCompareExchange(&vm->inspectingLiveVirtualThreadList, FALSE, TRUE) != FALSE) {
-		/* Virtual thread list is being inspected, wait. */
-		vmFuncs->internalExitVMToJNI(currentThread);
-		VM_AtomicSupport::yieldCPU();
-		vmFuncs->internalEnterVMFromJNI(currentThread);
-	}
-	/* Wait for all virtual threads to exit critical region. */
-	while (VM_AtomicSupport::lockCompareExchange(&vm->vThreadTransitionCount, 0, (UDATA)-1) != 0) {
-		vmFuncs->internalExitVMToJNI(currentThread);
-		VM_AtomicSupport::yieldCPU();
-		vmFuncs->internalEnterVMFromJNI(currentThread);
-	}
-}
-
-void
-exitVThreadListInspection(J9VMThread *currentThread)
-{
-	currentThread->javaVM->inspectingLiveVirtualThreadList = FALSE;
 }
 } /* extern "C" */

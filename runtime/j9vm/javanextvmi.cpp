@@ -273,7 +273,7 @@ JVM_VirtualThreadMountBegin(JNIEnv *env, jobject thread, jboolean firstMount)
 				continuation);
 	}
 
-	VM_VMHelpers::enterVThreadTransitionCritical(currentThread, thread, TRUE);
+	VM_VMHelpers::enterVThreadTransitionCritical(currentThread, thread);
 	if (firstMount) {
 		/* Re-fetch reference as enterVThreadTransitionCritical may release VMAccess. */
 		threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
@@ -281,7 +281,6 @@ JVM_VirtualThreadMountBegin(JNIEnv *env, jobject thread, jboolean firstMount)
 		/* Add reverse link from Continuation object to VirtualThread object, this let JVMTI code */
 		J9VMJDKINTERNALVMCONTINUATION_SET_VTHREAD(currentThread, continuationObj, threadObj);
 	}
-	VM_VMHelpers::exitVThreadTransitionCritical(currentThread);
 
 	vmFuncs->internalExitVMToJNI(currentThread);
 
@@ -317,13 +316,9 @@ JVM_VirtualThreadMountEnd(JNIEnv *env, jobject thread, jboolean firstMount)
 				J9VMJDKINTERNALVMCONTINUATION_VMREF(currentThread, continuationObj));
 	}
 
-	VM_VMHelpers::enterVThreadTransitionCritical(currentThread, thread);
-	/* Re-fetch reference as enterVThreadTransitionCritical may release VMAccess. */
-	threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
 	/* Allow thread to be inspected again. */
 	Assert_SC_true(-1 == J9OBJECT_I64_LOAD(currentThread, threadObj, vm->virtualThreadInspectorCountOffset));
-	J9OBJECT_I64_STORE(currentThread, threadObj, vm->virtualThreadInspectorCountOffset, 0);
-	VM_VMHelpers::exitVThreadTransitionCritical(currentThread);
+	VM_VMHelpers::exitVThreadTransitionCritical(currentThread, threadObj);
 
 	if (firstMount) {
 		TRIGGER_J9HOOK_VM_VIRTUAL_THREAD_STARTED(vm->hookInterface, currentThread);
@@ -374,7 +369,7 @@ JVM_VirtualThreadUnmountBegin(JNIEnv *env, jobject thread, jboolean lastUnmount)
 	if (lastUnmount) {
 		TRIGGER_J9HOOK_VM_VIRTUAL_THREAD_END(vm->hookInterface, currentThread);
 	}
-	VM_VMHelpers::enterVThreadTransitionCritical(currentThread, thread, TRUE);
+	VM_VMHelpers::enterVThreadTransitionCritical(currentThread, thread);
 	if (lastUnmount) {
 		/* Re-fetch reference as enterVThreadTransitionCritical may release VMAccess. */
 		threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
@@ -382,7 +377,6 @@ JVM_VirtualThreadUnmountBegin(JNIEnv *env, jobject thread, jboolean lastUnmount)
 		/* Add reverse link from Continuation object to VirtualThread object, this let JVMTI code */
 		J9VMJDKINTERNALVMCONTINUATION_SET_VTHREAD(currentThread, continuationObj, NULL);
 	}
-	VM_VMHelpers::exitVThreadTransitionCritical(currentThread);
 	vmFuncs->internalExitVMToJNI(currentThread);
 
 	Trc_SC_VirtualThreadUnmountBegin_Exit(currentThread, thread, lastUnmount);
@@ -421,11 +415,9 @@ JVM_VirtualThreadUnmountEnd(JNIEnv *env, jobject thread, jboolean lastUnmount)
 		vmFuncs->freeContinuation(currentThread, contObj);
 	}
 
-	VM_VMHelpers::enterVThreadTransitionCritical(currentThread, thread);
 	/* Allow thread to be inspected again. */
 	Assert_SC_true(-1 == J9OBJECT_I64_LOAD(currentThread, threadObj, vm->virtualThreadInspectorCountOffset));
-	J9OBJECT_I64_STORE(currentThread, threadObj, vm->virtualThreadInspectorCountOffset, 0);
-	VM_VMHelpers::exitVThreadTransitionCritical(currentThread);
+	VM_VMHelpers::exitVThreadTransitionCritical(currentThread, threadObj);
 
 	vmFuncs->internalExitVMToJNI(currentThread);
 

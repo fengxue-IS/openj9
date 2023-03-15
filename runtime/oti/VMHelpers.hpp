@@ -2152,43 +2152,27 @@ exit:
 	}
 
 	static VMINLINE void
-	enterVThreadTransitionCritical(J9VMThread *currentThread, jobject thread, bool checkInspector = false)
+	enterVThreadTransitionCritical(J9VMThread *currentThread, jobject thread)
 	{
 		J9JavaVM *vm = currentThread->javaVM;
 		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
 		MM_ObjectAccessBarrierAPI objectAccessBarrier = MM_ObjectAccessBarrierAPI(currentThread);
-		UDATA oldCount;
 		j9object_t threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
-retry:
-		/* Block if Global inspection or thread inspection is taking place. */
-		if (vm->inspectingLiveVirtualThreadList == TRUE) {
-yield:
+
+		while(!objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(currentThread, threadObj, vm->virtualThreadInspectorCountOffset, 0, (U_64)-1)) {
 			/* Thread is being inspected or unmounted, wait. */
 			vmFuncs->internalExitVMToJNI(currentThread);
 			VM_AtomicSupport::yieldCPU();
 			/* After wait, the thread may suspend here. */
 			vmFuncs->internalEnterVMFromJNI(currentThread);
 			threadObj = J9_JNI_UNWRAP_REFERENCE(thread);
-			goto retry;
-		} else {
-			oldCount = vm->vThreadTransitionCount;
-			while (VM_AtomicSupport::lockCompareExchange(&vm->vThreadTransitionCount, oldCount, oldCount + 1) != oldCount) {
-				oldCount = vm->vThreadTransitionCount;
-				if ((UDATA)-1 == oldCount) {
-					goto retry;
-				}
-			}
-			if (checkInspector && !objectAccessBarrier.inlineMixedObjectCompareAndSwapU64(currentThread, threadObj, vm->virtualThreadInspectorCountOffset, 0, (U_64)-1)) {
-				VM_AtomicSupport::subtract(&vm->vThreadTransitionCount, 1);
-				goto yield;
-			}
 		}
 	}
 
 	static VMINLINE void
-	exitVThreadTransitionCritical(J9VMThread *currentThread)
+	exitVThreadTransitionCritical(J9VMThread *currentThread, j9object_t vthread)
 	{
-		VM_AtomicSupport::subtract(&currentThread->javaVM->vThreadTransitionCount, 1);
+		J9OBJECT_I64_STORE(currentThread, vthread, currentThread->javaVM->virtualThreadInspectorCountOffset, 0);
 	}
 #endif /* JAVA_SPEC_VERSION >= 19 */
 

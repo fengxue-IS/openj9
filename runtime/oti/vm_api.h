@@ -4422,12 +4422,6 @@ acquireVThreadInspector(J9VMThread *currentThread, jobject thread);
 
 void
 releaseVThreadInspector(J9VMThread *currentThread, jobject thread);
-
-void
-enterVThreadListInspection(J9VMThread *currentThread);
-
-void
-exitVThreadListInspection(J9VMThread *currentThread);
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
 /* ---------------- hookableAsync.c ---------------- */
