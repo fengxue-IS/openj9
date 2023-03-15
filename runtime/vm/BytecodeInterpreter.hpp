@@ -5279,6 +5279,9 @@ ffi_OOM:
 		yieldContinuation(_currentThread);
 
 		j9object_t continuationObject = J9VMJAVALANGTHREAD_CONT(_currentThread, _currentThread->carrierThreadObject);
+		if(J9VMJDKINTERNALVMCONTINUATION_FINISHED(_currentThread, continuationObject)) {
+			freeContinuation(_currentThread, continuationObject);
+		}
 		/* Notify GC of Continuation stack swap */
 		_vm->memoryManagerFunctions->postUnmountContinuation(_currentThread, continuationObject);
 
