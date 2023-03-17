@@ -1326,20 +1326,36 @@ jvmtiSuspendResumeCallBack(J9VMThread *vmThread, J9MM_IterateObjectDescriptor *o
 			}
 		}
 		if (!is_excepted) {
+			J9JavaVM *vm = vmThread->javaVM;
+			J9VMThread *targetThread = NULL;
+			j9object_t carrierThread = (j9object_t)J9VMJAVALANGVIRTUALTHREAD_CARRIERTHREAD(vmThread, vthread);
+			if (NULL != carrierThread) {
+				targetThread = J9VMJAVALANGTHREAD_THREADREF(vmThread, carrierThread);
+			}
 			if (data->is_suspend) {
-				BOOLEAN currentThreadSuspended = FALSE;
-				JNIEnv *jniEnv = (JNIEnv *)vmThread;
-				J9InternalVMFunctions *vmFuncs = vmThread->javaVM->internalVMFunctions;
-				jobject virtualThreadRef = vmFuncs->j9jni_createLocalRef(jniEnv, vthread);
-
-				/* Ignore errors if the virtual thread is already suspended. */
-				suspendThread(vmThread, (jthread)virtualThreadRef, FALSE, &currentThreadSuspended);
-				vthread = J9_JNI_UNWRAP_REFERENCE(virtualThreadRef);
-				vmFuncs->j9jni_deleteLocalRef(jniEnv, virtualThreadRef);
-				data->suspend_current_thread |= currentThreadSuspended;
+				if (NULL != targetThread) {
+					if (OMR_ARE_NO_BITS_SET(targetThread->publicFlags, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND | J9_PUBLIC_FLAGS_STOPPED)) {
+						setHaltFlag(targetThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
+						Trc_JVMTI_threadSuspended(targetThread);
+					}
+				} else {
+					/* NULL carrier thread imply the virtual threadis unmounted. */
+					if (0 == J9OBJECT_U32_LOAD(vmThread, vthread, vm->isSuspendedByJVMTIOffset)) {
+						J9OBJECT_U32_STORE(vmThread, vthread, vm->isSuspendedByJVMTIOffset, 1);
+					}
+				}
 			} else {
-				/* Ignore errors if the virtual thread is already resumed. */
-				resumeThread(vmThread, (jthread)&vthread);
+				if (NULL != targetThread) {
+					if (OMR_ARE_ANY_BITS_SET(targetThread->publicFlags, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND)) {
+						clearHaltFlag(targetThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
+						Trc_JVMTI_threadResumed(targetThread);
+					}
+				} else {
+					/* targetThread is NULL only for virtual threads */
+					if (0 != J9OBJECT_U32_LOAD(currentThread, vthread, vm->isSuspendedByJVMTIOffset)) {
+						J9OBJECT_U32_STORE(currentThread, vthread, vm->isSuspendedByJVMTIOffset, 0);
+					}
+				}
 			}
 		}
 	}
