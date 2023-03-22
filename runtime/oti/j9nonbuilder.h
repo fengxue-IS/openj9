@@ -5052,7 +5052,6 @@ typedef struct J9VMContinuation {
 	struct J9VMEntryLocalStorage* oldEntryLocalStorage;
 	volatile UDATA state; /* it's a bit-wise struct of CarrierThread ID and ConcurrentlyScanned flag bit0:localConcurrentScan-J9_GC_CONTINUATION_STATE_CONCURRENT_SCAN_LOCAL, bit1:globalConcurrentScan-J9_GC_CONTINUATION_STATE_CONCURRENT_SCAN_GLOBAL */
 	UDATA dropFlags;
-	volatile IDATA inspectorCount;
 } J9VMContinuation;
 #endif /* JAVA_SPEC_VERSION >= 19 */
 

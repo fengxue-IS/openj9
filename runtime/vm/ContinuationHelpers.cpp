@@ -82,8 +82,6 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 	continuation->pc = (U_8*)J9SF_FRAME_TYPE_JNI_NATIVE_METHOD;
 	continuation->arg0EA = (UDATA*)&frame->savedA0;
 	continuation->stackObject->isVirtual = TRUE;
-	/* default inspectorCount to -1 to indicate transtion */
-	continuation->inspectorCount = -1;
 
 	J9VMJDKINTERNALVMCONTINUATION_SET_VMREF(currentThread, continuationObject, continuation);
 
