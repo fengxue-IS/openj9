@@ -65,7 +65,7 @@
 	(walkState)->decompilationRecord = NULL
 #else
 #define UPDATE_PC_FROM(walkState, pcExpression) (walkState)->pc = MASK_PC((U_8 *) (pcExpression))
-#define jitGetExceptionTable(walkState) jitGetExceptionTableFromPC((walkState)->walkThread, (UDATA) (walkState)->pc, (walkState)->walkThread->javaVM)
+#define jitGetExceptionTable(walkState) jitGetExceptionTableFromPC((walkState)->walkThread, (UDATA) (walkState)->pc, (walkState)->javaVM)
 #endif
 
 #ifdef J9VM_JIT_FULL_SPEED_DEBUG
