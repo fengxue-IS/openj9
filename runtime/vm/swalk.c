@@ -107,7 +107,7 @@ maxFramesOnStack(J9StackWalkState *walkState)
 	}
 
 	if (J9_ARE_NO_BITS_SET(walkState->flags, J9_STACKWALK_NO_ERROR_REPORT)) {
-		UDATA *stackStart = J9_LOWEST_STACK_SLOT(walkState);
+		UDATA *stackStart = (UDATA *)((walkState)->stackObject + 1);
 #if defined(J9VM_INTERP_STACKWALK_TRACING)
 		Assert_VRB_true(sp >= stackStart);
 		Assert_VRB_true(sp <= endOfStack);
@@ -1210,7 +1210,7 @@ void swMarkSlotAsObject(J9StackWalkState * walkState, j9object_t * objectSlot)
 	}
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
-	if (NULL != walkState->walkedEntryLocalStorage) {
+	if ((NULL != walkState->walkedEntryLocalStorage) || (NULL != walkState->jitGlobalStorageBase)) {
 		if (((J9STACKSLOT *) objectSlot) >= walkState->jitGlobalStorageBase) {
 			UDATA slotNumber = ((J9STACKSLOT *) objectSlot) - walkState->jitGlobalStorageBase;
 
