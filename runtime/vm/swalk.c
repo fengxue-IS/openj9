@@ -128,13 +128,6 @@ walkStackFrames(J9VMThread *currentThread, J9StackWalkState *walkState)
 		goto resumeWalk;
 	}
 
-	walkState->loopBreaker = 0;
-	if ((NULL != currentThread)
-		&& J9_ARE_ANY_BITS_SET(currentThread->privateFlags2, J9_PRIVATE_FLAGS2_ASYNC_GET_CALL_TRACE)
-	) {
-		/* Add one because walkFrames decrements loopBreaker and bails when it reaches 0 */
-		walkState->loopBreaker = maxFramesOnStack(walkState) + 1;
-	}
 	walkState->javaVM = walkState->walkThread->javaVM;
 	walkState->currentThread = currentThread;
 	walkState->cache = NULL;
@@ -1412,6 +1405,14 @@ commonWalker(J9VMThread *currentThread, J9StackWalkState *walkState)
 		}
 		walkState->flags &= ~J9_STACKWALK_RESUME;
 		goto resumeInterpreterWalk;
+	}
+
+	walkState->loopBreaker = 0;
+	if ((NULL != currentThread)
+		&& J9_ARE_ANY_BITS_SET(currentThread->privateFlags2, J9_PRIVATE_FLAGS2_ASYNC_GET_CALL_TRACE)
+	) {
+		/* Add one because walkFrames decrements loopBreaker and bails when it reaches 0 */
+		walkState->loopBreaker = maxFramesOnStack(walkState) + 1;
 	}
 
 	if (NULL != currentThread) {
