@@ -2918,7 +2918,7 @@ typedef struct J9JavaStack {
 	struct J9JavaStack* previous;
 	UDATA firstReferenceFrame;
 #if JAVA_SPEC_VERSION >= 19
-	BOOLEAN isVirtual;
+	U_32 flags;
 #endif /* JAVA_SPEC_VERSION >= 19 */
 } J9JavaStack;
 

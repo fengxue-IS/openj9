@@ -128,7 +128,7 @@ static UDATA internalGrowJavaStack(J9VMThread * vmThread, UDATA newStackSize)
 		rc = 3;
 		goto done;
 	}
-	newStack = allocateJavaStack(vmThread->javaVM, newStackSize, oldStack);
+	newStack = allocateJavaStack(vmThread->javaVM, newStackSize, oldStack, FALSE);
 	if (!newStack) {
 		Trc_VM_growJavaStack_AllocFailed(vmThread);
 		rc = 1;
@@ -244,7 +244,7 @@ poolElementAllocFailed:
 	}
 #endif
 #if JAVA_SPEC_VERSION >= 19
-	newStack->isVirtual = oldStack->isVirtual;
+	newStack->flags = (oldStack->flags & J9_JAVA_STACK_VIRTUAL);
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
 	if (walkState.userData2) {

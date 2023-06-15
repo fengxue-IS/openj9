@@ -103,7 +103,7 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 #define VMTHR_INITIAL_STACK_SIZE vm->stackSize
 #endif
 
-		if ((stack = allocateJavaStack(vm, VMTHR_INITIAL_STACK_SIZE, NULL)) == NULL) {
+		if ((stack = allocateJavaStack(vm, VMTHR_INITIAL_STACK_SIZE, NULL, FALSE)) == NULL) {
 			vm->internalVMFunctions->setNativeOutOfMemoryError(currentThread, 0, 0);
 			j9mem_free_memory(continuation);
 			result = FALSE;
@@ -126,7 +126,7 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 		continuation->literals = NULL;
 		continuation->pc = (U_8*)J9SF_FRAME_TYPE_JNI_NATIVE_METHOD;
 		continuation->arg0EA = (UDATA*)&frame->savedA0;
-		continuation->stackObject->isVirtual = TRUE;
+		continuation->stackObject->flags |= J9_JAVA_STACK_VIRTUAL;
 
 #if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
 		I_64 totalTime = (I_64)j9time_hires_delta(start, j9time_hires_clock(), OMRPORT_TIME_DELTA_IN_NANOSECONDS);
