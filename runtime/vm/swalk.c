@@ -191,11 +191,6 @@ UDATA  walkStackFrames(J9VMThread *currentThread, J9StackWalkState *walkState)
 	walkState->resolveFrameFlags = 0;
 #endif
 #endif
-#if JAVA_SPEC_VERSION >= 19
-	if (J9_ARE_ALL_BITS_SET(walkState->walkThread->stackObject->flags, J9_JAVA_STACK_HIGHORDER)) {
-		walkState->flags &= J9_STACKWALK_SA_DELTA;
-	}
-#endif /* JAVA_SPEC_VERSION >= 19 */
 
 
 #ifdef J9VM_INTERP_STACKWALK_TRACING
@@ -224,7 +219,6 @@ UDATA  walkStackFrames(J9VMThread *currentThread, J9StackWalkState *walkState)
 	if (walkState->flags & J9_STACKWALK_DO_NOT_SNIFF_AND_WHACK) swPrintf(walkState, 2, "\tDO_NOT_SNIFF_AND_WHACK\n");
 	if (walkState->flags & J9_STACKWALK_CHECK_I_SLOTS_FOR_OBJECTS) swPrintf(walkState, 2, "\tCHECK_I_SLOTS_FOR_OBJECTS\n");
 	if (walkState->flags & J9_STACKWALK_SAVE_STACKED_REGISTERS) swPrintf(walkState, 2, "\tSAVE_STACKED_REGISTERS\n");
-	if (walkState->flags & J9_STACKWALK_SA_DELTA) swPrintf(walkState, 2, "\tSA_DELTA\n");
 
 	if ((walkState->flags & (J9_STACKWALK_MAINTAIN_REGISTER_MAP | J9_STACKWALK_INCLUDE_CALL_IN_FRAMES)) == (J9_STACKWALK_MAINTAIN_REGISTER_MAP | J9_STACKWALK_INCLUDE_CALL_IN_FRAMES)) {
 		PORT_ACCESS_FROM_WALKSTATE(walkState);

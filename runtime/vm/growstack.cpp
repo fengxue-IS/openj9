@@ -526,9 +526,22 @@ static void growSlotIterator(J9VMThread * vmThread, J9StackWalkState * walkState
 	/* Only worry about objects which are allocated on the stack */
 
 	if (IS_IN_STACK(object)) {
-		UDATA delta = (UDATA) walkState->userData1;
+		UDATA unmountedContinuation = (UDATA) walkState->userData2;
 
-		*objectSlotInNewStack = (j9object_t) (object + delta);
+		/* Only map slots in SA objects that point to SA objects */
+		if (unmountedContinuation && IS_IN_STACK((UDATA*)stackLocation)) {
+			/* Compressed refs so UDATA is 64 bits (8 bytes) */
+			J9JavaStack *newStack = vmThread->stackObject;
+			U_64 *stackEnd = (U_64*)newStack->end;
+			UDATA slotNumber = stackEnd - (U_64*)object;
+			UDATA mapSlot = slotNumber / 64;
+			U_64 mapBit = 1 << (slotNumber % 64);
+			stackEnd[mapSlot] |= mapBit;
+			*(U_32*)stackLocation = (U_32) slotNumber;
+		} else {
+			UDATA delta = (UDATA) walkState->userData1;
+			*objectSlotInNewStack = (j9object_t) (object + delta);
+		}
 
 		Trc_VM_growSlotIterator_Object(vmThread, stackLocation, object, *objectSlotInNewStack);
 	}
