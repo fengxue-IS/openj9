@@ -1062,6 +1062,9 @@ def set_job_variables(job_type) {
     USE_TESTENV_PROPERTIES = params.USE_TESTENV_PROPERTIES ?: false
     echo "Using USE_TESTENV_PROPERTIES = ${USE_TESTENV_PROPERTIES}"
 
+    echo "Using EXTRA_CONFIGURE_OPTIONS = ${params.EXTRA_CONFIGURE_OPTIONS}"
+    echo "BuildSpec = ${BUILD_SPECS}"
+    echo "job_type = ${job_type}"
     switch (job_type) {
         case "build":
             // set the node the Jenkins build would run on
@@ -1346,6 +1349,7 @@ def get_specs(SUPPORTED_SPECS) {
  * Set build extra options
  */
 def set_build_extra_options(build_specs=null) {
+    echo "set_build_extra_options build_specs = ${build_specs}"
     if (!build_specs) {
         buildspec = buildspec_manager.getSpec(SPEC)
         // single release
@@ -1415,6 +1419,8 @@ def set_build_extra_options(build_specs=null) {
                         //      EXTRA_CONFIGURE_OPTIONS_JDK<release>_<spec>
                         //      EXTRA_MAKE_OPTIONS_JDK<release>_<spec>
                         def extraOptions = params."${it}_JDK${release}_${spec}"
+                        echo "set_build_extra_options extraOptions._JDK_RELEASE_SPEC = ${extraOptions}"
+                        echo "set_build_extra_options extraOptions.params = ${params.${it}}"
                         if (!extraOptions && buildspec) {
                             extraOptions = buildspec.getVectorField("${it.toLowerCase()}", release).join(" ")
                         }
@@ -1426,6 +1432,7 @@ def set_build_extra_options(build_specs=null) {
                                     extra_getsource_options_by_specs.put(spec, extraOptions)
                                     break
                                 case 'EXTRA_CONFIGURE_OPTIONS':
+                                    echo "set_build_extra_options EXTRA_CONFIGURE_OPTIONS.put = ${extraOptions}"
                                     extra_configure_options_by_specs.put(spec, extraOptions)
                                     break
                                 case 'EXTRA_MAKE_OPTIONS':
