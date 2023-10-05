@@ -233,6 +233,15 @@ enterContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 		currentThread->javaVM->memoryManagerFunctions->preMountContinuation(currentThread, continuationObject);
 	}
 
+	if (J9_ARE_ALL_BITS_SET(continuation->stackObject->flags, J9_JAVA_STACK_HIGHORDER) {
+		/* First move high order stack back to below 4G. */
+		/* TODO:
+		 * 1. find cache with stackSize >= high order stack (or allocate new stack large enough below 4G)
+		 * 2. reverse copy stack to low order
+		 * 3. free high order stack
+		 */
+	}
+
 	VM_ContinuationHelpers::swapFieldsWithContinuation(currentThread, continuation, continuationObject, started);
 
 	currentThread->currentContinuation = continuation;
@@ -287,6 +296,28 @@ yieldContinuation(J9VMThread *currentThread, BOOLEAN isFinished)
 	currentThread->currentContinuation = NULL;
 	VM_ContinuationHelpers::swapFieldsWithContinuation(currentThread, continuation, continuationObject);
 
+	/* Check if sub 4G stack utilization is above threshold, attempt to move continuation to high order memory. */
+/*	if (!isFinished && (vm->maxContinuationStackCount < vm->currentContinuationStackCount)) {
+		// any continuation yielding cannot have JNI refs
+		allocateJavaStack()
+		copyJavaStack()
+		// create new J9VMContinuation struct to hold old low order stack
+		J9VMContinuation *lowOrderCont = (J9VMContinuation*)j9mem_allocate_memory(sizeof(J9VMContinuation), OMRMEM_CATEGORY_THREADS);
+		if (NULL == lowOrderCont) {
+			vm->internalVMFunctions->setNativeOutOfMemoryError(currentThread, 0, 0);
+			result = FALSE;
+			goto end;
+		}
+
+		memset(lowOrderCont, 0, sizeof(J9VMContinuation));
+
+		lowOrderCont->stackObject = stack;
+		lowOrderCont->stackOverflowMark2 = J9JAVASTACK_STACKOVERFLOWMARK(stack);
+		lowOrderCont->stackOverflowMark = lowOrderCont->stackOverflowMark2;
+
+		recycleContinuation(vm, currentThread, lowOrderCont, FALSE);
+	}
+*/
 	/* We need a full fence here to preserve happens-before relationship on PPC and other weakly
 	 * ordered architectures since learning/reservation is turned on by default. Since we have the
 	 * global pin lock counters we only need to need to address yield points, as thats the
