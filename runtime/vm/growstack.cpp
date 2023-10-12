@@ -104,37 +104,23 @@ UDATA   growJavaStack(J9VMThread * vmThread, UDATA newStackSize)
 }
 
 
-static UDATA internalGrowJavaStack(J9VMThread * vmThread, UDATA newStackSize)
+UDATA copyJavaStack(J9VMThread * vmThread, J9JavaStack * newStack, BOOLEAN unmountedContinuation)
 {
 	PORT_ACCESS_FROM_VMC(vmThread);
 	J9JavaStack * oldStack = vmThread->stackObject;
-	J9JavaStack * newStack;
-	UDATA delta;
-	J9StackWalkState walkState;
 	UDATA usedBytes = ((U_8 *) oldStack->end) - ((U_8 *) vmThread->sp);
+	J9StackWalkState walkState;
 	J9StackWalkState * currentWalkState;
 	UDATA oldStackStart = (UDATA) (oldStack +1);
 	UDATA oldStackEnd = (UDATA) (oldStack->end);
-	UDATA oldState;
 	UDATA rc = 0;
+	void *firstReferenceFrame = NULL;
+	UDATA delta = newStack->end - oldStack->end;
 
-	oldState = vmThread->omrVMThread->vmState;
-	vmThread->omrVMThread->vmState = J9VMSTATE_GROW_STACK;
-
-	Trc_VM_growJavaStack_Entry(vmThread, oldStack->size, newStackSize, vmThread->sp, vmThread->stackOverflowMark, vmThread->stackOverflowMark2);
-
-	if (usedBytes > newStackSize) {
-		Trc_VM_growJavaStack_TooSmall(vmThread, usedBytes, newStackSize);
-		rc = 3;
-		goto done;
+	if (J9VMTHREAD_COMPRESS_OBJECT_REFERENCES(vmThread)) {
+		Assert_VM_false(unmountedContinuation);		
 	}
-	newStack = allocateJavaStack(vmThread->javaVM, newStackSize, oldStack, FALSE);
-	if (!newStack) {
-		Trc_VM_growJavaStack_AllocFailed(vmThread);
-		rc = 1;
-		goto done;
-	}
-	delta = newStack->end - oldStack->end;
+
 	/* Assert that double-slot alignment has been maintained */
 	Assert_VM_false(J9_ARE_ANY_BITS_SET(delta, 1));
 	Trc_VM_growJavaStack_Delta(vmThread, oldStack, newStack, delta);
@@ -156,7 +142,6 @@ static UDATA internalGrowJavaStack(J9VMThread * vmThread, UDATA newStackSize)
 		walkState.restartPoint = pool_new(sizeof(J9I2JState *), 0, 0, 0, J9_GET_CALLSITE(), OMRMEM_CATEGORY_VM, POOL_FOR_PORT(PORTLIB));
 		if (!walkState.restartPoint) {
 			Trc_VM_growJavaStack_PoolAllocFailed(vmThread);
-			freeJavaStack(vmThread->javaVM, newStack);
 			rc = 4;
 			goto done;
 		}
@@ -170,13 +155,13 @@ static UDATA internalGrowJavaStack(J9VMThread * vmThread, UDATA newStackSize)
 #endif
 
 	vmThread->javaVM->walkStackFrames(vmThread, &walkState);
+	firstReferenceFrame = walkState.userData2;
 
 #ifdef J9VM_INTERP_NATIVE_SUPPORT
 	if (vmThread->javaVM->jitConfig) {
 		if (walkState.restartException) {
 poolElementAllocFailed:
 			pool_kill((J9Pool *) walkState.restartPoint);
-			freeJavaStack(vmThread->javaVM, newStack);
 			rc = 5;
 			goto done;
 		}
@@ -229,6 +214,7 @@ poolElementAllocFailed:
 		Trc_VM_growJavaStack_WalkNewStack(vmThread);
 
 		walkState.objectSlotWalkFunction = growSlotIterator;
+		walkState.userData2 = (void *)(UDATA)unmountedContinuation;
 		walkState.userData3 = (void *) oldStackStart;
 		walkState.userData4 = (void *) oldStackEnd;
 		walkState.flags = J9_STACKWALK_ITERATE_O_SLOTS;
@@ -247,17 +233,46 @@ poolElementAllocFailed:
 	newStack->flags = (oldStack->flags & J9_JAVA_STACK_VIRTUAL);
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
-	if (walkState.userData2) {
+	if (NULL != firstReferenceFrame) {
 		Trc_VM_growJavaStack_KeepingOldStack(vmThread, walkState.userData2);
-		oldStack->firstReferenceFrame = oldStack->end - ((UDATA *) walkState.userData2);
+		oldStack->firstReferenceFrame = oldStack->end - (UDATA *)firstReferenceFrame;
 	} else {
 		Trc_VM_growJavaStack_FreeingOldStack(vmThread, oldStack);
 		newStack->previous = oldStack->previous;
 		freeJavaStack(vmThread->javaVM, oldStack);
 	}
+done:
+	return rc;
+}
 
-	Trc_VM_growJavaStack_Success(vmThread);
+static UDATA internalGrowJavaStack(J9VMThread * vmThread, UDATA newStackSize)
+{
+	J9JavaStack * oldStack = vmThread->stackObject;
+	J9JavaStack * newStack;
+	UDATA usedBytes = ((U_8 *) oldStack->end) - ((U_8 *) vmThread->sp);
+	UDATA oldState;
+	UDATA rc = 0;
 
+	oldState = vmThread->omrVMThread->vmState;
+	vmThread->omrVMThread->vmState = J9VMSTATE_GROW_STACK;
+
+	Trc_VM_growJavaStack_Entry(vmThread, oldStack->size, newStackSize, vmThread->sp, vmThread->stackOverflowMark, vmThread->stackOverflowMark2);
+
+	if (usedBytes > newStackSize) {
+		Trc_VM_growJavaStack_TooSmall(vmThread, usedBytes, newStackSize);
+		rc = 3;
+		goto done;
+	}
+	newStack = allocateJavaStack(vmThread->javaVM, newStackSize, oldStack, FALSE);
+	if (!newStack) {
+		Trc_VM_growJavaStack_AllocFailed(vmThread);
+		rc = 1;
+		goto done;
+	}
+	rc = copyJavaStack(vmThread, newStack, FALSE);
+	if (0 != rc) {
+		freeJavaStack(vmThread->javaVM, newStack);		
+	}
 done:
 	Trc_VM_growJavaStack_Exit(vmThread);
 	vmThread->omrVMThread->vmState = oldState;
