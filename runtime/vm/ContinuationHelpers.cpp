@@ -110,8 +110,6 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 			goto end;
 		}
 
-#undef VMTHR_INITIAL_STACK_SIZE
-
 		continuation->stackObject = stack;
 		continuation->stackOverflowMark2 = J9JAVASTACK_STACKOVERFLOWMARK(stack);
 		continuation->stackOverflowMark = continuation->stackOverflowMark2;
@@ -137,7 +135,18 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 			vm->fastAlloc += 1;
 			vm->fastAllocAvgTime += totalTime;
 		}
+		vm->curStackCount += 1;
+		if (vm->curStackCount > vm->maxStackCount) {
+			vm->maxStackCount = vm->curStackCount;
+		}
+		vm->totalStackCount += 1;
+		vm->curStackMem += VMTHR_INITIAL_STACK_SIZE;
+		if (vm->curStackMem > vm->maxStackMem) {
+			vm->maxStackMem = vm->curStackMem;
+		}
+		vm->totalStackMem += VMTHR_INITIAL_STACK_SIZE;
 #endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
+#undef VMTHR_INITIAL_STACK_SIZE
 	}
 
 	J9VMJDKINTERNALVMCONTINUATION_SET_VMREF(currentThread, continuationObject, continuation);
@@ -339,6 +348,12 @@ freeContinuation(J9VMThread *currentThread, j9object_t continuationObject, BOOLE
 
 			freeJavaStack(currentThread->javaVM, currentStack);
 			currentStack = previous;
+#if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
+			currentThread->javaVM->curStackCount -= 1;
+			currentThread->javaVM->totalStackCount -= 1;
+			currentThread->javaVM->curStackMem -= currentStack->size;
+			currentThread->javaVM->totalStackMem -= currentStack->size;
+#endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 		}
 
 		/* Update Continuation object's vmRef field. */
@@ -353,6 +368,9 @@ void
 recycleContinuation(J9JavaVM *vm, J9VMThread *vmThread, J9VMContinuation* continuation, BOOLEAN skipLocalCache)
 {
 	PORT_ACCESS_FROM_JAVAVM(vm);
+#if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
+	I_64 start = j9time_hires_clock();
+#endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 	bool cached = false;
 	/* Prepare continuationState for recycle, and reset stack initial state. */
 	J9SFJNINativeMethodFrame *frame = ((J9SFJNINativeMethodFrame*)continuation->stackObject->end) - 1;
@@ -401,11 +419,23 @@ T2:
 				break;
 			}
 		}
-
+#if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
+		vm->cacheRecycleCount += 1;
+		vm->avgCacheRecycleTime += (I_64)j9time_hires_delta(start, j9time_hires_clock(), OMRPORT_TIME_DELTA_IN_NANOSECONDS);
+#endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 		if (!cached) {
+#if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
+			vm->curStackMem -= continuation->stackObject->size;
+			vm->curStackCount -= 1;
+			start = j9time_hires_clock();
+#endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 			/* Caching failed, free the J9VMContinuation struct. */
 			freeJavaStack(vm, continuation->stackObject);
 			j9mem_free_memory(continuation);
+#if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
+			vm->cacheFreeCount += 1;
+			vm->avgCacheFreeTime += (I_64)j9time_hires_delta(start, j9time_hires_clock(), OMRPORT_TIME_DELTA_IN_NANOSECONDS);
+#endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 		}
 	}
 }

@@ -5975,11 +5975,21 @@ typedef struct J9JavaVM {
 #if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
 	volatile U_32 t1CacheHit;
 	volatile U_32 t2CacheHit;
+	volatile U_32 cacheRecycleCount;
+	volatile U_32 cacheFreeCount;
 	volatile I_64 avgCacheLookupTime;
+	volatile I_64 avgCacheRecycleTime;
+	volatile I_64 avgCacheFreeTime;
 	volatile U_32 fastAlloc;
 	volatile U_32 slowAlloc;
+	volatile U_32 curStackCount;
+	volatile U_32 maxStackCount;
+	volatile U_32 totalStackCount;
 	volatile I_64 fastAllocAvgTime;
 	volatile I_64 slowAllocAvgTime;
+	volatile U_64 curStackMem;
+	volatile U_64 maxStackMem;
+	volatile U_64 totalStackMem;
 #endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 #endif /* JAVA_SPEC_VERSION >= 19 */
 #if defined(J9VM_OPT_CRIU_SUPPORT)

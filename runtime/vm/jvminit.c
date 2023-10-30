@@ -6388,6 +6388,12 @@ runExitStages(J9JavaVM* vm, J9VMThread* vmThread)
 		j9tty_printf(PORTLIB, "\n     Slow Alloc (>10000ns):     %u", vm->slowAlloc);
 		j9tty_printf(PORTLIB, "\n     Avg Slow Alloc Time:       %lldns", (vm->slowAlloc > 0 ? (vm->slowAllocAvgTime / (I_64)vm->slowAlloc) : 0));
 		j9tty_printf(PORTLIB, "\nAvg Cache Lookup Time:      %lldns\n", (vm->avgCacheLookupTime / (I_64)(vm->t1CacheHit + vm->t2CacheHit + vm->fastAlloc + vm->slowAlloc)));
+		j9tty_printf(PORTLIB, "\nAvg Cache Recycle Time:     %lldns", (vm->avgCacheRecycleTime / (I_64)vm->cacheRecycleCount));
+		j9tty_printf(PORTLIB, "\nAvg Cache Free Time:     %lldns\n", (vm->avgCacheFreeTime / (I_64)vm->cacheFreeCount));
+		j9tty_printf(PORTLIB, "Max concurrent Stack Count: %llu", vm->maxStackCount);
+		j9tty_printf(PORTLIB, "\nMax Stack Mem Allocated:    %llu MB\n", vm->maxStackMem / 1024 / 1024);
+		j9tty_printf(PORTLIB, "\nTotal Stack Allocated:      %llu", vm->totalStackCount);
+		j9tty_printf(PORTLIB, "\nTotal Stack Mem Allocated:  %llu MB\n", vm->totalStackMem / 1024 / 1024);
 	}
 #endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 

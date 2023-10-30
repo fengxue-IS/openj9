@@ -245,6 +245,23 @@ poolElementAllocFailed:
 #endif
 #if JAVA_SPEC_VERSION >= 19
 	newStack->isVirtual = oldStack->isVirtual;
+#if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
+	if (walkState.userData2) {
+		vmThread->javaVM->curStackCount += 1;
+		if (vmThread->javaVM->curStackCount > vmThread->javaVM->maxStackCount) {
+			vmThread->javaVM->maxStackCount = vmThread->javaVM->curStackCount;
+		}
+		vmThread->javaVM->totalStackCount += 1;
+		vmThread->javaVM->curStackMem += newStackSize;
+		vmThread->javaVM->totalStackMem += newStackSize;
+	} else {
+		vmThread->javaVM->curStackMem += newStackSize - oldStack->size;
+		vmThread->javaVM->totalStackMem += newStackSize - oldStack->size;
+	}
+	if (vmThread->javaVM->curStackMem > vmThread->javaVM->maxStackMem) {
+		vmThread->javaVM->maxStackMem = vmThread->javaVM->curStackMem;
+	}
+#endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
 	if (walkState.userData2) {
