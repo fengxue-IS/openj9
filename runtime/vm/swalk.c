@@ -82,7 +82,7 @@ static void walkJNIRefs (J9StackWalkState * walkState, UDATA * currentRef, UDATA
 static void walkBytecodeFrame (J9StackWalkState * walkState);
 static void walkDescribedPushes (J9StackWalkState * walkState, UDATA * highestSlot, UDATA slotCount, U_32 * descriptionSlots, UDATA argCount);
 static void walkObjectPushes (J9StackWalkState * walkState);
-static void walkPushedJNIRefs (J9StackWalkState * walkState);
+static void walkPushedJNIRefs (J9StackWalkState * walkState, BOOLEAN isJNINativeFrame);
 static void getStackMap (J9StackWalkState * walkState, J9ROMClass * romClass, J9ROMMethod * romMethod, UDATA offsetPC, UDATA pushCount, U_32 *result);
 static void getLocalsMap (J9StackWalkState * walkState, J9ROMClass * romClass, J9ROMMethod * romMethod, UDATA offsetPC, U_32 * result, UDATA argTempCount, UDATA alwaysLocalMap);
 static UDATA allocateCache (J9StackWalkState * walkState);
@@ -736,7 +736,7 @@ walkMethodFrame(J9StackWalkState * walkState)
 
 	if ((walkState->flags & J9_STACKWALK_ITERATE_O_SLOTS) && walkState->literals) {
 		if ((walkState->frameFlags & J9_SSF_JNI_REFS_REDIRECTED) || isJNINative) {
-			walkPushedJNIRefs(walkState);
+			walkPushedJNIRefs(walkState, isJNINative);
 		} else {
 			walkObjectPushes(walkState);
 		}
@@ -1194,7 +1194,7 @@ static void walkJITJNICalloutFrame(J9StackWalkState * walkState)
 	if (walkState->flags & J9_STACKWALK_ITERATE_O_SLOTS) {
 		WALK_METHOD_CLASS(walkState);
 		if (walkState->literals) {
-			walkPushedJNIRefs(walkState);
+			walkPushedJNIRefs(walkState, FALSE);
 		}
 	}
 #ifdef J9VM_INTERP_LINEAR_STACKWALK_TRACING
@@ -1209,14 +1209,24 @@ static void walkJITJNICalloutFrame(J9StackWalkState * walkState)
 #endif /* J9VM_INTERP_NATIVE_SUPPORT */
 
 
-static void walkPushedJNIRefs(J9StackWalkState * walkState)
+static void walkPushedJNIRefs(J9StackWalkState * walkState, BOOLEAN isJNINativeFrame)
 {
 	UDATA refCount = walkState->frameFlags & J9_SSF_JNI_PUSHED_REF_COUNT_MASK;
 	UDATA pushCount = (((UDATA) walkState->literals) / sizeof(UDATA)) - refCount;
+	if (isJNINativeFrame) {
+#if defined(J9VM_INTERP_STACKWALK_TRACING)
+		Assert_VRB_true(J9_SSF_CO_REF_SLOT_CNT >= refCount);
+#else /* J9VM_INTERP_STACKWALK_TRACING */
+		Assert_VM_true(J9_SSF_CO_REF_SLOT_CNT >= refCount);
+#endif /* J9VM_INTERP_STACKWALK_TRACING */
+	}
 
 	if (pushCount) {
 		walkState->literals = (J9Method *) (pushCount * sizeof(UDATA));
 		walkObjectPushes(walkState);
+		if (isJNINativeFrame) {
+			walkState->literals = (J9Method *) ((pushCount + refCount) *sizeof(UDATA));
+		}
 	}
 
 	if (refCount) {
