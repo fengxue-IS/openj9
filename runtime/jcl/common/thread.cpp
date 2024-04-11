@@ -470,6 +470,8 @@ Java_java_lang_Thread_getThreads(JNIEnv *env, jclass clazz)
 #if JAVA_SPEC_VERSION >= 19
 			/* carrierThreadObject should always point to a platform thread.
 			 * Thus, all virtual threads should be excluded.
+			 * -XX:-VMContinuations uses platform threads to support virtual
+			 * thread, so need to check for this case.
 			 */
 			j9object_t threadObject = targetThread->carrierThreadObject;
 #else /* JAVA_SPEC_VERSION >= 19 */
@@ -478,7 +480,14 @@ Java_java_lang_Thread_getThreads(JNIEnv *env, jclass clazz)
 
 			/* Only count live threads */
 			if (NULL != threadObject) {
-				if (J9VMJAVALANGTHREAD_STARTED(currentThread, threadObject) && (NULL != J9VMJAVALANGTHREAD_THREADREF(currentThread, threadObject))) {
+				if (J9VMJAVALANGTHREAD_STARTED(currentThread, threadObject)
+				&& (NULL != J9VMJAVALANGTHREAD_THREADREF(currentThread, threadObject))
+#if JAVA_SPEC_VERSION >= 19
+				&& (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+					|| !IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)
+					)
+#endif /* JAVA_SPEC_VERSION >= 19 */
+				) {
 					*currentThreadPtr++ = vmFuncs->j9jni_createLocalRef(env, threadObject);
 					threadCount += 1;
 				}

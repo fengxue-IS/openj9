@@ -2688,6 +2688,13 @@ VMInitStages(J9JavaVM *vm, IDATA stage, void* reserved)
 			}
 #endif /* JAVA_SPEC_VERSION >= 16 */
 #if JAVA_SPEC_VERSION >= 19
+			argIndex = FIND_AND_CONSUME_VMARG(EXACT_MATCH, VMOPT_XXENABLEVMCONTINUATIONS, NULL);
+			argIndex2 = FIND_AND_CONSUME_VMARG(EXACT_MATCH, VMOPT_XXDISABLEVMCONTINUATIONS, NULL);
+
+			if (!((argIndex2 >= 0) && (argIndex2 > argIndex))) {
+				vm->extendedRuntimeFlags2 |= J9_EXTENDED_RUNTIME2_VMCONTINUATIONS;
+			}
+
 			if (0 != processContinuationCacheOptions(vm)) {
 				parseErrorOption = VMOPT_XXCONTINUATIONCACHE;
 				parseError = OPTION_MALFORMED;

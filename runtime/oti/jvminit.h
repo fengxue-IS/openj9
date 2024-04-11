@@ -463,6 +463,9 @@ enum INIT_STAGE {
 #define VMOPT_XXSHOWNATIVESTACKSYMBOLS_ALL "-XX:+ShowNativeStackSymbols=all" /* show all available native stack symbols */
 
 #if JAVA_SPEC_VERSION >= 21
+/* Option to control if VirtualThread uses Continuation or BoundVirtualThread impl. */
+#define VMOPT_XXENABLEVMCONTINUATIONS "-XX:+VMContinuations"
+#define VMOPT_XXDISABLEVMCONTINUATIONS "-XX:-VMContinuations"
 /* Option to control if unmounted thread stacktraces are shown in java core dumps. */
 #define VMOPT_XXSHOWUNMOUNTEDTHREADSTACKS "-XX:+ShowUnmountedThreadStacks"
 #define VMOPT_XXNOSHOWUNMOUNTEDTHREADSTACKS "-XX:-ShowUnmountedThreadStacks"

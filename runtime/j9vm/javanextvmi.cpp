@@ -246,7 +246,12 @@ JVM_RegisterContinuationMethods(JNIEnv *env, jclass clz)
 JNIEXPORT jboolean JNICALL
 JVM_IsContinuationsSupported(void)
 {
-	return JNI_TRUE;
+	jboolean isContinuationsSupported = JNI_FALSE;
+	J9VMThread *currentThread = BFUjavaVM->internalVMFunctions->currentVMThread(BFUjavaVM);
+	if (J9_ARE_ANY_BITS_SET(currentThread->javaVM->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)) {
+		isContinuationsSupported = JNI_TRUE;
+	}
+	return isContinuationsSupported;
 }
 
 JNIEXPORT jboolean JNICALL
