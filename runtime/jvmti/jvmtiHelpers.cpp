@@ -161,7 +161,9 @@ getVMThread(J9VMThread *currentThread, jthread thread, J9VMThread **vmThreadPtr,
 	/* Make sure the vmThread stays alive while it is being used. */
 	omrthread_monitor_enter(vm->vmThreadListMutex);
 #if JAVA_SPEC_VERSION >= 19
-	if (isVirtualThread) {
+	if (isVirtualThread
+	&& J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+	) {
 		jint vthreadState = 0;
 		j9object_t carrierThread = NULL;
 		vthreadState = J9VMJAVALANGVIRTUALTHREAD_STATE(currentThread, threadObject);

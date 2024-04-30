@@ -49,7 +49,6 @@ typedef struct jvmtiVThreadCallBackData {
 	const jthread *except_list;
 	jint except_count;
 	BOOLEAN is_suspend;
-	BOOLEAN suspend_current_thread;
 } jvmtiVThreadCallBackData;
 
 static jvmtiIterationControl jvmtiSuspendResumeCallBack(J9VMThread *vmThread, J9MM_IterateObjectDescriptor *object, void *userData);
@@ -1450,7 +1449,7 @@ jvmtiSuspendAllVirtualThreads(jvmtiEnv *env,
 		jint i = 0;
 		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
 		PORT_ACCESS_FROM_JAVAVM(vm);
-		jvmtiVThreadCallBackData data = {except_list, except_count, TRUE, FALSE};
+		jvmtiVThreadCallBackData data = {except_list, except_count, TRUE};
 
 		vmFuncs->internalEnterVMFromJNI(currentThread);
 
@@ -1474,16 +1473,39 @@ jvmtiSuspendAllVirtualThreads(jvmtiEnv *env,
 
 		/* Walk all virtual threads. */
 		vmFuncs->acquireExclusiveVMAccess(currentThread);
-		vm->memoryManagerFunctions->j9gc_flush_nonAllocationCaches_for_walk(vm);
-		vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, PORTLIB, 0, jvmtiSuspendResumeCallBack, (void*)&data);
+		/* Check if virtual thread is supported using continuation. */
+		if (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)) {
+			vm->memoryManagerFunctions->j9gc_flush_nonAllocationCaches_for_walk(vm);
+			vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, PORTLIB, 0, jvmtiSuspendResumeCallBack, (void*)&data);
+		} else {
+			/* Walk vmThread list to find all virtual threads. */
+			J9VMThread *targetThread = vm->mainThread;
+			do {
+				j9object_t threadObject = targetThread->threadObject;
+				/* Only count live threads. */
+				if (NULL != threadObject) {
+					if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
+						BOOLEAN is_excepted = FALSE;
+						for (jint i = 0; i < except_count; ++i) {
+							if (threadObject == J9_JNI_UNWRAP_REFERENCE(except_list[i])) {
+								is_excepted = TRUE;
+								break;
+							}
+						}
+						if (!is_excepted) {
+							U_64 isSuspendedFlag = J9OBJECT_U64_LOAD(currentThread, threadObject, vm->internalSuspendStateOffset);
+							J9OBJECT_U64_STORE(currentThread, threadObject, vm->internalSuspendStateOffset, (isSuspendedFlag | J9_VIRTUALTHREAD_INTERNAL_STATE_SUSPENDED));
+							if (OMR_ARE_NO_BITS_SET(targetThread->publicFlags, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND | J9_PUBLIC_FLAGS_STOPPED)) {
+								setHaltFlag(targetThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
+								Trc_JVMTI_threadSuspended(targetThread);
+							}
+						}
+					}
+				}
+			} while ((targetThread = targetThread->linkNext) != vm->mainThread);
+		}
 		vmFuncs->releaseExclusiveVMAccess(currentThread);
 
-		/* If the current thread appeared in the list (and was marked as suspended), block now until the thread is resumed. */
-		if (data.suspend_current_thread) {
-			vmFuncs->internalExitVMToJNI(currentThread);
-			setHaltFlag(currentThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
-			vmFuncs->internalEnterVMFromJNI(currentThread);
-		}
 done:
 		vmFuncs->internalExitVMToJNI(currentThread);
 	}
@@ -1507,7 +1529,7 @@ jvmtiResumeAllVirtualThreads(jvmtiEnv *env,
 		jint i = 0;
 		J9InternalVMFunctions *vmFuncs = vm->internalVMFunctions;
 		PORT_ACCESS_FROM_JAVAVM(vm);
-		jvmtiVThreadCallBackData data = {except_list, except_count, FALSE, FALSE};
+		jvmtiVThreadCallBackData data = {except_list, except_count, FALSE};
 
 		vmFuncs->internalEnterVMFromJNI(currentThread);
 
@@ -1531,8 +1553,38 @@ jvmtiResumeAllVirtualThreads(jvmtiEnv *env,
 
 		/* Walk all virtual threads. */
 		vmFuncs->acquireExclusiveVMAccess(currentThread);
-		vm->memoryManagerFunctions->j9gc_flush_nonAllocationCaches_for_walk(vm);
-		vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, PORTLIB, 0, jvmtiSuspendResumeCallBack, (void*)&data);
+		/* Check if virtual thread is supported using continuation. */
+		if (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)) {
+			vm->memoryManagerFunctions->j9gc_flush_nonAllocationCaches_for_walk(vm);
+			vm->memoryManagerFunctions->j9mm_iterate_all_continuation_objects(currentThread, PORTLIB, 0, jvmtiSuspendResumeCallBack, (void*)&data);
+		} else {
+						/* Walk vmThread list to find all virtual threads. */
+			J9VMThread *targetThread = vm->mainThread;
+			do {
+				j9object_t threadObject = targetThread->threadObject;
+				/* Only count live threads. */
+				if (NULL != threadObject) {
+					if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
+						BOOLEAN is_excepted = FALSE;
+						for (jint i = 0; i < except_count; ++i) {
+							if (threadObject == J9_JNI_UNWRAP_REFERENCE(except_list[i])) {
+								is_excepted = TRUE;
+								break;
+							}
+						}
+						if (!is_excepted) {
+							U_64 isSuspendedFlag = J9OBJECT_U64_LOAD(currentThread, threadObject, vm->internalSuspendStateOffset);
+							/* Resume the virtual thread. */
+							J9OBJECT_U64_STORE(currentThread, threadObject, vm->internalSuspendStateOffset, (isSuspendedFlag & J9_VIRTUALTHREAD_INTERNAL_STATE_CARRIERID_MASK));
+							if (OMR_ARE_ANY_BITS_SET(targetThread->publicFlags, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND)) {
+								clearHaltFlag(targetThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
+								Trc_JVMTI_threadResumed(targetThread);
+							}
+						}
+					}
+				}
+			} while ((targetThread = targetThread->linkNext) != vm->mainThread);
+		}
 		vmFuncs->releaseExclusiveVMAccess(currentThread);
 done:
 		vmFuncs->internalExitVMToJNI(currentThread);

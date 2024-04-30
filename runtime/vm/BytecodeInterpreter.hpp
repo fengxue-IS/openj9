@@ -3226,7 +3226,7 @@ done:
 #if JAVA_SPEC_VERSION >= 19
 				UDATA continuationWalkRC = J9_STACKWALK_RC_NONE;
 				J9StackWalkState continuationWalkState= {0};
-				if (J9_ARE_ALL_BITS_SET(_vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_SHOW_CARRIER_FRAMES)
+				if (J9_ARE_ALL_BITS_SET(_vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_SHOW_CARRIER_FRAMES | J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
 					&& IS_JAVA_LANG_VIRTUALTHREAD(_currentThread, _currentThread->threadObject)
 				) {
 					continuationWalkState.flags = walkFlags;

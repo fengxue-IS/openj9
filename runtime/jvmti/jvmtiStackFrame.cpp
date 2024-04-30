@@ -270,7 +270,8 @@ jvmtiGetThreadListStackTraces(jvmtiEnv* env,
 				}
 
 #if JAVA_SPEC_VERSION >= 19
-				if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
+				if (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+				&& IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
 					isVirtual = TRUE;
 					j9object_t carrierThread = (j9object_t)J9VMJAVALANGVIRTUALTHREAD_CARRIERTHREAD(currentThread, threadObject);
 					jint vthreadState = J9VMJAVALANGVIRTUALTHREAD_STATE(currentThread, threadObject);

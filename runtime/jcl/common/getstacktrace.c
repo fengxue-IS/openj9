@@ -51,7 +51,7 @@ getStackTraceForThread(J9VMThread *currentThread, J9VMThread *targetThread, UDAT
 
 #if JAVA_SPEC_VERSION >= 19
 	BOOLEAN isVirtual = IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject);
-	if (isVirtual) {
+	if (isVirtual && J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)) {
 		/* Return NULL if a valid CarrierThread object cannot be found through VirtualThread object,
 		 * the caller of getStackTraceImpl will handle whether to retry or get the stack using the unmounted path.
 		 */
