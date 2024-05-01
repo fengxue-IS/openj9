@@ -143,7 +143,12 @@ jvmtiGetAllStackTraces(jvmtiEnv* env,
 #else /* JAVA_SPEC_VERSION >= 19 */
 				j9object_t threadObject = targetThread->threadObject;
 #endif /* JAVA_SPEC_VERSION >= 19 */
-				if (NULL == threadObject) {
+				if ((NULL == threadObject)
+#if JAVA_SPEC_VERSION >= 19
+				|| (J9_ARE_NO_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+					&& IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject))
+#endif /* JAVA_SPEC_VERSION >= 19 */
+				) {
 					--threadCount;
 				} else {
 					rc = jvmtiInternalGetStackTrace(
