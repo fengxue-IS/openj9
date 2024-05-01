@@ -409,7 +409,10 @@ getThreadGroupChildrenImpl(J9JavaVM *vm, J9VMThread *currentThread, jobject grou
 			j9object_t threadObject = targetThread->carrierThreadObject;
 
 			/* Only count live threads. */
-			if (NULL != threadObject) {
+			if ((NULL != threadObject)
+			&& (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+				|| !IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject))
+			) {
 				if (J9VMJAVALANGTHREAD_STARTED(currentThread, threadObject)
 					&& (NULL != J9VMJAVALANGTHREAD_THREADREF(currentThread, threadObject))
 				) {
