@@ -436,7 +436,18 @@ void threadCleanup(J9VMThread * vmThread, UDATA forkedByVM)
 	/* We are dead at this point. Clear the suspend bit prior to triggering the thread end hook */
 	clearHaltFlag(vmThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);
 
-	TRIGGER_J9HOOK_VM_THREAD_END(vmThread->javaVM->hookInterface, vmThread, 0);
+#if JAVA_SPEC_VERSION >= 19
+	/* Check if thread is virtual. */
+	if (J9_ARE_NO_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+	&& IS_JAVA_LANG_VIRTUALTHREAD(vmThread, vmThread->threadObject)
+	) {
+		TRIGGER_J9HOOK_VM_VIRTUAL_THREAD_END(vm->hookInterface, vmThread);
+	} else {
+#endif /* JAVA_SPEC_VERSION >= 19 */
+	TRIGGER_J9HOOK_VM_THREAD_END(vm->hookInterface, vmThread, 0);
+#if JAVA_SPEC_VERSION >= 19
+	}
+#endif /* JAVA_SPEC_VERSION >= 19 */
 
 #ifdef J9VM_OPT_DEPRECATED_METHODS
 	/* Prevent this thread from processing further stop requests */
@@ -2093,7 +2104,18 @@ javaProtectedThreadProc(J9PortLibrary* portLibrary, void * entryarg)
 
 	threadAboutToStart(vmThread);
 
+#if JAVA_SPEC_VERSION >= 19
+	/* Check if thread is virtual. */
+	if (J9_ARE_NO_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+	&& IS_JAVA_LANG_VIRTUALTHREAD(vmThread, vmThread->threadObject)
+	) {
+		TRIGGER_J9HOOK_VM_VIRTUAL_THREAD_STARTED(vm->hookInterface, vmThread);
+	} else {
+#endif /* JAVA_SPEC_VERSION >= 19 */
 	TRIGGER_J9HOOK_VM_THREAD_STARTED(vm->hookInterface, vmThread, vmThread);
+#if JAVA_SPEC_VERSION >= 19
+	}
+#endif /* JAVA_SPEC_VERSION >= 19 */
 
 	acquireVMAccess(vmThread);
 #if defined(J9VM_OPT_DEPRECATED_METHODS) && (JAVA_SPEC_VERSION < 20)
