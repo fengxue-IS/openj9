@@ -150,7 +150,8 @@ getVMThread(J9VMThread *currentThread, jthread thread, J9VMThread **vmThreadPtr,
 	}
 
 #if JAVA_SPEC_VERSION >= 19
-	isVirtualThread = IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject);
+	/* BoundVirtualThread is still using platform thread so do not consider it virtual. */
+	isVirtualThread = J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS) && IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject);
 	if (isVirtualThread) {
 		vm->internalVMFunctions->acquireVThreadInspector(currentThread, thread, TRUE);
 		/* Re-fetch threadObject since acquireVThreadInspector can release and reacquire VM access. */
@@ -223,7 +224,10 @@ releaseVMThread(J9VMThread *currentThread, J9VMThread *targetThread, jthread thr
 #if JAVA_SPEC_VERSION >= 19
 	if (NULL != thread) {
 		j9object_t threadObject = J9_JNI_UNWRAP_REFERENCE(thread);
-		if ((currentThread->threadObject != threadObject) && IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
+		if ((currentThread->threadObject != threadObject)
+		&& J9_ARE_ANY_BITS_SET(currentThread->javaVM->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
+		&& IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)
+		) {
 			currentThread->javaVM->internalVMFunctions->releaseVThreadInspector(currentThread, thread);
 		}
 	}
@@ -499,6 +503,9 @@ prepareForEvent(J9JVMTIEnv * j9env, J9VMThread * currentThread, J9VMThread * eve
 	if (currentThread->publicFlags & J9_PUBLIC_FLAGS_STOPPED) {
 		if ((eventNumber != JVMTI_EVENT_VM_DEATH)
 		&& (eventNumber != JVMTI_EVENT_THREAD_END)
+#if JAVA_SPEC_VERSION >= 19
+		&& (eventNumber != JVMTI_EVENT_VIRTUAL_THREAD_END)
+#endif /* JAVA_SPEC_VERSION >= 19 */
 		) {
 			return FALSE;
 		}

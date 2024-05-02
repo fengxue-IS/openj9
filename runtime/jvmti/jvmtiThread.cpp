@@ -86,7 +86,8 @@ jvmtiGetThreadState(jvmtiEnv *env,
 		}
 
 #if JAVA_SPEC_VERSION >= 19
-		if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
+		/* BoundVirtualThread should be handled the same as platform threads. */
+		if (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS) && IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
 			/* If thread is NULL, the current thread is used which cannot be a virtual thread.
 			 * There is an assertion inside getVirtualThreadState() that thread is not NULL.
 			 */

@@ -2109,6 +2109,8 @@ javaProtectedThreadProc(J9PortLibrary* portLibrary, void * entryarg)
 	if (J9_ARE_NO_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)
 	&& IS_JAVA_LANG_VIRTUALTHREAD(vmThread, vmThread->threadObject)
 	) {
+		printf("ThreadStarted Trigger: %p", vmThread);
+		printf("   VIRTUAL\n");
 		TRIGGER_J9HOOK_VM_VIRTUAL_THREAD_STARTED(vm->hookInterface, vmThread);
 	} else {
 #endif /* JAVA_SPEC_VERSION >= 19 */

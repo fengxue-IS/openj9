@@ -394,6 +394,7 @@ jvmtiHookVirtualThreadEnd(J9HookInterface **hook, UDATA eventNum, void *eventDat
 
 	/* Call the event callback */
 
+	printf("VirtualThreadEND event called %p\n", currentThread);
 	if (NULL != callback) {
 		jthread threadRef = NULL;
 		UDATA hadVMAccess = 0;
@@ -403,6 +404,7 @@ jvmtiHookVirtualThreadEnd(J9HookInterface **hook, UDATA eventNum, void *eventDat
 			j9env, currentThread, currentThread, JVMTI_EVENT_VIRTUAL_THREAD_END,
 			&threadRef, &hadVMAccess, FALSE, 0, &javaOffloadOldState)
 		) {
+			printf("Calling user callback:\n");
 			callback((jvmtiEnv *)j9env, (JNIEnv *)currentThread, threadRef);
 			finishedEvent(data->currentThread, JVMTI_EVENT_VIRTUAL_THREAD_END, hadVMAccess, javaOffloadOldState);
 		}

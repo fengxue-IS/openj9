@@ -228,15 +228,17 @@ jvmtiGetThreadListStackTraces(jvmtiEnv* env,
 		ENSURE_NON_NULL(stack_info_ptr);
 
 #if JAVA_SPEC_VERSION >= 19
-		while (0 != thread_count) {
-			jthread thread = *thread_list;
+		if (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)) {
+			while (0 != thread_count) {
+				jthread thread = *thread_list;
 
-			if ((NULL != thread) && IS_JAVA_LANG_VIRTUALTHREAD(currentThread, J9_JNI_UNWRAP_REFERENCE(thread))) {
-				J9VMThread *targetThread = NULL;
-				getVMThread(currentThread, thread, &targetThread, JVMTI_ERROR_NONE, 0);
+				if ((NULL != thread) && IS_JAVA_LANG_VIRTUALTHREAD(currentThread, J9_JNI_UNWRAP_REFERENCE(thread))) {
+					J9VMThread *targetThread = NULL;
+					getVMThread(currentThread, thread, &targetThread, JVMTI_ERROR_NONE, 0);
+				}
+				++thread_list;
+				--thread_count;
 			}
-			++thread_list;
-			--thread_count;
 		}
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
@@ -332,24 +334,26 @@ fail:
 		vm->internalVMFunctions->releaseExclusiveVMAccess(currentThread);
 
 #if JAVA_SPEC_VERSION >= 19
-		thread_count = originalThreadCount;
-		thread_list = originalThreadList;
-		while (0 != thread_count) {
-			jthread thread = *thread_list;
+		if (J9_ARE_ANY_BITS_SET(vm->extendedRuntimeFlags2, J9_EXTENDED_RUNTIME2_VMCONTINUATIONS)) {
+			thread_count = originalThreadCount;
+			thread_list = originalThreadList;
+			while (0 != thread_count) {
+				jthread thread = *thread_list;
 
-			if (NULL != thread) {
-				j9object_t threadObject = J9_JNI_UNWRAP_REFERENCE(thread);
-				if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
-					J9VMThread *targetThread = NULL;
-					j9object_t carrierThread = (j9object_t)J9VMJAVALANGVIRTUALTHREAD_CARRIERTHREAD(currentThread, threadObject);
-					if (NULL != carrierThread) {
-						targetThread = J9VMJAVALANGTHREAD_THREADREF(currentThread, carrierThread);
+				if (NULL != thread) {
+					j9object_t threadObject = J9_JNI_UNWRAP_REFERENCE(thread);
+					if (IS_JAVA_LANG_VIRTUALTHREAD(currentThread, threadObject)) {
+						J9VMThread *targetThread = NULL;
+						j9object_t carrierThread = (j9object_t)J9VMJAVALANGVIRTUALTHREAD_CARRIERTHREAD(currentThread, threadObject);
+						if (NULL != carrierThread) {
+							targetThread = J9VMJAVALANGTHREAD_THREADREF(currentThread, carrierThread);
+						}
+						releaseVMThread(currentThread, targetThread, thread);
 					}
-					releaseVMThread(currentThread, targetThread, thread);
 				}
+				++thread_list;
+				--thread_count;
 			}
-			++thread_list;
-			--thread_count;
 		}
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
