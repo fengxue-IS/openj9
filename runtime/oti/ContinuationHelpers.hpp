@@ -88,6 +88,9 @@ public:
 		j9object_t scopedValueCache = J9VMJDKINTERNALVMCONTINUATION_SCOPEDVALUECACHE(vmThread, continuationObject);
 		J9VMJDKINTERNALVMCONTINUATION_SET_SCOPEDVALUECACHE(vmThread, continuationObject, vmThread->scopedValueCache);
 		vmThread->scopedValueCache = scopedValueCache;
+
+		SWAP_MEMBER(monitorEnterRecordPool, J9Pool*, vmThread, continuation);
+		SWAP_MEMBER(monitorEnterRecords, J9MonitorEnterRecord*, vmThread, continuation);
 	}
 
 	static VMINLINE ContinuationState volatile *

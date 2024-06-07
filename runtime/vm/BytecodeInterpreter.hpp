@@ -1664,6 +1664,9 @@ obj:
 						((UDATA*)(((J9SFStackFrame*)_sp) + 1))[-1] |= J9SF_A0_INVISIBLE_TAG;
 					}
 					switch (monitorRC) {
+					case J9_OBJECT_MONITOR_YIELD_PINNED:
+						_currentThread->tempSlot = (UDATA) syncObject;
+						rc = YIELD_PINNED_VTHREAD;
 #if JAVA_SPEC_VERSION >= 16
 					case J9_OBJECT_MONITOR_VALUE_TYPE_IMSE:
 						_currentThread->tempSlot = (UDATA) syncObject;
@@ -5512,6 +5515,15 @@ ffi_OOM:
 		if (enterContinuation(_currentThread, continuationObject)) {
 			_sendMethod = J9VMJDKINTERNALVMCONTINUATION_ENTER_METHOD(_currentThread->javaVM);
 			rc = GOTO_RUN_METHOD;
+		} else if (NULL != _currentThread->currentContinuation->syncObject) {
+			UDATA monitorRC = enterObjectMonitor(_currentThread, _currentThread->currentContinuation->syncObject);
+			if (J9_OBJECT_MONITOR_ENTER_FAILED(monitorRC)) {
+				/* check inital yield point, match bytecode behaviour. */
+			} else {
+				/* Clear syncObject field once monitor acquired. */
+				_currentThread->currentContinuation->syncObject = NULL;
+			}
+			if (/* check flag to determine what post monitor acquire opperation needed. */)
 		}
 
 		VMStructHasBeenUpdated(REGISTER_ARGS);
@@ -10508,6 +10520,9 @@ public:
 #define DEBUG_ACTIONS
 #endif /* defined(DEBUG_VERSION) */
 
+#define PERFORM_ACTION_YIELD_PINNED_VTHREAD \
+	case PERFORM_ACTION_VALUE_TYPE_IMSE:
+	goto yieldPinnedVThread;
 #if JAVA_SPEC_VERSION >= 16
 #define PERFORM_ACTION_VALUE_TYPE_IMSE \
 	case THROW_VALUE_TYPE_ILLEGAL_MONITOR_STATE: \
@@ -10582,6 +10597,7 @@ public:
 			goto i2j; \
 		PERFORM_ACTION_VALUE_TYPE_IMSE \
 		PERFORM_ACTION_CRIU_STM_THROW \
+		PERFORM_ACTION_YIELD_PINNED_VTHREAD \
 		DEBUG_ACTIONS \
 		default: \
 			Assert_VM_unreachable(); \
@@ -11250,6 +11266,12 @@ illegalMonitorState:
 	setCurrentExceptionUTF(_currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
 	VMStructHasBeenUpdated(REGISTER_ARGS);
 	goto throwCurrentException;
+
+yieldPinnedVThread:
+	updateVMStruct(REGISTER_ARGS);
+	prepareForYieldPinnedContinuation(REGISTER_ARGS);
+	VMStructHasBeenUpdated(REGISTER_ARGS);
+	EXECUTE_CURRENT_BYTECODE();
 
 #if JAVA_SPEC_VERSION >= 16
 valueTypeIllegalMonitorState:
