@@ -1649,6 +1649,7 @@ typedef struct J9ObjectMonitor {
 #endif /* defined(J9VM_THR_SMART_DEFLATION) */
 	j9objectmonitor_t alternateLockword;
 	U_32 hash;
+	j9object_t ownerThreadObject;
 } J9ObjectMonitor;
 
 typedef struct J9ClassWalkState {
@@ -5333,6 +5334,9 @@ typedef struct J9VMContinuation {
 	struct J9I2JState i2jState;
 	struct J9VMEntryLocalStorage* oldEntryLocalStorage;
 	UDATA dropFlags;
+	struct J9Pool* monitorEnterRecordPool;
+	struct J9MonitorEnterRecord* monitorEnterRecords;
+	j9object_t syncObject;
 } J9VMContinuation;
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
@@ -6267,7 +6271,8 @@ typedef struct J9JavaVM {
 #if defined(J9VM_OPT_CRIU_SUPPORT)
 #define J9_OBJECT_MONITOR_CRIU_SINGLE_THREAD_MODE_THROW 2
 #endif /* defined(J9VM_OPT_CRIU_SUPPORT) */
-#define J9_OBJECT_MONITOR_BLOCKING 3
+#define J9_OBJECT_MONITOR_YIELD_PINNED 3
+#define J9_OBJECT_MONITOR_BLOCKING 4
 
 #if (JAVA_SPEC_VERSION >= 16) || defined(J9VM_OPT_CRIU_SUPPORT)
 #define J9_OBJECT_MONITOR_ENTER_FAILED(rc) ((UDATA)(rc) < J9_OBJECT_MONITOR_BLOCKING)

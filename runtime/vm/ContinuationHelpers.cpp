@@ -81,6 +81,7 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 	J9SFJNINativeMethodFrame *frame = NULL;
 	/* No cache found, allocate new continuation structure. */
 	if (NULL == continuation) {
+		PORT_ACCESS_FROM_PORT(vm->portLibrary);
 #if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
 		start = j9time_hires_clock();
 #endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
@@ -106,6 +107,7 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 
 #undef VMTHR_INITIAL_STACK_SIZE
 
+		continuation->monitorEnterRecordPool = pool_new(sizeof(J9MonitorEnterRecord), 0, 0, 0, J9_GET_CALLSITE(), OMRMEM_CATEGORY_VM, POOL_FOR_PORT(PORTLIB));
 #if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
 		I_64 totalTime = (I_64)j9time_hires_delta(start, j9time_hires_clock(), OMRPORT_TIME_DELTA_IN_NANOSECONDS);
 		if (totalTime > 10000) {
@@ -403,6 +405,7 @@ T2:
 			vm->cacheFree += 1;
 			/* Caching failed, free the J9VMContinuation struct. */
 			freeJavaStack(vm, continuation->stackObject);
+			pool_kill(continuation->monitorEnterRecordPool);
 			j9mem_free_memory(continuation);
 		}
 	}
@@ -452,6 +455,7 @@ copyFieldsFromContinuation(J9VMThread *currentThread, J9VMThread *vmThread, J9VM
 	 * benefit to a single walk and the cache memory must be managed.
 	 */
 	vmThread->jitArtifactSearchCache = (void*)((UDATA)vmThread->jitArtifactSearchCache | J9_STACKWALK_NO_JIT_CACHE);
+	vmThread->monitorEnterRecords = continuation->monitorEnterRecords;
 }
 
 UDATA
