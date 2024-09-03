@@ -45,6 +45,9 @@
 #include "PointerArrayIterator.hpp"
 #include "SlotObject.hpp"
 #include "VMThreadIterator.hpp"
+#if JAVA_SPEC_VERSION >= 19
+#include "ContinuationHelpers.hpp"
+#endif /* JAVA_SPEC_VERSION >= 19 */
 
 class GC_HashTableIterator;
 class GC_JVMTIObjectTagTableIterator;
@@ -88,6 +91,7 @@ j9gc_ext_reachable_objects_do(
 #endif /* J9VM_OPT_JVMTI */
 		referenceChainWalker.setTrackVisibleStackFrameDepth(0 != (walkFlags & J9_MU_WALK_TRACK_VISIBLE_FRAME_DEPTH));
 		referenceChainWalker.setPreindexInterfaceFields(0 != (walkFlags & J9_MU_WALK_PREINDEX_INTERFACE_FIELDS));
+		referenceChainWalker.includeVThreadObject();
 		/* walker configuration complete.  Scan objects... */
 		referenceChainWalker.scanReachableObjects(env);
 		referenceChainWalker.tearDown(env);
@@ -120,6 +124,7 @@ j9gc_ext_reachable_from_object_do(
 	MM_ReferenceChainWalker referenceChainWalker(env, TEMP_RCW_STACK_SIZE, userCallback, userData);
 	if (referenceChainWalker.initialize(env)) {
 		referenceChainWalker.setPreindexInterfaceFields(0 != (walkFlags & J9_MU_WALK_PREINDEX_INTERFACE_FIELDS));
+		referenceChainWalker.includeVThreadObject();
 		/* walker configuration complete.  Scan objects... */
 		referenceChainWalker.scanReachableFromObject(env, objectPtr);
 		referenceChainWalker.tearDown(env);
@@ -401,7 +406,11 @@ MM_ReferenceChainWalker::scanContinuationNativeSlots(J9Object *objectPtr)
 	if (MM_GCExtensions::needScanStacksForContinuationObject(currentThread, objectPtr, isConcurrentGC, isGlobalGC, beingMounted)) {
 		StackIteratorData localData;
 		localData.rootScanner = this;
-
+#if JAVA_SPEC_VERSION >= 19
+		if (_includeVThreadObject) {
+			_vThreadObject = VM_ContinuationHelpers::getThreadObjectForContinuation(currentThread, NULL, objectPtr);
+		}
+#endif /* JAVA_SPEC_VERSION >= 19 */
 		GC_VMThreadStackSlotIterator::scanContinuationSlots(currentThread, objectPtr, (void *)&localData, stackSlotIteratorForReferenceChainWalker, false, _trackVisibleStackFrameDepth);
 	}
 }
@@ -646,6 +655,12 @@ MM_ReferenceChainWalker::doStackSlot(J9Object **slotPtr, void *walkState, const 
 
 	/* Only report heap objects */
 	if (isHeapObject(slotValue) && !_heap->objectIsInGap(slotValue)) {
+#if JAVA_SPEC_VERSION >= 19
+		if (_includeVThreadObject && (NULL == ((J9StackWalkState *)walkState)->walkThread->threadObject)) {
+			/* Fill in the virtual thread object for jvmtiFollowReferences calls. */
+			((J9StackWalkState *)walkState)->walkThread->threadObject = _vThreadObject;
+		}
+#endif /* JAVA_SPEC_VERSION >= 19 */
 		J9MM_StackSlotDescriptor stackSlotDescriptor = { ((J9StackWalkState *)walkState)->walkThread, (J9StackWalkState *)walkState };
 		if (J9_STACKWALK_SLOT_TYPE_JNI_LOCAL == ((J9StackWalkState *)walkState)->slotType) {
 			doSlot(slotPtr, J9GC_ROOT_TYPE_JNI_LOCAL, -1, (J9Object *)&stackSlotDescriptor);
