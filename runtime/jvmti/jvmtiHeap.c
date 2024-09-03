@@ -885,12 +885,17 @@ jvmtiHeapFollowRefs_getStackData(J9JVMTIHeapData * iteratorData, J9MM_StackSlotD
 	/* Find thread tag */
 	
 	search.ref = (j9object_t)stackSlotDescriptor->vmThread->threadObject;
-	result = hashTableFind(iteratorData->env->objectTagTable, &search);
 
-	/* Figure out the Thread ID */
+	if (NULL != search.ref) {
+		result = hashTableFind(iteratorData->env->objectTagTable, &search);
 
-	threadID = J9VMJAVALANGTHREAD_TID(iteratorData->currentThread, stackSlotDescriptor->vmThread->threadObject);
-	
+		/* Figure out the Thread ID */
+		threadID = J9VMJAVALANGTHREAD_TID(iteratorData->currentThread, stackSlotDescriptor->vmThread->threadObject);
+	} else {
+		/* walking a Continuation, ref to threadObject is lost, set 0 for tag/ID. */
+		result = NULL;
+		threadID = 0;
+	}
 
 	switch (e->refKind) {
 		case JVMTI_HEAP_REFERENCE_STACK_LOCAL:
