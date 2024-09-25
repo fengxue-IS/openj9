@@ -840,16 +840,16 @@ wrap_heapReferenceCallback(J9JavaVM * vm, J9JVMTIHeapData * iteratorData)
  *
  */
 static UDATA
-jvmtiHeapFollowRefs_getStackData(J9JVMTIHeapData * iteratorData, J9MM_StackSlotDescriptor *stackSlotDescriptor)
+jvmtiHeapFollowRefs_getStackData(J9JVMTIHeapData *iteratorData, J9MM_StackSlotDescriptor *stackSlotDescriptor)
 {
 	J9JVMTIHeapEvent * e = &iteratorData->event;
 	jint slot = -1;
 	jint depth = -1;
 	J9Method *ramMethod = NULL;
 	jmethodID method = (jmethodID) -1;
-	J9JVMTIObjectTag search;
-	J9JVMTIObjectTag *result;
-	jlong threadID;
+	J9JVMTIObjectTag search = {NULL, 0};
+	J9JVMTIObjectTag *result = NULL;
+	jlong threadID = 0;
 	J9StackWalkState *walkState = stackSlotDescriptor->walkState;
 
 	if (NULL != walkState) {
@@ -860,15 +860,15 @@ jvmtiHeapFollowRefs_getStackData(J9JVMTIHeapData * iteratorData, J9MM_StackSlotD
 		/* Convert internal slot type to JVMTI type */
 
 		switch (walkState->slotType) {
-			case J9_STACKWALK_SLOT_TYPE_JNI_LOCAL:
-				e->refKind = JVMTI_HEAP_REFERENCE_JNI_LOCAL;
-				break;
-			case J9_STACKWALK_SLOT_TYPE_METHOD_LOCAL:
-				e->refKind = JVMTI_HEAP_REFERENCE_STACK_LOCAL;
-				break;
-			default:
-				/* Do not callback with stack slot types other then JNI or STACK Local */
-				return 0;
+		case J9_STACKWALK_SLOT_TYPE_JNI_LOCAL:
+			e->refKind = JVMTI_HEAP_REFERENCE_JNI_LOCAL;
+			break;
+		case J9_STACKWALK_SLOT_TYPE_METHOD_LOCAL:
+			e->refKind = JVMTI_HEAP_REFERENCE_STACK_LOCAL;
+			break;
+		default:
+			/* Do not callback with stack slot types other then JNI or STACK Local. */
+			return 0;
 		}
 
 		/* If there's no method, slot, method and depth are set to -1 by default. */
@@ -889,10 +889,10 @@ jvmtiHeapFollowRefs_getStackData(J9JVMTIHeapData * iteratorData, J9MM_StackSlotD
 	if (NULL != search.ref) {
 		result = hashTableFind(iteratorData->env->objectTagTable, &search);
 
-		/* Figure out the Thread ID */
+		/* Retrieve the Thread ID. */
 		threadID = J9VMJAVALANGTHREAD_TID(iteratorData->currentThread, stackSlotDescriptor->vmThread->threadObject);
 	} else {
-		/* walking a Continuation, ref to threadObject is lost, set 0 for tag/ID. */
+		/* Set 0 for tag/ID since ref to threadObject can be lost while walking a continuation. */
 		result = NULL;
 		threadID = 0;
 	}

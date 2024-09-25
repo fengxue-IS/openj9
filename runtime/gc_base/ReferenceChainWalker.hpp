@@ -75,8 +75,8 @@ private:
 	bool _isTerminating; /**< Set when no more callbacks should be queued */
 	bool _shouldPreindexInterfaceFields; /**< if true, indexes interface fields of the class being visited before class and superclass fields, otherwise, returns them in the order they appear in an object instance (CMVC 142897) */
 #if JAVA_SPEC_VERSION >= 19
-	bool _includeVThreadObject; /**< Set when VirtualThread object is needed by callback function. */
-	J9Object *_vThreadObject; /**< Cached object ref of VirtualThread object. */
+	bool _includeVThreadObject; /**< Set when VirtualThread object is needed by callback function */
+	J9Object *_vThreadObject; /**< Cached object ref of VirtualThread object */
 #endif /* JAVA_SPEC_VERSION >= 19 */
 	MM_ReferenceChainWalkerMarkMap *_markMap;	/**< Mark Map created for Reference Chain Walker */
 	MM_Heap *_heap; /**< Cached pointer to the heap */
@@ -271,6 +271,7 @@ public:
 #if JAVA_SPEC_VERSION >= 19
 	void includeVThreadObject() { _includeVThreadObject = true; }
 #endif /* JAVA_SPEC_VERSION >= 19 */
+
 	/**
 	 * Added to support bi-modal interface indexing in JVMTI (CMVC 142897).
 	 * Detail:  heap10 requires no pre-indexing in order to preserve Java5 behaviour but heap11 requires pre-indexing to pass a Java6 JCK
