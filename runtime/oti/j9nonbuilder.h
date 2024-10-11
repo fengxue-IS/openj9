@@ -5334,9 +5334,12 @@ typedef struct J9VMContinuation {
 	struct J9I2JState i2jState;
 	struct J9VMEntryLocalStorage* oldEntryLocalStorage;
 	UDATA dropFlags;
+#if JAVA_SPEC_VERSION >= 24
+	UDATA ownedMonitorCount;
 	struct J9Pool* monitorEnterRecordPool;
 	struct J9MonitorEnterRecord* monitorEnterRecords;
 	j9object_t syncObject;
+#endif /* JAVA_SPEC_VERSION >= 24 */
 } J9VMContinuation;
 #endif /* JAVA_SPEC_VERSION >= 19 */
 

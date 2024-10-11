@@ -455,7 +455,11 @@ copyFieldsFromContinuation(J9VMThread *currentThread, J9VMThread *vmThread, J9VM
 	 * benefit to a single walk and the cache memory must be managed.
 	 */
 	vmThread->jitArtifactSearchCache = (void*)((UDATA)vmThread->jitArtifactSearchCache | J9_STACKWALK_NO_JIT_CACHE);
+
+#if JAVA_SPEC_VERSION >= 24
+	vmThread->ownedMonitorCount = continuation->ownedMonitorCount;
 	vmThread->monitorEnterRecords = continuation->monitorEnterRecords;
+#endif /* JAVA_SPEC_VERSION >= 24 */
 }
 
 UDATA
