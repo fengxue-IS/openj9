@@ -1694,9 +1694,11 @@ obj:
 						((UDATA*)(((J9SFStackFrame*)_sp) + 1))[-1] |= J9SF_A0_INVISIBLE_TAG;
 					}
 					switch (monitorRC) {
+#if JAVA_SPEC_VERSION >= 24
 					case J9_OBJECT_MONITOR_YIELD_PINNED:
 						_currentThread->tempSlot = (UDATA) syncObject;
 						rc = YIELD_PINNED_VTHREAD;
+#endif /* JAVA_SPEC_VERSION >= 24 */
 #if JAVA_SPEC_VERSION >= 16
 					case J9_OBJECT_MONITOR_VALUE_TYPE_IMSE:
 						_currentThread->tempSlot = (UDATA) syncObject;
@@ -10340,9 +10342,7 @@ public:
 #define DEBUG_ACTIONS
 #endif /* defined(DEBUG_VERSION) */
 
-#define PERFORM_ACTION_YIELD_PINNED_VTHREAD \
-	case PERFORM_ACTION_VALUE_TYPE_IMSE:
-	goto yieldPinnedVThread;
+
 #if JAVA_SPEC_VERSION >= 16
 #define PERFORM_ACTION_VALUE_TYPE_IMSE \
 	case THROW_VALUE_TYPE_ILLEGAL_MONITOR_STATE: \
@@ -10350,6 +10350,14 @@ public:
 #else /* JAVA_SPEC_VERSION >= 16 */
 #define PERFORM_ACTION_VALUE_TYPE_IMSE
 #endif /* JAVA_SPEC_VERSION >= 16 */
+
+#if JAVA_SPEC_VERSION >= 24
+#define PERFORM_ACTION_YIELD_PINNED_VTHREAD \
+	case YIELD_PINNED_VTHREAD: \
+	goto yieldPinnedVThread;
+#else /* JAVA_SPEC_VERSION >= 24 */
+#define PERFORM_ACTION_YIELD_PINNED_VTHREAD
+#endif /* JAVA_SPEC_VERSION >= 24 */
 
 #if defined(J9VM_OPT_CRIU_SUPPORT)
 #define PERFORM_ACTION_CRIU_STM_THROW \
