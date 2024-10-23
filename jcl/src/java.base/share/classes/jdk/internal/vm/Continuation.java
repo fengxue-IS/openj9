@@ -66,22 +66,30 @@ public class Continuation {
 	 * Continuation's Pinned reasons
 	 */
 	public enum Pinned {
+		/* Matches RI's JFR Event code. */
 		/** In native code */
-		NATIVE(1),
+		NATIVE(2, "Native frame"),
 		/** Holding monitor(s) */
-		MONITOR(2),
+		MONITOR(3, "Monitor held"),
 		/** In critical section */
-		CRITICAL_SECTION(3);
+		CRITICAL_SECTION(4, "In critical section");
 
-		private final int errorCode;
+		private final int reasonCode;
+		private final String reasonString;
 
-		private Pinned(int errorCode) {
-			this.errorCode = errorCode;
+		private Pinned(int reasonCode, String reasonString) {
+			this.reasonCode = reasonCode;
+			this.reasonString = reasonString;
 		}
 
-		public int errorCode() {
-			return this.errorCode;
+		public int reasonCode() {
+			return this.reasonCode;
 		}
+/*[IF JAVA_SPEC_VERSION >= 24]*/
+		public String reasonString() {
+			return this.reasonString;
+		}
+/*[ENDIF] JAVA_SPEC_VERSION >= 24 */
 	}
 
 	public enum PreemptStatus {
@@ -242,14 +250,14 @@ public class Continuation {
 		int rcPinned = isPinnedImpl();
 		if (rcPinned != 0) {
 			Pinned reason = null;
-			if (rcPinned == Pinned.CRITICAL_SECTION.errorCode()) {
+			if (rcPinned == Pinned.CRITICAL_SECTION.reasonCode()) {
 				reason = Pinned.CRITICAL_SECTION;
-			} else if (rcPinned == Pinned.MONITOR.errorCode()) {
+			} else if (rcPinned == Pinned.MONITOR.reasonCode()) {
 				reason = Pinned.MONITOR;
-			} else if (rcPinned == Pinned.NATIVE.errorCode()) {
+			} else if (rcPinned == Pinned.NATIVE.reasonCode()) {
 				reason = Pinned.NATIVE;
 			} else {
-				throw new AssertionError("Unknown pinned error code: " + rcPinned);
+				throw new AssertionError("Unknown pinned reason code: " + rcPinned);
 			}
 			onPinned(reason);
 		} else {

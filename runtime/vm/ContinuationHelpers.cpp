@@ -81,7 +81,6 @@ createContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 	J9SFJNINativeMethodFrame *frame = NULL;
 	/* No cache found, allocate new continuation structure. */
 	if (NULL == continuation) {
-		PORT_ACCESS_FROM_PORT(vm->portLibrary);
 #if defined(J9VM_PROF_CONTINUATION_ALLOCATION)
 		start = j9time_hires_clock();
 #endif /* defined(J9VM_PROF_CONTINUATION_ALLOCATION) */
