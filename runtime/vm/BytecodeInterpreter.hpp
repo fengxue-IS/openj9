@@ -5534,14 +5534,16 @@ ffi_OOM:
 			_sendMethod = J9VMJDKINTERNALVMCONTINUATION_ENTER_METHOD(_currentThread->javaVM);
 			rc = GOTO_RUN_METHOD;
 		} else if (NULL != _currentThread->currentContinuation->syncObject) {
-			UDATA monitorRC = enterObjectMonitor(_currentThread, _currentThread->currentContinuation->syncObject);
+			UDATA monitorRC = enterObjectMonitor(REGISTER_ARGS_LIST, _currentThread->currentContinuation->syncObject);
 			if (J9_OBJECT_MONITOR_ENTER_FAILED(monitorRC)) {
 				/* check inital yield point, match bytecode behaviour. */
 			} else {
 				/* Clear syncObject field once monitor acquired. */
 				_currentThread->currentContinuation->syncObject = NULL;
 			}
-			if (/* check flag to determine what post monitor acquire opperation needed. */)
+			if (/* check flag to determine what post monitor acquire opperation needed. */) {
+				
+			}
 		}
 
 		VMStructHasBeenUpdated(REGISTER_ARGS);
