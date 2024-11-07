@@ -4646,6 +4646,11 @@ acquireVThreadInspector(J9VMThread *currentThread, jobject thread, BOOLEAN spin)
  */
 void
 releaseVThreadInspector(J9VMThread *currentThread, jobject thread);
+
+#if JAVA_SPEC_VERSION >= 24
+void
+prepareForYieldPinnedContinuation(J9VMThread *currentThread);
+#endif /* JAVA_SPEC_VERSION >= 24 */
 #endif /* JAVA_SPEC_VERSION >= 19 */
 
 /* ---------------- hookableAsync.c ---------------- */

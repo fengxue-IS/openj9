@@ -626,4 +626,11 @@ releaseVThreadInspector(J9VMThread *currentThread, jobject thread)
 		}
 	}
 }
+
+#if JAVA_SPEC_VERSION >= 24
+void
+prepareForYieldPinnedContinuation(J9VMThread *currentThread) {
+	return;
+}
+#endif /* JAVA_SPEC_VERSION >= 24 */
 } /* extern "C" */

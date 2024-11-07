@@ -5534,7 +5534,7 @@ ffi_OOM:
 			_sendMethod = J9VMJDKINTERNALVMCONTINUATION_ENTER_METHOD(_currentThread->javaVM);
 			rc = GOTO_RUN_METHOD;
 		} else if (NULL != _currentThread->currentContinuation->syncObject) {
-			UDATA monitorRC = enterObjectMonitor(REGISTER_ARGS_LIST, _currentThread->currentContinuation->syncObject);
+			UDATA monitorRC = enterObjectMonitor(REGISTER_ARGS, _currentThread->currentContinuation->syncObject);
 			if (J9_OBJECT_MONITOR_ENTER_FAILED(monitorRC)) {
 				/* check inital yield point, match bytecode behaviour. */
 			} else {
@@ -11095,7 +11095,7 @@ illegalMonitorState:
 
 yieldPinnedVThread:
 	updateVMStruct(REGISTER_ARGS);
-	prepareForYieldPinnedContinuation(REGISTER_ARGS);
+	prepareForYieldPinnedContinuation(_currentThread);
 	VMStructHasBeenUpdated(REGISTER_ARGS);
 	EXECUTE_CURRENT_BYTECODE();
 
