@@ -5541,9 +5541,9 @@ ffi_OOM:
 				/* Clear syncObject field once monitor acquired. */
 				_currentThread->currentContinuation->syncObject = NULL;
 			}
-			if (/* check flag to determine what post monitor acquire opperation needed. */) {
+			//if (/* check flag to determine what post monitor acquire opperation needed. */) {
 				
-			}
+			//}
 		}
 
 		VMStructHasBeenUpdated(REGISTER_ARGS);
