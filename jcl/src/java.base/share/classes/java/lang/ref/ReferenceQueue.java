@@ -89,6 +89,14 @@ public Reference<? extends T> poll () {
 	if(empty) {
 		return null;
 	}
+
+	/*[IF JAVA_SPEC_VERSION >= 24]
+	boolean isVirtual;
+	if (Thread.currentThread().isVirtual()) {
+		isVirtual = true;
+		Continuation.pin();
+	}
+	/*[ENDIF] JAVA_SPEC_VERSION >= 24*/
 	synchronized(this) {
 		if(empty) {
 			return null;
@@ -104,6 +112,11 @@ public Reference<? extends T> poll () {
 			empty = true;
 		}
 	}
+	/*[IF JAVA_SPEC_VERSION >= 24]
+	if (isVirtual) {
+		Continuation.pin();
+	}
+	/*[ENDIF] JAVA_SPEC_VERSION >= 24*/
 	return ref;
 }
 
