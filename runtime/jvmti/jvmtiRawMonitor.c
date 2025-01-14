@@ -25,7 +25,7 @@
 #include "omr.h"
 #include "jvmti_internal.h"
 #include "vmaccess.h"
-#include "VMHelpers.hpp"
+//#include "VMHelpers.hpp"
 
 jvmtiError JNICALL
 jvmtiCreateRawMonitor(jvmtiEnv* env,
@@ -226,9 +226,11 @@ jvmtiRawMonitorWait(jvmtiEnv *env,
 			PORT_ACCESS_FROM_JAVAVM(vm);
 			beforeWait = j9time_nano_time();
 		}
+		/*
 		U_64 oldState = (waitTimed)
 				? VM_VMHelpers::setThreadState(currentThread, J9VMTHREAD_STATE_WAITING_TIMED)
 				: VM_VMHelpers::setThreadState(currentThread, J9VMTHREAD_STATE_WAITING);
+		*/
 continueWait:
 #endif /* defined(J9VM_OPT_CRIU_SUPPORT) */
 		millis = ((millis < 0) ? 0 : millis);
@@ -253,8 +255,9 @@ continueWait:
 		}
 #endif /* defined(J9VM_OPT_CRIU_SUPPORT) */
 		/* Set j.l.Thread status to oldState. */
+		/*
 		VM_VMHelpers::setThreadState(currentThread, oldState);
-
+		*/
 		switch (result) {
 		case 0:
 			/* FALLTHROUGH*/
