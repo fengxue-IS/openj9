@@ -25,6 +25,7 @@
 #include "omr.h"
 #include "jvmti_internal.h"
 #include "vmaccess.h"
+#include "VMHelpers.hpp"
 
 jvmtiError JNICALL
 jvmtiCreateRawMonitor(jvmtiEnv* env,
