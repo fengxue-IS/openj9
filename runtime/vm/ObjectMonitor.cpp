@@ -180,6 +180,8 @@ objectMonitorEnterBlocking(J9VMThread *currentThread)
 		omrthread_t const osThread = currentThread->osThread;
 		/* Update j.l.management info */
 		currentThread->mgmtBlockedCount += 1;
+		/* Set j.l.Thread status to BLOCKED. */
+		U_64 oldState = VM_VMHelpers::setThreadState(currentThread, J9VMTHREAD_STATE_BLOCKED);
 		if (J9_ARE_ALL_BITS_SET(currentThread->publicFlags, J9_PUBLIC_FLAGS_THREAD_BLOCKED)) {
 			internalReleaseVMAccess(currentThread);
 			goto releasedAccess;
@@ -187,9 +189,6 @@ objectMonitorEnterBlocking(J9VMThread *currentThread)
 restart:
 		internalReleaseVMAccessSetStatus(currentThread, J9_PUBLIC_FLAGS_THREAD_BLOCKED);
 releasedAccess:
-		/* Set j.l.Thread status to BLOCKED. */
-		U_64 oldState = VM_VMHelpers::setThreadState(currentThread, J9VMTHREAD_STATE_BLOCKED);
-
 		omrthread_monitor_enter_using_threadId(monitor, osThread);
 #if defined(J9VM_THR_SMART_DEFLATION)
 		/* Update the anti-deflation vote because we had to block */
