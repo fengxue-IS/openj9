@@ -455,13 +455,12 @@ void threadCleanup(J9VMThread * vmThread, UDATA forkedByVM)
 		/* Safe to call this whether handleUncaughtException clears the exception or not */
 		internalExceptionDescribe(vmThread);
 	}
+	/* Set j.l.Thread status to TERMINATED. */
+	VM_VMHelpers::setThreadState(vmThread, J9VMTHREAD_STATE_DEAD);
 	releaseVMAccess(vmThread);
 
 	/* Mark this thread as dead */
 	setEventFlag(vmThread, J9_PUBLIC_FLAGS_STOPPED);
-
-	/* Set j.l.Thread status to TERMINATED. */
-	VM_VMHelpers::setThreadState(vmThread, J9VMTHREAD_STATE_DEAD);
 
 	/* We are dead at this point. Clear the suspend bit prior to triggering the thread end hook */
 	clearHaltFlag(vmThread, J9_PUBLIC_FLAGS_HALT_THREAD_JAVA_SUSPEND);

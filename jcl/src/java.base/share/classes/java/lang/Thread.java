@@ -1512,9 +1512,8 @@ private State translateJ9VMThreadStateToThreadState(int status) {
 		case 32: // J9VMTHREAD_STATE_DEAD
 			return State.TERMINATED;
 		default:
-			// Fallback case: evaluate the state lazily.
-			synchronized (lock) {
-				return State.values()[getStateImpl(threadRef)];
+			if (started) {
+				return State.TERMINATED;
 			}
 	}
 }
