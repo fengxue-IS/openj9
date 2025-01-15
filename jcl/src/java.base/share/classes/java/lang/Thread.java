@@ -1515,6 +1515,7 @@ private State translateJ9VMThreadStateToThreadState(int status) {
 			if (started) {
 				return State.TERMINATED;
 			}
+			return State.NEW;
 	}
 }
 
