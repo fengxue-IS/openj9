@@ -2004,15 +2004,15 @@ startJavaThreadInternal(J9VMThread * currentThread, UDATA privateFlags, UDATA os
 	}
 	J9VMJAVALANGTHREAD_SET_THREADREF(currentThread, threadObject, newThread);
 
+	/* Set j.l.Thread status to RUNNABLE. */
+	VM_VMHelpers::setThreadState(currentThread, J9VMTHREAD_STATE_RUNNING);
+
 #if (JAVA_SPEC_VERSION >= 14)
 	/* If thread was interrupted before start, make sure interrupt flag is set for running thread. */
 	if (J9VMJAVALANGTHREAD_DEADINTERRUPT(currentThread, threadObject)) {
 		omrthread_interrupt(osThread);
 	}
 #endif
-
-	/* Set j.l.Thread status to RUNNABLE. */
-	VM_VMHelpers::setThreadState(currentThread, J9VMTHREAD_STATE_RUNNING);
 
 	/* Allow the thread to run. */
 	omrthread_resume(osThread);
