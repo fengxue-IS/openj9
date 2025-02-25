@@ -292,7 +292,10 @@ enterContinuation(J9VMThread *currentThread, j9object_t continuationObject)
 		if (J9_ARE_ANY_BITS_SET(currentThread->javaVM->extendedRuntimeFlags3, J9_EXTENDED_RUNTIME3_YIELD_PINNED_CONTINUATION)) {
 			preparePinnedVirtualThreadForMount(currentThread, continuationObject, (J9VM_CONTINUATION_RETURN_FROM_OBJECT_WAIT == continuation->returnState));
 		}
-		VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
+		/* InternalNative frame only build for non-jit calls. */
+		if (J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER != continuation->returnState) {
+			VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
+		}
 		result = FALSE;
 #else /* JAVA_SPEC_VERSION >= 24 */
 		/* resuming Continuation from yieldImpl */
@@ -824,7 +827,6 @@ preparePinnedVirtualThreadForMount(J9VMThread *currentThread, j9object_t continu
 		}
 	}
 
-	J9VMJDKINTERNALVMCONTINUATION_SET_BLOCKER(currentThread, continuationObject, NULL);
 	if (isObjectWait) {
 		currentThread->ownedMonitorCount -= 1;
 	}

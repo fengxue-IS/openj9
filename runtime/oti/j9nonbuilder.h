@@ -5354,6 +5354,7 @@ typedef struct J9InternalVMFunctions {
 #if JAVA_SPEC_VERSION >= 24
 	struct J9ObjectMonitor * (*monitorTablePeek)(struct J9JavaVM *vm, j9object_t object);
 	jobject (*takeVirtualThreadListToUnblock)(struct J9VMThread *currentThread);
+	UDATA (*preparePinnedVirtualThreadForUnmount)(struct J9VMThread *currentThread, j9object_t syncObj, BOOLEAN isObjectWait);
 #endif /* JAVA_SPEC_VERSION >= 24 */
 	jobjectArray (*getSystemPropertyList)(JNIEnv *env);
 } J9InternalVMFunctions;
