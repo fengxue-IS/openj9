@@ -1535,6 +1535,44 @@ obj:
 
 		return EXECUTE_BYTECODE;
 	}
+
+	VMINLINE VM_BytecodeAction
+	tryEnterBlockingMonitor(REGISTER_ARGS_LIST, j9object_t syncObject, UDATA returnState)
+	{
+		VM_BytecodeAction = EXECUTE_BYTECODE;
+		UDATA monitorRC = enterObjectMonitor(REGISTER_ARGS, syncObject);
+
+		/* Monitor enter can only fail in the non-blocking case, which does not
+		 * release VM access. So, the immediate async and failed enter cases are
+		 * mutually exclusive.
+		 */
+		if (J9_OBJECT_MONITOR_ENTER_FAILED(monitorRC)) {
+			switch (monitorRC) {
+			case J9_OBJECT_MONITOR_VALUE_TYPE_IMSE:
+				_currentThread->tempSlot = (UDATA)syncObject;
+				rc = THROW_VALUE_TYPE_ILLEGAL_MONITOR_STATE;
+				break;
+#if defined(J9VM_OPT_CRIU_SUPPORT)
+			case J9_OBJECT_MONITOR_CRIU_SINGLE_THREAD_MODE_THROW:
+				rc = THROW_CRIU_SINGLE_THREAD_MODE;
+				break;
+#endif /* defined(J9VM_OPT_CRIU_SUPPORT) */
+			case J9_OBJECT_MONITOR_YIELD_VIRTUAL: {
+				rc = yieldPinnedContinuation(REGISTER_ARGS, JAVA_LANG_VIRTUALTHREAD_BLOCKING, returnState);
+				omrthread_monitor_enter(_vm->blockedVirtualThreadsMutex);
+				omrthread_monitor_notify(_vm->blockedVirtualThreadsMutex);
+				omrthread_monitor_exit(_vm->blockedVirtualThreadsMutex);
+				break;
+			}
+			case J9_OBJECT_MONITOR_OOM:
+				rc = THROW_MONITOR_ALLOC_FAIL;
+				break;
+			default:
+				Assert_VM_unreachable();
+			}
+		}
+		return rc;
+	}
 #endif /* JAVA_SPEC_VERSION >= 24 */
 
 	VMINLINE VM_BytecodeAction
@@ -5713,37 +5751,8 @@ ffi_OOM:
 			break;
 		case J9VM_CONTINUATION_RETURN_FROM_OBJECT_WAIT: {
 			j9object_t waitObject = *(j9object_t *)(_sp + 3);
-			UDATA monitorRC = enterObjectMonitor(REGISTER_ARGS, waitObject);
-
-			/* Monitor enter can only fail in the non-blocking case, which does not
-			 * release VM access. So, the immediate async and failed enter cases are
-			 * mutually exclusive.
-			 */
-			if (J9_OBJECT_MONITOR_ENTER_FAILED(monitorRC)) {
-				switch (monitorRC) {
-				case J9_OBJECT_MONITOR_VALUE_TYPE_IMSE:
-					_currentThread->tempSlot = (UDATA)waitObject;
-					rc = THROW_VALUE_TYPE_ILLEGAL_MONITOR_STATE;
-					break;
-#if defined(J9VM_OPT_CRIU_SUPPORT)
-				case J9_OBJECT_MONITOR_CRIU_SINGLE_THREAD_MODE_THROW:
-					rc = THROW_CRIU_SINGLE_THREAD_MODE;
-					break;
-#endif /* defined(J9VM_OPT_CRIU_SUPPORT) */
-				case J9_OBJECT_MONITOR_YIELD_VIRTUAL: {
-					rc = yieldPinnedContinuation(REGISTER_ARGS, JAVA_LANG_VIRTUALTHREAD_BLOCKING, J9VM_CONTINUATION_RETURN_FROM_OBJECT_WAIT);
-					omrthread_monitor_enter(_vm->blockedVirtualThreadsMutex);
-					omrthread_monitor_notify(_vm->blockedVirtualThreadsMutex);
-					omrthread_monitor_exit(_vm->blockedVirtualThreadsMutex);
-					break;
-				}
-				case J9_OBJECT_MONITOR_OOM:
-					rc = THROW_MONITOR_ALLOC_FAIL;
-					break;
-				default:
-					Assert_VM_unreachable();
-				}
-			} else {
+			rc = tryEnterBlockingMonitor(REGISTER_ARGS, waitObject, J9VM_CONTINUATION_RETURN_FROM_OBJECT_WAIT);
+			if (EXECUTE_BYTECODE == rc) {
 				omrthread_monitor_t monitor = getMonitorForWait(_currentThread, waitObject);
 				monitor->count = _currentThread->currentContinuation->waitingMonitorEnterCount;
 				_currentThread->currentContinuation->waitingMonitorEnterCount = 0;
@@ -5756,6 +5765,15 @@ ffi_OOM:
 			restoreSpecialStackFrameLeavingArgs(REGISTER_ARGS, bp);
 			rc = inlineSendTarget(REGISTER_ARGS, VM_MAYBE, VM_MAYBE, VM_MAYBE, VM_MAYBE);
 			break;
+		case J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER: {
+			rc = tryEnterBlockingMonitor(REGISTER_ARGS, waitObject, J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER);
+			if ((NULL != _currentThread->currentContinuation) && (EXECUTE_BYTECODE == rc)) {
+				void *jitPC = _currentThread->currentContinuation->jitPC;
+				void *returnAddress = restoreJITResolveFrame(_currentThread, jitPC, false, false);
+				rc = promotedMethodOnTransitionFromJIT(REGISTER_ARGS, returnAddress, _vm->jitConfig->jitExitInterpreter0RestoreAll);
+			}
+			break;
+		}
 		}
 #endif /* JAVA_SPEC_VERSION >= 24 */
 		return rc;
