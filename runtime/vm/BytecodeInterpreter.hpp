@@ -10739,6 +10739,10 @@ public:
 	case J9_BCLOOP_N2I_TRANSITION:
 		PERFORM_ACTION(native2InterpreterTransition(REGISTER_ARGS));
 #endif /* JAVA_SPEC_VERSION >= 16 */
+#if JAVA_SPEC_VERSION >= 24
+	case J9_BCLOOP_YIELD_FOR_JIT_MONENT:
+		PERFORM_ACTION(yieldPinnedContinuation(REGISTER_ARGS, JAVA_LANG_VIRTUALTHREAD_BLOCKING, J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER));
+#endif /* JAVA_SPEC_VERSION >= 24 */
 	default:
 #if defined(TRACE_TRANSITIONS)
 		j9tty_printf(PORTLIB, "<%p> enter: UNKNOWN %d\n", vmThread, vmThread->returnValue);

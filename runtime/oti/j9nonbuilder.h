@@ -4358,6 +4358,9 @@ typedef struct J9JITConfig {
 	UDATA osrStackFrameMaximumSize;
 	void* jitFillOSRBufferReturn;
 	IDATA  ( *launchGPU)(struct J9VMThread *vmThread, jobject invokeObject, J9Method *method, int deviceId, I_32 gridDimX, I_32 gridDimY, I_32 gridDimZ, I_32 blockDimX, I_32 blockDimY, I_32 blockDimZ, void **args) ;
+#if JAVA_SPEC_VERSION >= 24
+	void* jitExitInterpreter0RestoreAll;
+#endif /* JAVA_SPEC_VERSION >= 24 */
 	void* jitExitInterpreter0;
 	void* jitExitInterpreter1;
 	void* jitExitInterpreterF;
@@ -5436,6 +5439,7 @@ typedef uintptr_t ContinuationState;
 #define J9VM_CONTINUATION_RETURN_FROM_MONITOR_ENTER 0
 #define J9VM_CONTINUATION_RETURN_FROM_OBJECT_WAIT   2
 #define J9VM_CONTINUATION_RETURN_FROM_SYNC_METHOD   3
+#define J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER 4
 #endif /* JAVA_SPEC_VERSION >= 24 */
 
 typedef struct J9VMContinuation {
