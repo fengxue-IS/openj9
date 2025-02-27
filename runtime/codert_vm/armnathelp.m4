@@ -434,6 +434,10 @@ START_PROC(cInterpreterFromJIT)
 	ldr r15,[r3,{#}J9TR_JavaVM_cInterpreter]
 END_PROC(cInterpreterFromJIT)
 
+BEGIN_RETURN_POINT(jitExitInterpreter0RestoreAll)
+	RESTORE_ALL_REGS
+END_RETURN_POINT(jitExitInterpreter0RestoreAll)
+
 BEGIN_RETURN_POINT(jitExitInterpreter0)
 END_RETURN_POINT(jitExitInterpreter0)
 
@@ -791,6 +795,10 @@ END_PROC(jitDecompileAfterMonitorEnter)
 START_PROC(executeCurrentBytecodeFromJIT)
 	CINTERP(J9TR_bcloop_execute_bytecode, 0)
 END_PROC(executeCurrentBytecodeFromJIT)
+
+START_PROC(yieldAtMonitorEnter)
+	CINTERP(J9TR_bcloop_yield_monent, 0)
+END_PROC(yieldAtMonitorEnter)
 
 START_PROC(handlePopFramesFromJIT)
 	CINTERP(J9TR_bcloop_handle_pop_frames, 0)

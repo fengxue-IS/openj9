@@ -525,6 +525,10 @@ PLACE_LABEL(L_CINTERP)
     br r14
 END_CURRENT
 
+BEGIN_RETURN_POINT(jitExitInterpreter0RestoreAll)
+	RESTORE_ALL_REGS
+END_RETURN_POINT(jitExitInterpreter0RestoreAll)
+
 BEGIN_RETURN_POINT(jitExitInterpreter0)
 END_RETURN_POINT
 
@@ -850,6 +854,10 @@ END_CURRENT
 BEGIN_FUNC(throwCurrentExceptionFromJIT)
     CINTERP(J9TR_bcloop_throw_current_exception, 0)
 END_CURRENT
+
+START_PROC(yieldAtMonitorEnter)
+	CINTERP(J9TR_bcloop_yield_monent, 0)
+END_PROC(yieldAtMonitorEnter)
 
 BEGIN_FUNC(executeCurrentBytecodeFromJIT)
     CINTERP(J9TR_bcloop_execute_bytecode, 0)
