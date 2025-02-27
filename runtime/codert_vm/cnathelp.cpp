@@ -44,8 +44,14 @@ old_slow_jitThrowNullPointerException(J9VMThread *currentThread);
 
 J9_EXTERN_BUILDER_SYMBOL(throwCurrentExceptionFromJIT);
 J9_EXTERN_BUILDER_SYMBOL(handlePopFramesFromJIT);
+#if JAVA_SPEC_VERSION >= 24
+J9_EXTERN_BUILDER_SYMBOL(yieldAtMonitorEnter);
+#endif /* JAVA_SPEC_VERSION >= 24 */
 #define J9_JITHELPER_ACTION_THROW		J9_BUILDER_SYMBOL(throwCurrentExceptionFromJIT)
 #define J9_JITHELPER_ACTION_POP_FRAMES	J9_BUILDER_SYMBOL(handlePopFramesFromJIT)
+#if JAVA_SPEC_VERSION >= 24
+#define J9_JITHELPER_ACTION_YIELD_AT_MONENT	J9_BUILDER_SYMBOL(yieldAtMonitorEnter)
+#endif /* JAVA_SPEC_VERSION >= 24 */
 
 J9_EXTERN_BUILDER_SYMBOL(jitRunOnJavaStack);
 #define JIT_RUN_ON_JAVA_STACK(x) (currentThread->tempSlot = (UDATA)(x), J9_BUILDER_SYMBOL(jitRunOnJavaStack))
