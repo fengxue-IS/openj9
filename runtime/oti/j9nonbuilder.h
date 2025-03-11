@@ -1732,6 +1732,7 @@ typedef struct J9ObjectMonitor {
 	U_32 virtualThreadWaitCount;
 	struct J9VMContinuation* ownerContinuation;
 	struct J9VMContinuation* waitingContinuations;
+	struct J9ObjectMonitor* next;
 #endif /* JAVA_SPEC_VERSION >= 24 */
 } J9ObjectMonitor;
 
@@ -5355,6 +5356,7 @@ typedef struct J9InternalVMFunctions {
 	struct J9ObjectMonitor * (*monitorTablePeek)(struct J9JavaVM *vm, j9object_t object);
 	jobject (*takeVirtualThreadListToUnblock)(struct J9VMThread *currentThread);
 	UDATA (*preparePinnedVirtualThreadForUnmount)(struct J9VMThread *currentThread, j9object_t syncObj, BOOLEAN isObjectWait);
+	J9ObjectMonitor * (*detachMonitorInfo)(struct J9VMThread *currentThread, j9object_t lockObject);
 #endif /* JAVA_SPEC_VERSION >= 24 */
 	jobjectArray (*getSystemPropertyList)(JNIEnv *env);
 } J9InternalVMFunctions;
@@ -5468,6 +5470,7 @@ typedef struct J9VMContinuation {
 	j9object_t vthread;
 	struct J9VMContinuation* nextWaitingContinuation;
 	struct J9ObjectMonitor* objectWaitMonitor;
+	struct J9ObjectMonitor* enteredMonitors;
 #endif /* JAVA_SPEC_VERSION >= 24 */
 } J9VMContinuation;
 #endif /* JAVA_SPEC_VERSION >= 19 */

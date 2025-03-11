@@ -504,7 +504,7 @@ retry:
 	}
 
 	VMINLINE void*
-	restoreJITResolveFrame(REGISTER_ARG_LIST)
+	restoreJITResolveFrame(REGISTER_ARGS_LIST)
 	{
 		J9SFJITResolveFrame *resolveFrame = (J9SFJITResolveFrame*)_currentThread->sp;
 		void* addr = resolveFrame->returnAddress;
@@ -1521,7 +1521,7 @@ obj:
 	VMINLINE VM_BytecodeAction
 	yieldPinnedContinuation(REGISTER_ARGS_LIST, U_32 newThreadState, UDATA returnState)
 	{
-		/* /* InternalNative frame only build for non-jit calls. */
+		/* InternalNative frame only build for non-jit calls. */
 		if (J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER != returnState) {
 			buildInternalNativeStackFrame(REGISTER_ARGS);
 		}
@@ -1552,7 +1552,7 @@ obj:
 	VMINLINE VM_BytecodeAction
 	tryEnterBlockingMonitor(REGISTER_ARGS_LIST, j9object_t syncObject, UDATA returnState)
 	{
-		VM_BytecodeAction = EXECUTE_BYTECODE;
+		VM_BytecodeAction rc = EXECUTE_BYTECODE;
 		UDATA monitorRC = enterObjectMonitor(REGISTER_ARGS, syncObject);
 
 		/* Monitor enter can only fail in the non-blocking case, which does not
@@ -5776,11 +5776,12 @@ ffi_OOM:
 			}
 			break;
 		}
-		case J9VM_CONTINUATION_RETURN_FROM_SYNC_METHOD:
+		case J9VM_CONTINUATION_RETURN_FROM_SYNC_METHOD: {
 			UDATA *bp = ((UDATA *)(((J9SFMethodFrame *)_sp) + 1)) - 1;
 			restoreSpecialStackFrameLeavingArgs(REGISTER_ARGS, bp);
 			rc = inlineSendTarget(REGISTER_ARGS, VM_MAYBE, VM_MAYBE, VM_MAYBE, VM_MAYBE);
 			break;
+		}
 		case J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER: {
 			rc = tryEnterBlockingMonitor(REGISTER_ARGS, syncObject, J9VM_CONTINUATION_RETURN_FROM_JIT_MONITOR_ENTER);
 			if ((NULL != _currentThread->currentContinuation) && (EXECUTE_BYTECODE == rc)) {
