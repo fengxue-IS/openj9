@@ -797,9 +797,6 @@ preparePinnedVirtualThreadForMount(J9VMThread *currentThread, j9object_t continu
 	}
 
 	J9VMJDKINTERNALVMCONTINUATION_SET_BLOCKER(currentThread, continuationObject, NULL);
-	if (isObjectWait) {
-		currentThread->ownedMonitorCount -= 1;
-	}
 
 	/* Add the attached monitor to the carrier thread's lockedmonitorcount. */
 	currentThread->osThread->lockedmonitorcount += monitorCount;

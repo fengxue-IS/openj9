@@ -5747,7 +5747,17 @@ ffi_OOM:
 				omrthread_monitor_t monitor = getMonitorForWait(_currentThread, waitObject);
 				monitor->count = _currentThread->currentContinuation->waitingMonitorEnterCount;
 				_currentThread->currentContinuation->waitingMonitorEnterCount = 0;
-				returnVoidFromINL(REGISTER_ARGS, 4);
+				_currentThread->ownedMonitorCount -= 1;
+				if (J9VMJAVALANGTHREAD_DEADINTERRUPT(_currentThread, _currentThread->threadObject)) {
+					buildInternalNativeStackFrame(REGISTER_ARGS);
+					updateVMStruct(REGISTER_ARGS);
+					setCurrentException(_currentThread, J9VMCONSTANTPOOL_JAVALANGINTERRUPTEDEXCEPTION, NULL);
+					VMStructHasBeenUpdated(REGISTER_ARGS);
+					restoreInternalNativeStackFrame(REGISTER_ARGS);
+					rc = GOTO_THROW_CURRENT_EXCEPTION;
+				} else {
+					returnVoidFromINL(REGISTER_ARGS, 4);
+				}
 			}
 			break;
 		}
