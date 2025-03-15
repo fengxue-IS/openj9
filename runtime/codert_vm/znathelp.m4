@@ -858,9 +858,9 @@ BEGIN_FUNC(throwCurrentExceptionFromJIT)
 END_CURRENT
 
 ifelse(eval(ASM_JAVA_SPEC_VERSION >= 24), 1, {
-START_PROC(yieldAtMonitorEnter)
+BEGIN_FUNC(yieldAtMonitorEnter)
 	CINTERP(J9TR_bcloop_yield_monent, 0)
-END_PROC(yieldAtMonitorEnter)
+END_CURRENT(yieldAtMonitorEnter)
 }) dnl yieldAtMonitorEnter is only supported on JAVA 24+
 
 BEGIN_FUNC(executeCurrentBytecodeFromJIT)
