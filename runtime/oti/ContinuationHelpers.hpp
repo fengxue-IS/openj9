@@ -324,35 +324,42 @@ public:
 		return foundInList;
 	}
 
-	static VMINLINE bool
+	static bool
 	notifyVirtualThread(J9VMThread *vmThread, J9ObjectMonitor *objectMonitor, bool notifyAll) {
 		bool notified = false;
 		J9JavaVM *vm = vmThread->javaVM;
+
+		printf("notifyVirtualThread called\n");
+		omrthread_monitor_enter(vm->blockedVirtualThreadsMutex);
 		J9VMContinuation *head = objectMonitor->waitingContinuations;
 		J9VMContinuation *prev = head;
 
-		omrthread_monitor_enter(vm->blockedVirtualThreadsMutex);
 		while ((NULL != head) && (NULL != head->vthread)) {
 			if (J9VMJAVALANGTHREAD_DEADINTERRUPT(vmThread, head->vthread)) {
 				/* Remove vthreads that have been interrupted. */
+				printf("interrupted thread pruned");
 				if (prev == head) {
 					/* This is the first entry. */
 					objectMonitor->waitingContinuations = head->nextWaitingContinuation;
 					head->nextWaitingContinuation = NULL;
 					head = objectMonitor->waitingContinuations;
 					prev = objectMonitor->waitingContinuations;
+					printf(": head node\n");
 				} else {
 					prev->nextWaitingContinuation = head->nextWaitingContinuation;
 					head->nextWaitingContinuation = NULL;
 					head = prev->nextWaitingContinuation;
+					printf(": middle node\n");
 				}
 			} else {
+				printf("vthread notified %p\n", head);
 				/* Sets the notified and onWaitingList flag for vthread that have not been interrupted. */
 				J9VMJAVALANGVIRTUALTHREAD_SET_NOTIFIED(vmThread, head->vthread, JNI_TRUE);
 				J9VMJAVALANGVIRTUALTHREAD_SET_ONWAITINGLIST(vmThread, head->vthread, JNI_TRUE);
 				notified = true;
 
 				if (!notifyAll) {
+					printf("returning after single notification\n");
 					/* For Object.notify, exit the loop with prev and head pointer set to notified Continuation. */
 					break;
 				}
@@ -372,6 +379,7 @@ public:
 			}
 			vm->blockedContinuations = head;
 			omrthread_monitor_notify(vm->blockedVirtualThreadsMutex);
+			printf("blockedVirtualThreadsMutex notified\n");
 		}
 
 		omrthread_monitor_exit(vm->blockedVirtualThreadsMutex);

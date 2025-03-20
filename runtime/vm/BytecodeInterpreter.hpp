@@ -3005,6 +3005,7 @@ done:
 						 * the native notify API.
 						 */
 						if (notified && (!isNotifyAll)) {
+							printf("notify early return\n");
 							returnVoidFromINL(REGISTER_ARGS, 1);
 							goto done;
 						}
