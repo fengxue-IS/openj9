@@ -30,6 +30,10 @@
 #if defined(J9VM_OPT_CRIU_SUPPORT)
 #include "CRIUHelpers.hpp"
 #endif /* defined(J9VM_OPT_CRIU_SUPPORT) */
+#if JAVA_SPEC_VERSION >= 24
+#include "ContinuationHelpers.hpp"
+#include "OutOfLineINL.hpp"
+#endif /* JAVA_SPEC_VERSION >= 24 */
 
 extern "C" {
 
@@ -37,6 +41,53 @@ extern "C" {
 void JNICALL
 Fast_java_lang_Object_wait(J9VMThread *currentThread, j9object_t receiverObject, jlong millis, jint nanos)
 {
+#if JAVA_SPEC_VERSION >= 24
+	J9JavaVM *vm = currentThread->javaVM;
+	J9InternalVMFunctions const * const vmFuncs = vm->internVMFunctions;
+	if (VM_ContinuationHelpers::isYieldableVirtualThread(currentThread)) {
+		VM_OutOfLineINL_Helpers::buildInternalNativeStackFrame(currentThread, currentThread->literals);
+		if (getObjectMonitorOwner(vm, receiverObject, NULL) == currentThread) {
+			UDATA newState = JAVA_LANG_VIRTUALTHREAD_WAITING;
+			if ((millis > 0) || (nanos > 0)) {
+				newState = JAVA_LANG_VIRTUALTHREAD_TIMED_WAITING;
+			}
+			/* Try to yield the virtual thread if it will be blocked. */
+			UDATA result = vmFuncs->preparePinnedVirtualThreadForUnmount(currentThread, receiverObject, true);
+			if (J9_OBJECT_MONITOR_OOM != result) {
+				/* Handle the virtual thread Object.wait call. */
+				J9VMJAVALANGVIRTUALTHREAD_SET_NOTIFIED(currentThread, currentThread->threadObject, JNI_FALSE);
+				/* VirtualThread.timeout is a private field used by both VM and JCL to temporarily hold
+				 * the value of expected wait/park time before a wake up task is scheduled using the value.
+				 */
+				J9VMJAVALANGVIRTUALTHREAD_SET_TIMEOUT(currentThread, currentThread->threadObject, millis + (nanos / 1000000));
+				J9VMJAVALANGVIRTUALTHREAD_SET_STATE(currentThread, currentThread->threadObject,newState);
+
+				if (JAVA_LANG_VIRTUALTHREAD_BLOCKING == newState) {
+					/* Add the thread object to the blocked list. */
+					omrthread_monitor_enter(vm->blockedVirtualThreadsMutex);
+					currentThread->currentContinuation->nextWaitingContinuation = vm->blockedContinuations;
+					vm->blockedContinuations = currentThread->currentContinuation;
+					omrthread_monitor_exit(vm->blockedVirtualThreadsMutex);
+				}
+
+				/* Store the current Continuation state and swap to the carrier thread stack. */
+				yieldContinuation(currentThread, FALSE, J9VM_CONTINUATION_RETURN_FROM_OBJECT_WAIT);
+				VM_OutOfLineINL_Helpers::restoreInternalNativeStackFrame(currentThread);
+
+				/* The return behavior will mimic that of continuation.enterImpl(), requiring the
+				 * boolean return value to be pushed.
+				 */
+				VM_OutOfLineINL_Helpers::returnSingle(currentThread, JNI_FALSE, 1);
+			} else {
+				setNativeOutOfMemoryError(currentThread, J9NLS_VM_FAILED_TO_ALLOCATE_MONITOR);
+			}
+		} else {
+			setCurrentException(currentThread, J9VMCONSTANTPOOL_JAVALANGILLEGALMONITORSTATEEXCEPTION, NULL);
+		}
+
+		return;
+	}
+#endif /* JAVA_SPEC_VERSION >= 24 */
 	if (0 == monitorWaitImpl(currentThread, receiverObject, (I_64)millis, (I_32)nanos, TRUE)) {
 		/* No need to check return value here - pop frames cannot occur as this method is native */
 		VM_VMHelpers::checkAsyncMessages(currentThread);
