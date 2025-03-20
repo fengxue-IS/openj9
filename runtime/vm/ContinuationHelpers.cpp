@@ -1136,6 +1136,7 @@ restart:
 			if (NULL == unblockedList) {
 				vmFuncs->internalExitVMToJNI(currentThread);
 				omrthread_monitor_wait(vm->blockedVirtualThreadsMutex);
+				printf("blockedVirtualThreadsMutex woken up\n");
 				vmFuncs->internalEnterVMFromJNI(currentThread);
 				goto restart;
 			} else {

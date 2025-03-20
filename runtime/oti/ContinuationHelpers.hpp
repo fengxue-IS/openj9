@@ -373,11 +373,12 @@ public:
 			if (notifyAll) {
 				prev->nextWaitingContinuation = vm->blockedContinuations;
 				objectMonitor->waitingContinuations = NULL;
+				vm->blockedContinuations = prev;
 			} else {
 				objectMonitor->waitingContinuations = head->nextWaitingContinuation;
 				head->nextWaitingContinuation = vm->blockedContinuations;
+				vm->blockedContinuations = head;
 			}
-			vm->blockedContinuations = head;
 			omrthread_monitor_notify(vm->blockedVirtualThreadsMutex);
 			printf("blockedVirtualThreadsMutex notified\n");
 		}
