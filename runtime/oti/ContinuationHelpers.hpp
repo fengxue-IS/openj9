@@ -352,7 +352,6 @@ public:
 			} else {
 				/* Set the notified and onWaitingList flags for virtual threads that have not been interrupted. */
 				J9VMJAVALANGVIRTUALTHREAD_SET_NOTIFIED(vmThread, current->vthread, JNI_TRUE);
-				J9VMJAVALANGVIRTUALTHREAD_SET_ONWAITINGLIST(vmThread, current->vthread, JNI_TRUE);
 				notified = true;
 
 				if (!notifyAll) {
