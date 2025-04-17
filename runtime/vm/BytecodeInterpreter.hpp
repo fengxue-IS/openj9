@@ -1221,6 +1221,7 @@ obj:
 			J9VMContinuation *continuation = _currentThread->currentContinuation;
 			if (NULL != continuation) {
 				if (J9_ARE_ALL_BITS_SET(continuation->runtimeFlags, J9VM_CONTINUATION_RUNTIMEFLAG_JVMTI_CONTENDED_MONITOR_ENTER_RECORDED)) {
+					VM_VMAccess::clearPublicFlags(_currentThread, J9_PUBLIC_FLAGS_THREAD_BLOCKED);
 					if (J9_EVENT_IS_HOOKED(_vm->hookInterface, J9HOOK_VM_MONITOR_CONTENDED_ENTERED)) {
 						J9ObjectMonitor *objectMonitor = monitorTableAt(_currentThread, obj);
 						ALWAYS_TRIGGER_J9HOOK_VM_MONITOR_CONTENDED_ENTERED(
@@ -1229,6 +1230,7 @@ obj:
 					}
 					/* Clear the runtime flag as contended monitor enter/entered events are already triggered. */
 					continuation->runtimeFlags &= ~J9VM_CONTINUATION_RUNTIMEFLAG_JVMTI_CONTENDED_MONITOR_ENTER_RECORDED;
+					J9VMTHREAD_SET_BLOCKINGENTEROBJECT(_currentThread, _currentThread, NULL);
 				}
 			}
 		}
@@ -1550,6 +1552,7 @@ obj:
 
 		if (JAVA_LANG_VIRTUALTHREAD_BLOCKING == newThreadState) {
 			if (J9_ARE_NO_BITS_SET(continuation->runtimeFlags, J9VM_CONTINUATION_RUNTIMEFLAG_JVMTI_CONTENDED_MONITOR_ENTER_RECORDED)) {
+				VM_VMAccess::setPublicFlags(currentThread, J9_PUBLIC_FLAGS_THREAD_BLOCKED);
 				if (J9_EVENT_IS_HOOKED(_vm->hookInterface, J9HOOK_VM_MONITOR_CONTENDED_ENTERED)) {
 					PORT_ACCESS_FROM_VMC(_currentThread);
 					continuation->startTicks = j9time_nano_time();
@@ -1584,6 +1587,9 @@ obj:
 		/* Enter critical transition after the prepare stage is complete and hooks dispatched. */
 		_vm->internalVMFunctions->enterVThreadTransitionCritical(_currentThread, (jobject)&_currentThread->threadObject);
 		VM_VMHelpers::virtualThreadHideFrames(_currentThread, JNI_TRUE);
+
+		/* Clear the blocking object on the carrier thread. */
+		J9VMTHREAD_SET_BLOCKINGENTEROBJECT(_currentThread, _currentThread, NULL);
 
 		/* Store the current Continuation state and swap to the carrier thread stack. */
 		yieldContinuation(_currentThread, FALSE, returnState);
@@ -5808,8 +5814,7 @@ ffi_OOM:
 			rc = GOTO_THROW_CURRENT_EXCEPTION;
 		}
 #if JAVA_SPEC_VERSION >= 24
-		j9object_t syncObject = J9VMJDKINTERNALVMCONTINUATION_BLOCKER(_currentThread, continuationObject);
-		J9VMJDKINTERNALVMCONTINUATION_SET_BLOCKER(_currentThread, continuationObject, NULL);
+		j9object_t syncObject = J9VMTHREAD_BLOCKINGENTEROBJECT(_currentThread, _currentThread);
 
 		switch (_currentThread->currentContinuation->returnState) {
 		case J9VM_CONTINUATION_RETURN_FROM_YIELD:
@@ -5826,6 +5831,7 @@ ffi_OOM:
 				monitor->count = continuation->waitingMonitorEnterCount;
 				_currentThread->ownedMonitorCount += monitor->count - 1;
 				continuation->waitingMonitorEnterCount = 0;
+				J9VMTHREAD_SET_BLOCKINGENTEROBJECT(_currentThread, _currentThread, NULL);
 
 				j9object_t threadObject = _currentThread->threadObject;
 				bool interrupted = J9VMJAVALANGTHREAD_DEADINTERRUPT(_currentThread, threadObject);

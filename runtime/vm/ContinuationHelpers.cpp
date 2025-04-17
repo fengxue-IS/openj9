@@ -923,6 +923,12 @@ preparePinnedVirtualThreadForMount(J9VMThread *currentThread, j9object_t continu
 	/* Add the attached monitor to the carrier thread's lockedmonitorcount. */
 	currentThread->osThread->lockedmonitorcount += monitorCount;
 	if (J9VM_CONTINUATION_RETURN_FROM_YIELD != currentThread->currentContinuation->returnState) {
+		j9object_t syncObject = J9VMJDKINTERNALVMCONTINUATION_BLOCKER(currentThread, continuationObject);
+		if (NULL != syncObject) {
+			/* Set the blocking object on carrier thread. */
+			J9VMJDKINTERNALVMCONTINUATION_SET_BLOCKER(_currentThread, continuationObject, NULL);
+			J9VMTHREAD_SET_BLOCKINGENTEROBJECT(currentThread, currentThread, syncObject);
+		}
 		VM_VMHelpers::virtualThreadHideFrames(currentThread, JNI_FALSE);
 		exitVThreadTransitionCritical(currentThread, (jobject)&currentThread->threadObject);
 	}
@@ -1132,12 +1138,9 @@ restart:
 	currentThread->osThread->lockedmonitorcount -= monitorCount;
 
 done:
-	if (NULL != syncObj) {
-		if (J9_OBJECT_MONITOR_YIELD_VIRTUAL != result) {
-			VM_VMHelpers::virtualThreadHideFrames(currentThread, JNI_FALSE);
-			exitVThreadTransitionCritical(currentThread, (jobject)&currentThread->threadObject);
-		}
-	}
+	/* If the Virtual thread will be yielding/exception, don't clear the blocking object. */
+	return result;
+
 success:
 	/* Clear the blocking object on the carrier thread. */
 	J9VMTHREAD_SET_BLOCKINGENTEROBJECT(currentThread, currentThread, NULL);
