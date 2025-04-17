@@ -5802,9 +5802,7 @@ ffi_OOM:
 
 		VMStructHasBeenUpdated(REGISTER_ARGS);
 
-		if (immediateAsyncPending()) {
-			rc = GOTO_ASYNC_CHECK;
-		} else if (VM_VMHelpers::exceptionPending(_currentThread)) {
+		if (VM_VMHelpers::exceptionPending(_currentThread)) {
 			rc = GOTO_THROW_CURRENT_EXCEPTION;
 		}
 #if JAVA_SPEC_VERSION >= 24
@@ -5854,6 +5852,10 @@ ffi_OOM:
 				} else {
 					returnVoidFromINL(REGISTER_ARGS, 4);
 				}
+			}
+
+			if (immediateAsyncPending()) {
+				rc = GOTO_ASYNC_CHECK;
 			}
 			break;
 		}
