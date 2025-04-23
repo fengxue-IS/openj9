@@ -30,7 +30,7 @@ getVMThreadFromOMRThread(J9JavaVM *vm, omrthread_t omrthread)
 {
 	J9VMThread *vmThread = NULL;
 
-	if ((NULL != omrthread) && (NULL != vm->omrVM) && (vm->omrVM->_vmThreadKey > 0)) {
+	if ((NULL != omrthread) && (0x1 != (UDATA)omrthread) && (NULL != vm->omrVM) && (vm->omrVM->_vmThreadKey > 0)) {
 		OMR_VMThread *omrVMThread = ((OMR_VMThread *)omrthread_tls_get(omrthread, vm->omrVM->_vmThreadKey));
 		if (NULL != omrVMThread) {
 			vmThread = (J9VMThread *)omrVMThread->_language_vmthread;
