@@ -781,6 +781,7 @@ detachMonitorInfo(J9VMThread *currentThread, j9object_t lockObject)
 
 	J9ThreadAbstractMonitor *monitor = (J9ThreadAbstractMonitor *)objectMonitor->monitor;
 	monitor->owner = (J9Thread *)J9_OBJECT_MONITOR_OWNER_DETACHED;
+	VM_AtomicSupport::readWriteBarrier();
 	objectMonitor->ownerContinuation = currentThread->currentContinuation;
 
 	return objectMonitor;
@@ -791,6 +792,7 @@ updateMonitorInfo(J9VMThread *currentThread, J9ObjectMonitor *objectMonitor)
 {
 	J9ThreadAbstractMonitor *monitor = (J9ThreadAbstractMonitor *)objectMonitor->monitor;
 	monitor->owner = currentThread->osThread;
+	VM_AtomicSupport::readWriteBarrier();
 	objectMonitor->ownerContinuation = NULL;
 }
 
@@ -1051,6 +1053,8 @@ restart:
 
 		if (vm->walkStackFrames(currentThread, &walkState) != J9_STACKWALK_RC_NONE) {
 			result = J9_OBJECT_MONITOR_OOM;
+			/* Store the detached entries for error handling. */
+			continuation->enteredMonitors = (J9ObjectMonitor*)walkState.userData1;
 			goto done;
 		}
 
@@ -1067,6 +1071,8 @@ restart:
 				J9ObjectMonitor *objectMonitor = detachMonitorInfo(currentThread, object);
 				if (NULL == objectMonitor) {
 					result = J9_OBJECT_MONITOR_OOM;
+					/* Store the detached entries for reverting update. */
+					continuation->enteredMonitors = enteredMonitorsList;
 					goto done;
 				}
 				objectMonitor->next = enteredMonitorsList;
@@ -1091,8 +1097,6 @@ restart:
 
 			/* Reset monitor entry count to 1.*/
 			monitor->count = 1;
-			/* Reset monitor state to pre-detach state so omrthread_monitor_exit behave correctly. */
-			monitor->owner = currentThread->osThread;
 			syncObjectMonitor->ownerContinuation = NULL;
 
 			/* Add Continuation struct to the monitor's waiting list. */
@@ -1116,6 +1120,17 @@ restart:
 	currentThread->osThread->lockedmonitorcount -= monitorCount;
 
 done:
+	if (J9_OBJECT_MONITOR_OOM == result) {
+		/* Revert monitor detach operations. */
+		J9ObjectMonitor *head = continuation->enteredMonitors;
+		while (NULL != head) {
+			updateMonitorInfo(currentThread, head);
+			J9ObjectMonitor *next = head->next;
+			head->next = NULL;
+			head = next;
+		}
+		continuation->enteredMonitors = NULL;
+	}
 	if (NULL != syncObj) {
 		if (J9_OBJECT_MONITOR_YIELD_VIRTUAL != result) {
 			VM_VMHelpers::virtualThreadHideFrames(currentThread, JNI_FALSE);
